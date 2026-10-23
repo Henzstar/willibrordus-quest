@@ -17,15 +17,20 @@
 
   <div class="hud" id="hud" hidden>
     <div><div class="lab">SPELER</div><div class="name" id="hudNaam">team</div></div>
+    <div><div class="lab">PUNTEN</div><div class="name" id="hudPunten">0</div></div>
     <div><div class="lab">KAARTEN</div><div class="name" id="hudKaarten">0 / 8</div></div>
     <button class="menu" id="menuBtn" type="button" aria-label="Menu">MENU</button>
     <div class="meter"><span class="lab">REGIE</span><div class="bar"><i id="hudBar"></i></div><span class="prof" id="hudProfiel"></span></div>
+    <div class="kompas" id="hudKompas"></div>
   </div>
 
   <div class="screen" id="screen" hidden>
-    <canvas id="kaart" width="256" height="160" aria-label="Kaart van het landgoed"></canvas>
+    <canvas id="kaart" width="176" height="176" aria-label="Kaart van het landgoed"></canvas>
     <div class="loc" id="loc"></div>
+    <button class="btn praat" id="praat" type="button" hidden>A · PRAAT</button>
   </div>
+
+  <div class="box hint" id="s-hint" hidden><p class="note" id="hintTekst"></p></div>
 
   <!-- Startscherm -->
   <div class="box" id="s-start">
@@ -41,7 +46,7 @@
     <label>Kies je avatar</label>
     <div class="avatars" id="avatars"></div>
     <button class="btn a" id="startBtn" type="button">▶ NIEUW SPEL</button>
-    <p class="note">Tik op de kaart om te lopen, of kies een bestemming. Eén telefoon per team; wissel per gebouw wie hem vasthoudt.</p>
+    <p class="note">Tik op de kaart om te lopen; bij een deur ga je naar binnen. Eén telefoon per team; wissel per gebouw wie hem vasthoudt.</p>
   </div>
 
   <!-- Dialoog -->
@@ -55,14 +60,12 @@
       <input type="text" id="dOpdrachtVeld" maxlength="60" placeholder="vijf woorden" autocomplete="off">
       <div class="teller" id="dOpdrachtTeller"></div>
     </div>
+    <div id="dArgument" hidden>
+      <input type="text" id="dArgumentVeld" maxlength="120" placeholder="één zin" autocomplete="off">
+      <div class="teller" id="dArgumentTeller"></div>
+    </div>
     <div class="choices" id="dKeuzes" hidden></div>
     <button class="btn a" id="dVerder" type="button">A · VERDER</button>
-  </div>
-
-  <!-- Waarheen -->
-  <div class="box" id="s-nav" hidden>
-    <span class="npc" id="navKop">WAARHEEN?</span>
-    <div class="dest" id="dest"></div>
   </div>
 
   <!-- Kaartenoverzicht -->
@@ -102,9 +105,10 @@
     <div class="profiel" id="eProfiel"></div>
     <div class="groot" id="eNaam"></div>
     <div class="cijfers">
+      <div class="cijfer"><b id="ePunten"></b><span>punten</span></div>
       <div class="cijfer"><b id="eRegie"></b><span>regie</span></div>
-      <div class="cijfer"><b id="eKaarten"></b><span>kaarten</span></div>
     </div>
+    <div class="scoretabel" id="eScore"></div>
     <div class="agendablok" id="eAgenda"></div>
     <div class="row rechts"><button class="btn a secundair" id="eVerderBtn" type="button" hidden>VERDER SPELEN</button><button class="btn a secundair" id="eAgendaBtn" type="button">AGENDA AANPASSEN</button><button class="btn a" id="opnieuwBtn" type="button">OPNIEUW</button></div>
     <div class="kaarten" id="eKaartenLijst"></div>
@@ -126,7 +130,13 @@
 
 <script src="./js/config.js"></script>
 <script src="./js/content.js"></script>
+<script src="./js/tiles.js"></script>
+<script src="./js/gebouwen.js"></script>
+<script src="./js/sprites.js"></script>
 <script src="./js/map.js"></script>
+<script src="./js/interior.js"></script>
+<script src="./js/minigames.js"></script>
+<script src="./js/score.js"></script>
 <script src="./js/sfx.js"></script>
 <script src="./js/ui.js"></script>
 <script src="./js/game.js"></script>

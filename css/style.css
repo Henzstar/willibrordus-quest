@@ -17,9 +17,10 @@ h2 { font-family: var(--display); font-size: 11px; line-height: 1.6; margin: 0; 
 .kop { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
 
 /* HUD */
-.hud { display: grid; grid-template-columns: 1fr auto auto; gap: 6px 12px; align-items: center; background: var(--panel); border: 2px solid var(--accent-strong); border-radius: 6px; padding: 8px 10px; font-size: 12px; }
+.hud { display: grid; grid-template-columns: 1fr auto auto auto; gap: 6px 12px; align-items: center; background: var(--panel); border: 2px solid var(--accent-strong); border-radius: 6px; padding: 8px 10px; font-size: 12px; }
 .hud .lab { font-family: var(--display); font-size: 8px; color: var(--muted); letter-spacing: .04em; }
-.hud .name { font-family: var(--display); font-size: 10px; color: var(--fg); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 40vw; }
+.hud .name { font-family: var(--display); font-size: 10px; color: var(--fg); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 30vw; }
+.hud .kompas { grid-column: 1 / -1; font-family: var(--display); font-size: 8px; color: var(--warn); line-height: 1.6; }
 .hud .menu { font-family: var(--display); font-size: 9px; color: var(--fg); background: var(--panel-2); border: 2px solid var(--accent); border-radius: 6px; padding: 10px 12px; min-height: 44px; cursor: pointer; }
 .meter { grid-column: 1 / -1; display: grid; grid-template-columns: auto 1fr auto; gap: 8px; align-items: center; }
 .bar { height: 12px; background: #0f1813; border: 2px solid var(--accent-strong); border-radius: 3px; overflow: hidden; }
@@ -29,6 +30,11 @@ h2 { font-family: var(--display); font-size: 11px; line-height: 1.6; margin: 0; 
 /* Kaart */
 .screen { position: relative; border: 3px solid var(--accent-strong); border-radius: 6px; background: #0f1813; overflow: hidden; display: flex; justify-content: center; }
 canvas { display: block; image-rendering: pixelated; image-rendering: crisp-edges; touch-action: manipulation; }
+.praat { position: absolute; right: 8px; bottom: 8px; width: auto; min-width: 0; min-height: 44px; padding: 10px 12px; font-size: 9px; background: var(--accent); color: var(--accent-strong); border-color: var(--fg); }
+.hint { padding: 8px 14px; }
+.scoretabel { display: flex; flex-direction: column; gap: 4px; }
+.scorerij { display: flex; justify-content: space-between; font-size: 14px; border-bottom: 1px solid var(--panel-2); padding: 4px 0; }
+.scorerij b { font-family: var(--display); font-size: 9px; color: var(--accent); }
 .loc { position: absolute; left: 8px; top: 8px; font-family: var(--display); font-size: 8px; color: #fff; background: rgba(15,24,19,.75); padding: 6px 8px; border-radius: 4px; pointer-events: none; max-width: calc(100% - 16px); }
 
 /* Boxen en knoppen */

@@ -2,11 +2,11 @@
 const WQUi = (() => {
   'use strict';
   const $ = id => document.getElementById(id);
-  const SCHERMEN = ['s-start', 's-dialoog', 's-nav', 's-kaarten', 's-zelfcheck', 's-agenda', 's-einde'];
+  const SCHERMEN = ['s-start', 's-hint', 's-dialoog', 's-kaarten', 's-zelfcheck', 's-agenda', 's-einde'];
   let typer = null, volleTekst = '', naTypen = null;
 
-  function toon(id) { SCHERMEN.forEach(s => { $(s).hidden = s !== id; }); if (id !== 's-dialoog' && id !== 's-nav') window.scrollTo(0, 0); }
-  function kaartZichtbaar(v) { $('screen').hidden = !v; $('hud').hidden = !v; }
+  function toon(id) { SCHERMEN.forEach(s => { $(s).hidden = s !== id; }); if (id && id !== 's-dialoog' && id !== 's-hint') window.scrollTo(0, 0); }
+  function kaartZichtbaar(v) { $('screen').hidden = !v; $('hud').hidden = !v; $('kopregel').hidden = v; }
   function el(tag, cls, tekst) { const e = document.createElement(tag); if (cls) e.className = cls; if (tekst != null) e.textContent = tekst; return e; }
 
   // ---------- typewriter ----------
@@ -21,7 +21,6 @@ const WQUi = (() => {
     }, 16);
   }
   function stopTypen() { if (typer) { clearInterval(typer); typer = null; } }
-  // Rondt het typen af. Geeft true als er nog getypt werd (dan telt de tik niet als "verder").
   function maakAf() {
     if (!typer) return false;
     stopTypen(); $('dTekst').textContent = volleTekst; const f = naTypen; naTypen = null; f && f(); return true;
@@ -32,22 +31,23 @@ const WQUi = (() => {
     opties = opties || {};
     toon('s-dialoog');
     $('dNpc').textContent = npc.naam.toUpperCase(); $('dRol').textContent = npc.rol || ''; $('dRol').hidden = !npc.rol;
-    $('dEffect').hidden = true; $('dKaart').hidden = true; $('dKeuzes').hidden = true; $('dOpdracht').hidden = true;
+    ['dEffect', 'dKaart', 'dKeuzes', 'dOpdracht', 'dArgument'].forEach(id => { $(id).hidden = true; });
     $('dVerder').hidden = !!opties.zonderKnop; $('dVerder').textContent = opties.knop || 'A · VERDER';
     typ(opties.tekst || '', opties.naTypen);
+    $('s-dialoog').scrollIntoView({ block: 'nearest' });
   }
   function keuzes(lijst, kies) {
     const box = $('dKeuzes'); box.innerHTML = ''; box.hidden = false;
     lijst.forEach((o, i) => {
-      const b = el('button', 'btn choice', o.tekst); b.type = 'button';
+      const b = el('button', 'btn choice', typeof o === 'string' ? o : o.tekst); b.type = 'button';
       b.addEventListener('click', () => { Array.from(box.children).forEach(c => { c.disabled = true; }); b.classList.add('gekozen'); kies(i, o); });
       box.appendChild(b);
     });
     box.lastChild.scrollIntoView({ block: 'nearest' });
   }
-  function effect(n) {
-    const e = $('dEffect'); e.textContent = (n > 0 ? '+' : '') + n + ' REGIE';
-    e.className = 'effect ' + (n > 0 ? 'up' : n < 0 ? 'down' : 'flat'); e.hidden = false;
+  function effect(punten, regie) {
+    const e = $('dEffect'); e.textContent = '+' + punten + ' PUNTEN · ' + (regie > 0 ? '+' : '') + regie + ' REGIE';
+    e.className = 'effect ' + (regie > 0 ? 'up' : regie < 0 ? 'down' : 'flat'); e.hidden = false;
   }
   function kaartHtml(kaart, nummer, totaal, klein) {
     const c = el('div', 'card' + (klein ? ' klein' : ''));
@@ -57,28 +57,23 @@ const WQUi = (() => {
     return c;
   }
   function kaart(k, nummer, totaal) { const d = $('dKaart'); d.innerHTML = ''; d.appendChild(kaartHtml(k, nummer, totaal)); d.hidden = false; }
-  function opdracht(max, waarde) {
-    const v = $('dOpdrachtVeld'); v.maxLength = max; v.value = waarde || ''; $('dOpdracht').hidden = false;
-    const tel = () => { $('dOpdrachtTeller').textContent = v.value.length + ' / ' + max; };
+  function veld(boxId, veldId, tellerId, max, waarde) {
+    const v = $(veldId); v.maxLength = max; v.value = waarde || ''; $(boxId).hidden = false;
+    const tel = () => { $(tellerId).textContent = v.value.length + ' / ' + max; };
     v.oninput = tel; tel(); setTimeout(() => v.focus(), 50);
   }
-  function opdrachtWaarde() { return $('dOpdrachtVeld').value.trim(); }
+  const opdracht = (max, waarde) => veld('dOpdracht', 'dOpdrachtVeld', 'dOpdrachtTeller', max, waarde);
+  const argument = (max, waarde) => veld('dArgument', 'dArgumentVeld', 'dArgumentTeller', max, waarde);
 
-  // ---------- HUD en navigatie ----------
-  function hud(naam, regie, kaarten, totaal, profiel) {
-    $('hudNaam').textContent = naam; $('hudKaarten').textContent = kaarten + ' / ' + totaal;
-    $('hudBar').style.width = regie + '%'; $('hudProfiel').textContent = profiel;
+  // ---------- HUD ----------
+  function hud(d) {
+    $('hudNaam').textContent = d.naam; $('hudPunten').textContent = d.punten; $('hudKaarten').textContent = d.kaarten + ' / ' + d.totaal;
+    $('hudBar').style.width = d.regie + '%'; $('hudProfiel').textContent = d.profiel;
+    $('hudKompas').textContent = d.kompas || '';
   }
   function locatie(tekst) { $('loc').textContent = tekst; }
-  function nav(locaties, bezocht, kies, kop) {
-    const d = $('dest'); d.innerHTML = ''; $('navKop').textContent = kop;
-    locaties.forEach(l => {
-      const klaar = bezocht(l.id);
-      const b = el('button', 'btn' + (klaar ? ' done' : ''), (klaar ? '✓ ' : '') + (l.kortenaam || l.naam)); b.type = 'button';
-      b.addEventListener('click', () => kies(l)); d.appendChild(b);
-    });
-    toon('s-nav');
-  }
+  function praatKnop(v) { $('praat').hidden = !v; }
+  function hint(tekst) { $('hintTekst').textContent = tekst; toon('s-hint'); }
 
   // ---------- start ----------
   function avatars(lijst, maakCanvas, gekozenId, kies) {
@@ -95,7 +90,7 @@ const WQUi = (() => {
     return { naam: $('naam').value.trim().slice(0, 20), modus: modus ? modus.value : 'team' };
   }
 
-  // ---------- lijsten met vinkjes of rondjes ----------
+  // ---------- lijsten ----------
   function vinkLijst(boxId, items, type, naam, gekozen, bij) {
     const box = $(boxId); box.innerHTML = '';
     items.forEach((tekst, i) => {
@@ -110,12 +105,18 @@ const WQUi = (() => {
     items.forEach(t => { const o = el('option', null, t); o.value = t; s.appendChild(o); });
     if (gekozen) s.value = gekozen;
   }
-  function kaartenLijst(boxId, kaarten, totaal) {
+  function kaartenLijst(boxId, kaarten, totaal, leegTekst) {
     const box = $(boxId); box.innerHTML = '';
     kaarten.forEach((k, i) => box.appendChild(kaartHtml(k, i + 1, totaal, true)));
-    if (!kaarten.length) box.appendChild(el('p', 'note', 'Nog geen kaarten. Bezoek een gebouw.'));
+    if (!kaarten.length) box.appendChild(el('p', 'note', leegTekst));
+  }
+  function scoreTabel(boxId, delen, labels, maxVoor) {
+    const box = $(boxId); box.innerHTML = '';
+    Object.keys(delen).forEach(k => {
+      const r = el('div', 'scorerij'); r.appendChild(el('span', null, labels[k])); r.appendChild(el('b', null, delen[k] + ' / ' + maxVoor(k))); box.appendChild(r);
+    });
   }
   function menu(open) { $('menu').hidden = !open; }
 
-  return { $, el, toon, kaartZichtbaar, typ, maakAf, isTypend: () => !!typer, dialoog, keuzes, effect, kaart, opdracht, opdrachtWaarde, hud, locatie, nav, avatars, startWaarden, vinkLijst, selectVul, kaartenLijst, menu };
+  return { $, el, toon, kaartZichtbaar, typ, maakAf, isTypend: () => !!typer, dialoog, keuzes, effect, kaart, opdracht, argument, hud, locatie, praatKnop, hint, avatars, startWaarden, vinkLijst, selectVul, kaartenLijst, scoreTabel, menu };
 })();
