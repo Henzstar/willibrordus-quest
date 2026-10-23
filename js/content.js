@@ -70,10 +70,10 @@ const CONTENT = {
   ],
 
   profielen: [
-    { min: 0, max: 34, naam: 'Speelbal' },
-    { min: 35, max: 64, naam: 'Meebeweger' },
-    { min: 65, max: 84, naam: 'Stuurman of Stuurvrouw' },
-    { min: 85, max: 100, naam: 'Kapitein' },
+    { min: 0, max: 34, naam: 'Speelbal', kort: 'Speelbal' },
+    { min: 35, max: 64, naam: 'Meebeweger', kort: 'Meebeweger' },
+    { min: 65, max: 84, naam: 'Stuurman of Stuurvrouw', kort: 'Stuurman/vrouw' },
+    { min: 85, max: 100, naam: 'Kapitein', kort: 'Kapitein' },
   ],
 
   regieStart: 50,
@@ -82,7 +82,7 @@ const CONTENT = {
   locaties: [
     {
       id: 'start', naam: 'Hoofdingang', functie: 'start', tegel: [14, 10], npcTegel: [13, 10],
-      npc: { naam: 'Bep', rol: 'portier', kleur: '#1d6b4f' },
+      npc: { naam: 'Bep', rol: 'portier', kleur: '#c9a24d' },
       intro: [
         'Welkom op het landgoed. Je loopt vanavond langs acht gebouwen. Overal wacht een keuze. Je regie-meter laat zien of je stuurt, of gestuurd wordt.',
         'Kies je bestemming op de kaart. Wissel per gebouw wie de telefoon vasthoudt; de anderen eten.',
@@ -255,6 +255,10 @@ const CONTENT = {
     naAlleKaarten: 'Acht kaarten. Nog twee stappen: de zelfcheck en de agenda.',
     waarheen: 'Waarheen?',
     onderweg: 'Onderweg',
+    landgoed: 'Landgoed',
+    wissen: 'Alles wissen en opnieuw beginnen?',
+    agendaLeeg: 'Vul beide vragen in, of kies iets uit de lijst.',
+    nogGeenKaarten: 'Nog geen kaarten. Bezoek een gebouw.',
   },
 
   zelfcheck: {

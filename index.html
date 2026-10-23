@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#15201a">
+<title>Willibrordus Quest</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap">
+<link rel="stylesheet" href="./css/style.css">
+</head>
+<body>
+<div class="wrap">
+  <div class="kop" id="kopregel">
+    <div><h1 id="titel">Willibrordus Quest</h1><p class="sub" id="ondertitel">Wie stuurt?</p></div>
+  </div>
+
+  <div class="hud" id="hud" hidden>
+    <div><div class="lab">SPELER</div><div class="name" id="hudNaam">team</div></div>
+    <div><div class="lab">KAARTEN</div><div class="name" id="hudKaarten">0 / 8</div></div>
+    <button class="menu" id="menuBtn" type="button" aria-label="Menu">MENU</button>
+    <div class="meter"><span class="lab">REGIE</span><div class="bar"><i id="hudBar"></i></div><span class="prof" id="hudProfiel"></span></div>
+  </div>
+
+  <div class="screen" id="screen" hidden>
+    <canvas id="kaart" width="256" height="160" aria-label="Kaart van het landgoed"></canvas>
+    <div class="loc" id="loc"></div>
+  </div>
+
+  <!-- Startscherm -->
+  <div class="box" id="s-start">
+    <span class="npc">BEP · PORTIER</span>
+    <div class="text kort" id="startTekst">Welkom op het landgoed.</div>
+    <button class="btn" id="verderBtn" type="button" hidden>▶ VERDER SPELEN</button>
+    <label for="naam">Naam van je team (of van jezelf)</label>
+    <input type="text" id="naam" maxlength="20" placeholder="bijv. Tafel 3" autocomplete="off" enterkeyhint="done">
+    <div class="row">
+      <label class="pill"><input type="radio" name="modus" value="team" checked> Als team</label>
+      <label class="pill"><input type="radio" name="modus" value="solo"> Alleen</label>
+    </div>
+    <label>Kies je avatar</label>
+    <div class="avatars" id="avatars"></div>
+    <button class="btn a" id="startBtn" type="button">▶ NIEUW SPEL</button>
+    <p class="note">Tik op de kaart om te lopen, of kies een bestemming. Eén telefoon per team; wissel per gebouw wie hem vasthoudt.</p>
+  </div>
+
+  <!-- Dialoog -->
+  <div class="box" id="s-dialoog" hidden>
+    <span class="npc" id="dNpc"></span>
+    <span class="npc role" id="dRol"></span>
+    <div class="text" id="dTekst"></div>
+    <div id="dEffect" class="effect" hidden></div>
+    <div id="dKaart" hidden></div>
+    <div id="dOpdracht" hidden>
+      <input type="text" id="dOpdrachtVeld" maxlength="60" placeholder="vijf woorden" autocomplete="off">
+      <div class="teller" id="dOpdrachtTeller"></div>
+    </div>
+    <div class="choices" id="dKeuzes" hidden></div>
+    <button class="btn a" id="dVerder" type="button">A · VERDER</button>
+  </div>
+
+  <!-- Waarheen -->
+  <div class="box" id="s-nav" hidden>
+    <span class="npc" id="navKop">WAARHEEN?</span>
+    <div class="dest" id="dest"></div>
+  </div>
+
+  <!-- Kaartenoverzicht -->
+  <div class="box" id="s-kaarten" hidden>
+    <h2>Moet-weten-kaarten</h2>
+    <div class="kaarten" id="kaartenLijst"></div>
+    <button class="btn a" id="kaartenTerug" type="button">A · TERUG</button>
+  </div>
+
+  <!-- Zelfcheck -->
+  <div class="box" id="s-zelfcheck" hidden>
+    <h2>Zelfcheck</h2>
+    <div class="text kort" id="zcVraag"></div>
+    <div class="lijst" id="zcLijst"></div>
+    <p class="note" id="zcNa" hidden></p>
+    <div class="row rechts"><button class="btn a" id="zcVerder" type="button">A · VERDER</button></div>
+  </div>
+
+  <!-- Agenda -->
+  <div class="box" id="s-agenda" hidden>
+    <h2>Agenda</h2>
+    <div class="text kort" id="agZelfVraag"></div>
+    <div class="lijst" id="agZelfLijst"></div>
+    <input type="text" id="agZelfVrij" maxlength="120" placeholder="of in eigen woorden (max 120 tekens)" autocomplete="off">
+    <div class="text kort" id="agOrgVraag"></div>
+    <div class="lijst" id="agOrgLijst"></div>
+    <input type="text" id="agOrgVrij" maxlength="120" placeholder="of in eigen woorden" autocomplete="off">
+    <label for="agEigenaar">Eigenaar</label>
+    <select id="agEigenaar"></select>
+    <p class="note" id="agFout" hidden></p>
+    <div class="row rechts"><button class="btn a secundair" id="agTerug" type="button">TERUG</button><button class="btn a" id="agKlaar" type="button">A · KLAAR</button></div>
+  </div>
+
+  <!-- Einde -->
+  <div class="box einde" id="s-einde" hidden>
+    <h2>Je profiel</h2>
+    <div class="profiel" id="eProfiel"></div>
+    <div class="groot" id="eNaam"></div>
+    <div class="cijfers">
+      <div class="cijfer"><b id="eRegie"></b><span>regie</span></div>
+      <div class="cijfer"><b id="eKaarten"></b><span>kaarten</span></div>
+    </div>
+    <div class="agendablok" id="eAgenda"></div>
+    <div class="row rechts"><button class="btn a secundair" id="eVerderBtn" type="button" hidden>VERDER SPELEN</button><button class="btn a secundair" id="eAgendaBtn" type="button">AGENDA AANPASSEN</button><button class="btn a" id="opnieuwBtn" type="button">OPNIEUW</button></div>
+    <div class="kaarten" id="eKaartenLijst"></div>
+  </div>
+
+  <!-- Menu -->
+  <div class="sheet" id="menu" hidden>
+    <div class="box">
+      <h2>Menu</h2>
+      <button class="btn" id="mKaarten" type="button">KAARTEN</button>
+      <button class="btn" id="mZelfcheck" type="button">ZELFCHECK</button>
+      <button class="btn" id="mAgenda" type="button">AGENDA</button>
+      <button class="btn" id="mGeluid" type="button">GELUID: UIT</button>
+      <button class="btn secundair" id="mOpnieuw" type="button">OPNIEUW BEGINNEN</button>
+      <button class="btn a" id="mSluit" type="button">SLUITEN</button>
+    </div>
+  </div>
+</div>
+
+<script src="./js/config.js"></script>
+<script src="./js/content.js"></script>
+<script src="./js/map.js"></script>
+<script src="./js/sfx.js"></script>
+<script src="./js/ui.js"></script>
+<script src="./js/game.js"></script>
+</body>
+</html>

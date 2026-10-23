@@ -90,12 +90,12 @@ const WQMap = (() => {
   function drawLabel(c, straat) {
     const [x, y] = straat.tegel;
     c.save();
-    c.font = '7px "Press Start 2P", monospace';
+    c.font = '5px "Press Start 2P", monospace';
     c.textBaseline = 'middle';
     const w = c.measureText(straat.naam).width + 6;
     if (straat.richting === 'v') { c.translate(x * T + 8, y * T); c.rotate(Math.PI / 2); }
     else c.translate(x * T, y * T + 8);
-    c.fillStyle = 'rgba(15,24,19,.55)'; c.fillRect(0, -5, w, 10);
+    c.fillStyle = 'rgba(15,24,19,.45)'; c.fillRect(0, -4, w, 8);
     c.fillStyle = PAL.wit; c.fillText(straat.naam, 3, 1);
     c.restore();
   }
