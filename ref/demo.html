@@ -1,0 +1,365 @@
+<title>Willibrordus Quest</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap">
+<style>
+  /* Layout: één kolom, telefoon-eerst. Boven HUD, dan de kaart (camera volgt de held), daaronder dialoog en keuzes. */
+  :root {
+    --bg: #15201a; --panel: #1f2e26; --panel-2: #27382f; --fg: #eef3ee; --muted: #9fb3a6;
+    --accent: #7bb661; --accent-strong: #1d6b4f; --warn: #e0a84a; --bad: #d65a4a; --card: #fff7cc; --card-fg: #1a1f1c;
+    --display: 'Press Start 2P', 'Courier New', monospace;
+    --body: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    color-scheme: dark;
+  }
+  html, body { height: 100%; }
+  [hidden] { display: none !important; }
+  body { background: var(--bg); color: var(--fg); font-family: var(--body); margin: 0; }
+  .wrap { max-width: 560px; margin: 0 auto; padding-block: 10px 24px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); display: flex; flex-direction: column; gap: 10px; }
+  h1 { font-family: var(--display); font-size: 18px; line-height: 1.5; margin: 0; color: var(--accent); text-wrap: balance; }
+  .sub { color: var(--muted); font-size: 14px; margin: 0; }
+  .hud { display: grid; grid-template-columns: 1fr auto; gap: 6px 12px; align-items: center; background: var(--panel); border: 2px solid var(--accent-strong); border-radius: 6px; padding: 8px 10px; font-size: 12px; }
+  .hud .lab { font-family: var(--display); font-size: 8px; color: var(--muted); letter-spacing: .04em; }
+  .hud .name { font-family: var(--display); font-size: 10px; color: var(--fg); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .meter { grid-column: 1 / -1; display: grid; grid-template-columns: auto 1fr auto; gap: 8px; align-items: center; }
+  .bar { height: 12px; background: #0f1813; border: 2px solid var(--accent-strong); border-radius: 3px; overflow: hidden; }
+  .bar i { display: block; height: 100%; background: var(--accent); width: 50%; transition: width .4s; }
+  .prof { font-family: var(--display); font-size: 8px; color: var(--accent); white-space: nowrap; }
+  .screen { position: relative; border: 3px solid var(--accent-strong); border-radius: 6px; background: #0f1813; overflow: hidden; }
+  canvas { display: block; width: 100%; height: auto; image-rendering: pixelated; image-rendering: crisp-edges; touch-action: manipulation; }
+  .loc { position: absolute; left: 8px; top: 8px; font-family: var(--display); font-size: 8px; color: #fff; background: rgba(15,24,19,.75); padding: 6px 8px; border-radius: 4px; pointer-events: none; }
+  .box { background: var(--panel); border: 2px solid var(--accent-strong); border-radius: 6px; padding: 12px 14px; display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+  .npc { display: inline-block; font-family: var(--display); font-size: 8px; color: var(--accent-strong); background: var(--accent); padding: 5px 8px; border-radius: 4px; align-self: flex-start; }
+  .npc.role { background: transparent; color: var(--muted); padding-left: 0; }
+  .text { font-size: 17px; line-height: 1.45; min-height: 3.2em; }
+  .btn { font-family: var(--display); font-size: 9px; line-height: 1.6; color: var(--fg); background: var(--panel-2); border: 2px solid var(--accent); border-radius: 6px; padding: 12px 14px; text-align: left; cursor: pointer; width: 100%; min-height: 48px; }
+  .btn:hover, .btn:focus-visible { background: var(--accent-strong); outline: none; }
+  .btn.a { text-align: center; align-self: flex-end; width: auto; min-width: 120px; }
+  .choices { display: flex; flex-direction: column; gap: 8px; }
+  .choice { font-family: var(--body); font-size: 16px; line-height: 1.4; }
+  .effect { font-family: var(--display); font-size: 10px; padding: 6px 10px; border-radius: 4px; align-self: flex-start; }
+  .effect.up { background: var(--accent); color: var(--accent-strong); }
+  .effect.down { background: var(--bad); color: #fff; }
+  .effect.flat { background: var(--warn); color: #3a2a06; }
+  .card { background: var(--card); color: var(--card-fg); border: 3px solid var(--accent-strong); border-radius: 8px; padding: 12px 14px; display: flex; flex-direction: column; gap: 6px; box-shadow: 4px 4px 0 var(--accent-strong); }
+  .card .kop { font-family: var(--display); font-size: 8px; color: var(--accent-strong); }
+  .card h3 { margin: 0; font-size: 17px; line-height: 1.3; }
+  .card p { margin: 0; font-size: 15px; line-height: 1.45; }
+  .card .bron { font-size: 12px; color: #5b6660; }
+  .dest { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .dest .btn { font-size: 8px; min-height: 52px; }
+  .dest .btn.done { border-color: var(--muted); color: var(--muted); }
+  label { font-size: 14px; color: var(--muted); }
+  input[type=text] { font: 16px var(--body); padding: 10px 12px; border: 2px solid var(--accent-strong); border-radius: 6px; background: #0f1813; color: var(--fg); width: 100%; box-sizing: border-box; }
+  .row { display: flex; gap: 8px; flex-wrap: wrap; }
+  .pill { font-size: 14px; display: flex; align-items: center; gap: 6px; }
+  .note { font-size: 13px; color: var(--muted); margin: 0; }
+  @media (prefers-reduced-motion: reduce) { .bar i { transition: none; } }
+</style>
+
+<div class="wrap">
+  <div>
+    <h1>Willibrordus Quest</h1>
+    <p class="sub">Wie stuurt? Demo van de stijl: drie van de acht gebouwen werken.</p>
+  </div>
+
+  <div class="hud" id="hud" hidden>
+    <div><div class="lab">SPELER</div><div class="name" id="hudName">team</div></div>
+    <div><div class="lab">KAARTEN</div><div class="name" id="hudCards">0 / 8</div></div>
+    <div class="meter"><span class="lab">REGIE</span><div class="bar"><i id="bar"></i></div><span class="prof" id="prof">Meebeweger</span></div>
+  </div>
+
+  <div class="screen" id="screen" hidden>
+    <canvas id="c" width="256" height="176" aria-label="Kaart van het landgoed"></canvas>
+    <div class="loc" id="loc">Hoofdingang</div>
+  </div>
+
+  <div class="box" id="start">
+    <span class="npc">BEP · PORTIER</span>
+    <div class="text">Welkom op het landgoed. Je loopt vanavond langs acht plekken. Overal wacht een keuze. Je regie-meter laat zien of je stuurt, of gestuurd wordt.</div>
+    <label for="naam">Naam van je team (of van jezelf)</label>
+    <input type="text" id="naam" maxlength="20" placeholder="bijv. Tafel 3" autocomplete="off">
+    <div class="row">
+      <label class="pill"><input type="radio" name="modus" id="modusTeam" checked> Als team</label>
+      <label class="pill"><input type="radio" name="modus" id="modusSolo"> Alleen</label>
+    </div>
+    <button class="btn a" id="startBtn">▶ START</button>
+    <p class="note">Tik op de kaart om te lopen, of kies een bestemming. Eén telefoon per team; wissel per plek wie hem vasthoudt.</p>
+  </div>
+
+  <div class="box" id="dialog" hidden>
+    <span class="npc" id="dNpc">BEP</span>
+    <span class="npc role" id="dRole">portier</span>
+    <div class="text" id="dText"></div>
+    <div id="dEffect" class="effect" hidden></div>
+    <div id="dCard" hidden></div>
+    <div class="choices" id="dChoices" hidden></div>
+    <button class="btn a" id="dNext">A · VERDER</button>
+  </div>
+
+  <div class="box" id="nav" hidden>
+    <span class="npc">WAARHEEN?</span>
+    <div class="dest" id="dest"></div>
+  </div>
+</div>
+
+<script>
+(() => {
+'use strict';
+const MAP = `================================================
+..WWWWWWWWWWWWWWWWWWWWWWWWWWWWW.........=..FFFF=
+....................SSSSSSSSSFFFF...TTT.=..FFFF=
+......BBB.BBB.BBBB..SNNSSNNSSFFFFBBBBTT.=..FFFF=
+.......BBBBB..B..B..SNNNNNNSSFFFFBBBB.GGGG.FFFF=
+......BBB.BBB.B..B..SNNSSNNSSFFFFBBBB.GGGG.FFFF=
+..............BBBB..SSSSSSSSSFFFF.....GGGG.....=
+......==========================================
+......=BBB..PPPPPPTTTTTTBBB........TTTTT-TTTTTT=
+..BBTTTBBB..PPPPPPTTTTTTBBB-.......TTTBBBBTTTTT=
+..BBTTT--------------------T-TTTTTTTTTBBBBTTTTT=
+..BBTTTTTT-.TTTT-..BBBBBTTTTT-TTTTTTTTBBBBTTTTT=
+.WBBTTTTTT-.TTTT-..BBBBBTTTTTT-TTTTTTTTTTTTTTTT=
+.WBBKKK----TTTTT-.TTTTT.TTTTTTT----TTTTTTTTTTTT=
+..BBKKKTTT-TTTTT-.TTTTT..TTTBBBBBB-.FFFFFFTTTTT=
+..BBBTTTTT-TTTTT-.TTTTT..TTTB.BBBB-.FFFFFFTTTTT=
+..BBTTTTTT-TTTTT-.TTTTT..TTTBBBBBB-.FFFFFFTTTTT=
+..TTTTTTTT--------------------BBBB-.FFFFFFTTTTT=
+..TTTTTTTTTTTTT..........TTT......-.FFFFFFTTTTT=
+..TTTTTTTTTTTTTBBB....WWWWWWWWWWWWWWWWWWW.TTTTT=
+...............BBB....B..B..B..B..B..B..B.TBTTT=
+=====================..........................=`.split('\n');
+const MW = 48, MH = 22, T = 16, VW = 16, VH = 11;
+const WALK = new Set(['=', '-', '.', 'P', 'S']);
+const PAL = { '.': '#7bb661', g2: '#5e9a4a', '-': '#d9c38a', p2: '#c4ad77', '=': '#6b7280', r2: '#9aa3ad', W: '#5aa7d6', w2: '#8cc5e8', T: '#3f7d3a', t2: '#5aa35a', trunk: '#6b4a2b', roof: '#8b5e3c', roof2: '#6e4a2f', wall: '#e8dcc5', wall2: '#c9b89b', S: '#e0cfa0', s2: '#cdb985', N: '#f4f1ea', n2: '#cfcac0', G: '#dbe8f0', g3: '#b8ccd8', F: '#a9b46a', f2: '#8f9a52', K: '#c9a24d', k2: '#a8843a', P: '#9aa3ad', win: '#5aa7d6', ink: '#1a1f1c' };
+
+const SPR = { k: '#1a1f1c', s: '#f1c9a5', h: '#6b4a2b', c: null, p: '#3b3f4a', w: '#ffffff' };
+const HERO = [
+`......kkkk......
+.....khhhhk.....
+....khhhhhhk....
+....khsssshk....
+....kskssksk....
+....kssssssk....
+.....kssssk.....
+....kkccccck....
+...kccccccccck..
+...kckccccckck..
+...ksckccckcsk..
+....kccccccck...
+....kppkkppk....
+....kppk.kppk...
+....kkkk.kkkk...
+................`,
+`......kkkk......
+.....khhhhk.....
+....khhhhhhk....
+....khsssshk....
+....kskssksk....
+....kssssssk....
+.....kssssk.....
+....kkccccck....
+...kccccccccck..
+...kckccccckck..
+...ksckccckcsk..
+....kccccccck...
+....kppkkppk....
+...kppk...kppk..
+...kkkk...kkkk..
+................`].map(s => s.split('\n'));
+
+// Locaties: tegel = begaanbare tegel naast het gebouw; npc staat op de tegel ernaast.
+const LOCS = [
+  { id: 'start', naam: 'Hoofdingang', tegel: [14, 10], npcAt: [13, 9], npc: 'Bep', rol: 'portier', kleur: '#1d6b4f', lijn: 'Alles begint bij de parkeerplaats. Kies een gebouw.' },
+  { id: 'keuken', naam: 'Keuken met Karakter', tegel: [8, 10], npcAt: [9, 10], npc: 'Sam', rol: 'aios, bord bitterballen', kleur: '#2b6cb0', scene: 'keuken' },
+  { id: 'olvendijk', naam: 'De Olvendijk', tegel: [21, 10], npcAt: [22, 10], npc: 'Fatima', rol: 'functionaris gegevensbescherming', kleur: '#7a3e9d', lijn: 'Dit gebouw doet mee in de volledige game: het dossier gaat de deur niet uit.' },
+  { id: 'kliniek', naam: 'Olvendijk 79', tegel: [27, 17], npcAt: [26, 17], npc: 'Willem', rol: 'cliënt', kleur: '#8a6d3b', lijn: 'Dit gebouw doet mee in de volledige game: Willem vraagt wat dat ding doet.' },
+  { id: 'venne', naam: 'De Hooge Venne', tegel: [27, 9], npcAt: [28, 9], npc: 'Nadia', rol: 'forensisch psycholoog', kleur: '#b5443a', scene: 'venne' },
+  { id: 'koepel', naam: 'Cultuurkoepel', tegel: [7, 13], npcAt: [8, 13], npc: 'Henk', rol: 'voorzitter stuurgroep', kleur: '#4a4a4a', scene: 'koepel' },
+  { id: 'kwekerij', naam: 'Kwekerij', tegel: [40, 8], npcAt: [39, 8], npc: 'Joop', rol: 'medewerker kwekerij', kleur: '#2f7d32', lijn: 'Dit gebouw doet mee in de volledige game: hier groeit bekwaamheid.' },
+  { id: 'hic', naam: 'Nieuwbouw HIC', tegel: [24, 6], npcAt: [23, 6], npc: 'Jij, 2030', rol: 'helm op', kleur: '#e0a84a', lijn: 'Dit gebouw doet mee in de volledige game: het is 2030 en het EPD ligt eruit.' },
+];
+
+const SCENES = {
+  keuken: {
+    intro: ['Acht gesprekken gehad, nul rapportages geschreven. Het is 17.30 uur. Jij ook?'],
+    vraag: 'Hoe krijg je de rapportages vanavond af?',
+    opties: [
+      { t: 'Na het eten alles uit het hoofd tikken.', e: -10, g: 'Om 19.40 uur klaar. Twee gesprekken zijn al vervaagd, de verzekeraar leest later "medicatie besproken".' },
+      { t: 'Spraakgestuurd rapporteren gebruiken en de samenvatting nalezen voordat je tekent.', e: 10, g: 'Om 18.05 uur klaar. Je haalt twee verkeerde interpretaties uit de samenvatting. Dat is precies je werk.' },
+      { t: 'Vragen of de verpleegkundig specialist het voor je doet.', e: 0, g: 'Taken kun je herschikken, verantwoordelijkheid niet. En de VS heeft ook acht gesprekken gehad.' },
+    ],
+    kaart: { titel: 'Werklast begint bij de registratie.', tekst: 'Spraakgestuurd rapporteren bij GGZ NHN: in de startfase ervaart een ruime meerderheid van de behandelaren meer werkplezier. Een AI-samenvatting is een concept. Jij leest, corrigeert en tekent.', bron: 'GGZ NHN, startfase spraakgestuurd rapporteren 2026' },
+  },
+  venne: {
+    intro: ['Welkom in de forensische kliniek. Hier beslissen we over vrijheid.', 'Sinds kort helpt een algoritme mee met de risicotaxatie. Het zegt vandaag: hoog risico op recidive.'],
+    vraag: 'De rechter wil morgen jouw advies. Wat doe je?',
+    opties: [
+      { t: 'Overnemen. Het model heeft duizenden dossiers gezien.', e: -10, g: 'Je weet niet op welke populatie het model is getraind, en of het ooit is gevalideerd op mensen zoals hier. Je advies is nu het advies van een leverancier.' },
+      { t: 'Negeren. Risicotaxatie is klinisch werk.', e: 0, g: 'Kan. Maar als het model structureel onzin zegt, hoort iemand dat te melden. Ook negeren is een keuze.' },
+      { t: 'Wegen tegen je eigen taxatie, en in het advies uitleggen waarom je meegaat of afwijkt.', e: 10, g: 'De rechter krijgt een advies met een mens erachter, en een spoor van hoe het tot stand kwam.' },
+    ],
+    kaart: { titel: 'Een algoritme dat beslissingen ondersteunt, is een medisch hulpmiddel.', tekst: 'Vraag altijd drie dingen: op welke populatie is het gevalideerd, wat is het beoogd gebruik, en hoe meld ik fouten. Jij blijft verantwoordelijk.', bron: 'MDR (EU 2017/745); FMS competentieset 2026, competentie 2 en 3' },
+  },
+  koepel: {
+    intro: ['Hier werd vroeger gebeden. Nu vergaderen we.', 'Over elk digitaal initiatief in deze organisatie wordt ergens besloten. De vraag is of jij aan die tafel zit.'],
+    vraag: 'Je team wil zelf een AI-abonnement afsluiten om sneller te werken. Wat doe je?',
+    opties: [
+      { t: 'Gewoon doen. Vragen is vertragen.', e: -10, g: 'Over drie maanden hebben vijf teams vijf tools, geen verwerkersovereenkomst en niemand die weet wat er met de data gebeurt.' },
+      { t: 'Het initiatief aanmelden bij de stuurgroep digitalisering, via de CMIO of de staf.', e: 10, g: 'Het duurt zes weken. Daarna mag het, met afspraken, en twee andere teams kunnen het meteen ook gebruiken.' },
+      { t: 'Wachten tot het bestuur iets regelt.', e: -10, g: 'Dit is de speelbal-optie. Er gebeurt iets, zonder jou.' },
+    ],
+    kaart: { titel: 'Regie is een plek aan tafel, plus iets te zeggen hebben.', tekst: 'Bij GGZ NHN loopt elk digitaal of AI-initiatief via de stuurgroep digitalisering. De medische staf zit daar aan tafel via de CMIO. Jouw route: zeg het tegen je vertegenwoordiger.', bron: 'GGZ NHN, governance digitalisering' },
+  },
+};
+
+// ---------- state ----------
+const S = { naam: 'team', regie: 50, kaarten: new Set(), hero: { x: 14, y: 10, px: 14 * T, py: 10 * T, dir: 1 }, path: [], moving: false, stepT: 0, frame: 0, target: null, busy: false, t: 0 };
+const $ = id => document.getElementById(id);
+const cv = $('c'), ctx = cv.getContext('2d');
+ctx.imageSmoothingEnabled = false;
+
+// ---------- tiles ----------
+function tileAt(x, y) { return (y < 0 || y >= MH || x < 0 || x >= MW) ? 'T' : MAP[y][x]; }
+function drawTile(ch, x, y, sx, sy) {
+  const r = (a, b, w, h, c) => { ctx.fillStyle = c; ctx.fillRect(sx + a, sy + b, w, h); };
+  const above = tileAt(x, y - 1), left = tileAt(x - 1, y), right = tileAt(x + 1, y);
+  r(0, 0, T, T, PAL['.']);
+  if (ch === '.') { if ((x * 7 + y * 13) % 5 === 0) r(4, 6, 2, 1, PAL.g2); if ((x * 3 + y * 11) % 7 === 0) r(10, 11, 1, 2, PAL.g2); }
+  else if (ch === 'T') { r(7, 10, 2, 5, PAL.trunk); ctx.fillStyle = PAL.T; ctx.beginPath(); ctx.arc(sx + 8, sy + 7, 6, 0, 7); ctx.fill(); r(5, 4, 2, 2, PAL.t2); r(4, 7, 1, 1, PAL.t2); }
+  else if (ch === '=') { r(0, 0, T, T, PAL['=']); if (left === '=' || right === '=') r(2, 7, 5, 2, PAL.r2); else r(7, 2, 2, 5, PAL.r2); }
+  else if (ch === '-') { r(0, 0, T, T, PAL['-']); r(3, 4, 2, 1, PAL.p2); r(10, 11, 2, 1, PAL.p2); r(12, 3, 1, 1, PAL.p2); }
+  else if (ch === 'W') { r(0, 0, T, T, PAL.W); const o = Math.floor(S.t / 20) % 4; r((2 + o) % 16, 4, 5, 1, PAL.w2); r((9 + o) % 16, 11, 4, 1, PAL.w2); }
+  else if (ch === 'S') { r(0, 0, T, T, PAL.S); r(3, 3, 1, 1, PAL.s2); r(11, 8, 2, 1, PAL.s2); r(6, 13, 1, 1, PAL.s2); }
+  else if (ch === 'F') { r(0, 0, T, T, PAL.F); for (let i = 1; i < 16; i += 4) r(i, 0, 1, T, PAL.f2); }
+  else if (ch === 'P') { r(0, 0, T, T, PAL.P); r(0, 7, T, 1, '#e6e9ec'); r(7, 0, 1, T, '#e6e9ec'); }
+  else if (ch === 'B' || ch === 'N' || ch === 'G' || ch === 'K') {
+    const roofTop = above !== ch;
+    if (ch === 'K') { r(0, 0, T, T, roofTop ? PAL['.'] : PAL.K); if (roofTop) { ctx.fillStyle = PAL.K; ctx.beginPath(); ctx.arc(sx + 8, sy + 16, 9, Math.PI, 0); ctx.fill(); r(3, 15, 10, 1, PAL.k2); } else { r(0, 0, T, 2, PAL.k2); r(6, 6, 4, 5, PAL.win); } return; }
+    const roof = ch === 'B' ? PAL.roof : ch === 'N' ? '#e8e3d8' : '#c7dbe7';
+    const roof2 = ch === 'B' ? PAL.roof2 : ch === 'N' ? PAL.n2 : PAL.g3;
+    const wall = ch === 'B' ? PAL.wall : ch === 'N' ? PAL.N : PAL.G;
+    if (roofTop) { r(0, 0, T, T, roof); r(0, 0, T, 3, roof2); r(0, 14, T, 2, roof2); }
+    else { r(0, 0, T, T, wall); r(3, 4, 3, 5, PAL.win); r(10, 4, 3, 5, PAL.win); r(0, 14, T, 2, PAL.wall2); if (ch === 'G') { r(0, 8, T, 1, PAL.g3); r(8, 0, 1, T, PAL.g3); } }
+  }
+}
+function drawSprite(frames, f, sx, sy, coat, flip) {
+  const rows = frames[f];
+  for (let y = 0; y < 16; y++) { const row = rows[y] || ''; for (let x = 0; x < 16; x++) { const ch = row[x]; if (!ch || ch === '.') continue; const c = ch === 'c' ? coat : SPR[ch]; if (!c) continue; ctx.fillStyle = c; ctx.fillRect(sx + (flip ? 15 - x : x), sy + y, 1, 1); } }
+}
+
+// ---------- camera & render ----------
+function render() {
+  S.t++;
+  const camX = Math.max(0, Math.min(MW * T - VW * T, S.hero.px - VW * T / 2 + 8));
+  const camY = Math.max(0, Math.min(MH * T - VH * T, S.hero.py - VH * T / 2 + 8));
+  const tx0 = Math.floor(camX / T), ty0 = Math.floor(camY / T);
+  for (let y = ty0; y <= ty0 + VH; y++) for (let x = tx0; x <= tx0 + VW; x++) {
+    if (y < 0 || y >= MH || x < 0 || x >= MW) continue;
+    drawTile(MAP[y][x], x, y, Math.round(x * T - camX), Math.round(y * T - camY));
+  }
+  // markers + npc's
+  for (const L of LOCS) {
+    const [mx, my] = L.tegel, done = S.kaarten.has(L.id);
+    const bob = Math.round(Math.sin(S.t / 12) * 2);
+    const sx = Math.round(mx * T - camX), sy = Math.round(my * T - camY);
+    drawSprite(HERO, 0, Math.round(L.npcAt[0] * T - camX), Math.round(L.npcAt[1] * T - camY), L.kleur, true);
+    if (L.id !== 'start') { ctx.fillStyle = done ? '#9fb3a6' : '#fff7cc'; ctx.fillRect(sx + 6, sy - 14 + bob, 4, 4); ctx.fillRect(sx + 7, sy - 10 + bob, 2, 3); ctx.fillStyle = PAL.ink; ctx.fillRect(sx + 7, sy - 13 + bob, 2, 2); }
+  }
+  // held
+  drawSprite(HERO, S.moving ? S.frame : 0, Math.round(S.hero.px - camX), Math.round(S.hero.py - camY), '#1d6b4f', S.hero.dir < 0);
+  // stap
+  if (S.moving && S.path.length) {
+    const [nx, ny] = S.path[0];
+    const tx = nx * T, ty = ny * T;
+    const sp = 2;
+    if (tx !== S.hero.px) { S.hero.dir = Math.sign(tx - S.hero.px); S.hero.px += sp * S.hero.dir; }
+    else if (ty !== S.hero.py) S.hero.py += sp * Math.sign(ty - S.hero.py);
+    if (S.hero.px === tx && S.hero.py === ty) { S.hero.x = nx; S.hero.y = ny; S.path.shift(); }
+    if (S.t % 8 === 0) S.frame = 1 - S.frame;
+    if (!S.path.length) { S.moving = false; arrive(); }
+  }
+  requestAnimationFrame(render);
+}
+
+// ---------- pad ----------
+function bfs(from, to) {
+  const key = (x, y) => y * MW + x; const prev = new Map(); const q = [from]; prev.set(key(...from), null);
+  while (q.length) {
+    const [x, y] = q.shift(); if (x === to[0] && y === to[1]) break;
+    for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) { const nx = x + dx, ny = y + dy; if (nx < 0 || ny < 0 || nx >= MW || ny >= MH) continue; if (!WALK.has(MAP[ny][nx]) || prev.has(key(nx, ny))) continue; prev.set(key(nx, ny), [x, y]); q.push([nx, ny]); }
+  }
+  if (!prev.has(key(...to))) return null;
+  const path = []; let cur = to; while (cur && !(cur[0] === from[0] && cur[1] === from[1])) { path.unshift(cur); cur = prev.get(key(...cur)); } return path;
+}
+function goTo(x, y, loc) {
+  if (S.busy) return; const p = bfs([S.hero.x, S.hero.y], [x, y]); if (!p) return;
+  S.path = p; S.moving = p.length > 0; S.target = loc || null; $('loc').textContent = loc ? '→ ' + loc.naam : 'Onderweg'; hide('nav'); if (!p.length) arrive();
+}
+function arrive() {
+  const L = S.target || LOCS.find(l => l.tegel[0] === S.hero.x && l.tegel[1] === S.hero.y);
+  S.target = null; $('loc').textContent = L ? L.naam : 'Landgoed';
+  if (!L) { show('nav'); return; }
+  if (L.scene && !S.kaarten.has(L.id)) playScene(L); else say(L, L.lijn || 'Hier ben je al geweest.', () => show('nav'));
+}
+
+// ---------- dialoog ----------
+function hide(id) { $(id).hidden = true; } function show(id) { $(id).hidden = false; }
+let typer = null;
+function typeText(el, text, done) {
+  clearInterval(typer); el.textContent = ''; let i = 0; el.dataset.full = text;
+  typer = setInterval(() => { i++; el.textContent = text.slice(0, i); if (i >= text.length) { clearInterval(typer); typer = null; done && done(); } }, 16);
+}
+function finishTyping() { const el = $('dText'); if (typer) { clearInterval(typer); typer = null; el.textContent = el.dataset.full; return true; } return false; }
+let nextHandler = null;
+$('dNext').addEventListener('click', () => { if (finishTyping()) return; nextHandler && nextHandler(); });
+function say(L, text, after) {
+  S.busy = true; show('dialog'); hide('nav'); $('dNpc').textContent = L.npc.toUpperCase(); $('dRole').textContent = L.rol;
+  hide('dEffect'); hide('dCard'); hide('dChoices'); $('dNext').hidden = false;
+  typeText($('dText'), text); nextHandler = () => { hide('dialog'); S.busy = false; after && after(); };
+}
+function playScene(L) {
+  const sc = SCENES[L.scene]; let i = 0;
+  const step = () => {
+    if (i < sc.intro.length) { say(L, sc.intro[i++], step); return; }
+    // dilemma
+    S.busy = true; show('dialog'); $('dNpc').textContent = L.npc.toUpperCase(); $('dRole').textContent = L.rol; hide('dEffect'); hide('dCard'); $('dNext').hidden = true;
+    typeText($('dText'), sc.vraag, () => {
+      const box = $('dChoices'); box.innerHTML = ''; show('dChoices');
+      sc.opties.forEach(o => { const b = document.createElement('button'); b.className = 'btn choice'; b.textContent = o.t; b.addEventListener('click', () => choose(L, sc, o)); box.appendChild(b); });
+    });
+  };
+  step();
+}
+function choose(L, sc, o) {
+  hide('dChoices'); S.regie = Math.max(0, Math.min(100, S.regie + o.e)); updateHud();
+  const ef = $('dEffect'); ef.textContent = (o.e > 0 ? '+' : '') + o.e + ' REGIE'; ef.className = 'effect ' + (o.e > 0 ? 'up' : o.e < 0 ? 'down' : 'flat'); show('dEffect');
+  $('dNext').hidden = false; typeText($('dText'), o.g);
+  nextHandler = () => {
+    hide('dEffect'); S.kaarten.add(L.id); updateHud();
+    $('dText').textContent = 'Je hebt een kaart gevonden.';
+    const c = $('dCard'); c.innerHTML = `<div class="card"><div class="kop">MOET-WETEN-KAART ${S.kaarten.size}/8</div><h3>${sc.kaart.titel}</h3><p>${sc.kaart.tekst}</p><div class="bron">Bron: ${sc.kaart.bron}</div></div>`; show('dCard');
+    $('dNext').textContent = 'A · TERUG NAAR DE KAART';
+    nextHandler = () => { hide('dialog'); hide('dCard'); $('dNext').textContent = 'A · VERDER'; S.busy = false; show('nav'); buildNav(); };
+  };
+}
+
+// ---------- hud & nav ----------
+function profiel(v) { return v < 35 ? 'Speelbal' : v < 65 ? 'Meebeweger' : v < 85 ? 'Stuurman' : 'Kapitein'; }
+function updateHud() { $('hudName').textContent = S.naam; $('hudCards').textContent = S.kaarten.size + ' / 8'; $('bar').style.width = S.regie + '%'; $('prof').textContent = profiel(S.regie); }
+function buildNav() {
+  const d = $('dest'); d.innerHTML = '';
+  LOCS.filter(l => l.id !== 'start').forEach(l => { const b = document.createElement('button'); b.className = 'btn' + (S.kaarten.has(l.id) ? ' done' : ''); b.textContent = (S.kaarten.has(l.id) ? '✓ ' : '') + l.naam; b.addEventListener('click', () => goTo(l.tegel[0], l.tegel[1], l)); d.appendChild(b); });
+}
+cv.addEventListener('click', ev => {
+  if (S.busy) return;
+  const rect = cv.getBoundingClientRect(); const scale = cv.width / rect.width;
+  const camX = Math.max(0, Math.min(MW * T - VW * T, S.hero.px - VW * T / 2 + 8)), camY = Math.max(0, Math.min(MH * T - VH * T, S.hero.py - VH * T / 2 + 8));
+  const x = Math.floor(((ev.clientX - rect.left) * scale + camX) / T), y = Math.floor(((ev.clientY - rect.top) * scale + camY) / T);
+  const near = LOCS.find(l => Math.abs(l.tegel[0] - x) <= 1 && Math.abs(l.tegel[1] - y) <= 1 && l.id !== 'start');
+  if (near) goTo(near.tegel[0], near.tegel[1], near); else if (WALK.has(tileAt(x, y))) goTo(x, y, null);
+});
+$('startBtn').addEventListener('click', () => {
+  S.naam = ($('naam').value.trim() || ($('modusSolo').checked ? 'speler' : 'team')).slice(0, 20);
+  hide('start'); show('hud'); show('screen'); updateHud(); buildNav(); show('nav');
+});
+requestAnimationFrame(render);
+})();
+</script>
