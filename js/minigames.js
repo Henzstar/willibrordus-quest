@@ -77,7 +77,7 @@ const WQMinigames = (() => {
   function bowlen() {
     const g = C.minigames.bowlen, laanX = 24, laanW = W - 48, baseY = H - 26;
     let worp = 0, fase = 'richting', richting = 0, kracht = 0, osc = 0, bal = null, omver = 0, kegels = [], meld = '', timer = 0, punten = 0;
-    const zet = () => { kegels = []; const rijen = [[0], [-1, 1], [-2, 0, 2]]; let n = 0; rijen.forEach((rij, r) => rij.forEach(off => { if (n < 6) kegels.push({ x: W / 2 + off * 11, y: 60 - r * 14, om: false, naam: g.kegels[n++] }); })); };
+    const zet = () => { kegels = []; const rijen = [[0], [-1, 1], [-2, 0, 2]]; let n = 0; rijen.forEach((rij, r) => rij.forEach(off => { if (n < 6) kegels.push({ x: W / 2 + off * 16, y: 86 - r * 22, om: false, naam: g.kegels[n++] }); })); };
     zet();
     const eindWorp = () => { timer = 70; fase = 'wacht'; omver += kegels.filter(k => k.om).length; };
     return {
@@ -89,7 +89,7 @@ const WQMinigames = (() => {
         osc++;
         if (fase === 'rol' && bal) {
           bal.x += bal.vx; bal.y += bal.vy; bal.vy *= 0.995;
-          for (const k of kegels) if (!k.om && Math.hypot(k.x - bal.x, k.y - bal.y) < 9) { k.om = true; meld = k.naam; timer = 40; bal.vx += (bal.x - k.x) * 0.05; for (const b of kegels) if (!b.om && Math.hypot(b.x - k.x, b.y - k.y) < 16 && Math.random() < 0.45 + kracht * 0.4) b.om = true; }
+          for (const k of kegels) if (!k.om && Math.hypot(k.x - bal.x, k.y - bal.y) < 13) { k.om = true; meld = k.naam; timer = 40; bal.vx += (bal.x - k.x) * 0.05; for (const b of kegels) if (!b.om && Math.hypot(b.x - k.x, b.y - k.y) < 24 && Math.random() < 0.45 + kracht * 0.4) b.om = true; }
           if (bal.y < 30 || bal.x < laanX || bal.x > laanX + laanW || Math.abs(bal.vy) < 0.3) eindWorp();
         }
         if (meld && --timer <= 0) meld = '';
@@ -98,11 +98,11 @@ const WQMinigames = (() => {
       draw() {
         kop(g.titel + ' · worp ' + Math.min(worp + 1, g.worpen) + '/' + g.worpen, fase === 'richting' ? 'Tik: richting' : fase === 'kracht' ? 'Tik: kracht' : meld || '');
         R(laanX, 26, laanW, H - 46, '#c8a06c'); for (let i = 0; i < laanW; i += 10) R(laanX + i, 26, 1, H - 46, '#b08a58'); R(laanX - 6, 26, 6, H - 46, '#3b3f4a'); R(laanX + laanW, 26, 6, H - 46, '#3b3f4a');
-        kegels.forEach(k => { if (k.om) { R(k.x - 6, k.y + 2, 12, 4, '#9fb3a6'); return; } R(k.x - 3, k.y - 8, 6, 16, '#fff'); R(k.x - 3, k.y - 4, 6, 2, '#d65a4a'); R(k.x - 2, k.y - 10, 4, 3, '#fff'); });
+        kegels.forEach(k => { if (k.om) { R(k.x - 9, k.y + 4, 18, 5, '#9fb3a6'); return; } R(k.x - 4, k.y - 10, 8, 22, '#fff'); R(k.x - 5, k.y - 2, 10, 10, '#fff'); R(k.x - 4, k.y - 6, 8, 2, '#d65a4a'); R(k.x - 4, k.y - 3, 8, 1, '#d65a4a'); R(k.x - 3, k.y - 13, 6, 4, '#fff'); R(k.x + 1, k.y - 8, 2, 14, '#dcdcdc'); });
         if (fase === 'richting') { const mx = W / 2 + Math.sin(osc / 18) * (laanW / 2 - 8); R(mx - 2, baseY - 10, 4, 20, '#fff7cc'); }
         if (fase === 'kracht') { const k = (Math.sin(osc / 14) + 1) / 2; R(laanX, H - 16, laanW, 8, '#0f1813'); R(laanX, H - 16, laanW * k, 8, k > 0.55 && k < 0.95 ? '#7bb661' : '#e0a84a'); R(laanX + laanW * 0.55, H - 18, 1, 12, '#fff'); R(laanX + laanW * 0.95, H - 18, 1, 12, '#fff'); }
-        if (bal) { ctx.fillStyle = '#1a1f1c'; ctx.beginPath(); ctx.arc(bal.x, bal.y, 6, 0, 7); ctx.fill(); ctx.fillStyle = '#2b6cb0'; ctx.beginPath(); ctx.arc(bal.x - 1, bal.y - 1, 4, 0, 7); ctx.fill(); }
-        else if (fase !== 'wacht') { ctx.fillStyle = '#2b6cb0'; ctx.beginPath(); ctx.arc(W / 2 + (fase === 'kracht' ? richting : 0), baseY, 6, 0, 7); ctx.fill(); }
+        if (bal) { ctx.fillStyle = '#1a1f1c'; ctx.beginPath(); ctx.arc(bal.x, bal.y, 8, 0, 7); ctx.fill(); ctx.fillStyle = '#2b6cb0'; ctx.beginPath(); ctx.arc(bal.x - 1, bal.y - 1, 6, 0, 7); ctx.fill(); R(bal.x - 3, bal.y - 4, 2, 2, '#9fd0ff'); }
+        else if (fase !== 'wacht') { ctx.fillStyle = '#2b6cb0'; ctx.beginPath(); ctx.arc(W / 2 + (fase === 'kracht' ? richting : 0), baseY, 8, 0, 7); ctx.fill(); }
         tekst((omver + (fase === 'rol' ? kegels.filter(k => k.om).length : 0)) * g.puntenPerKegel + ' pt', W - 6, 11, F(7), '#fff', 'right');
       },
     };
@@ -132,7 +132,7 @@ const WQMinigames = (() => {
         const kleuren = ['#fff7cc', '#d65a4a', '#2b6cb0', '#1a1f1c', '#fff'];
         for (let i = ringen - 1; i >= 0; i--) { ctx.fillStyle = kleuren[(ringen - 1 - i) % kleuren.length]; ctx.beginPath(); ctx.arc(cx, cy, rad * (i + 1) / ringen, 0, 7); ctx.fill(); }
         ctx.fillStyle = '#e0a84a'; ctx.beginPath(); ctx.arc(cx, cy, 3, 0, 7); ctx.fill();
-        tekst('Zweden', cx, cy - rad - 6, F(6), '#9fb3a6'); tekst('onze populatie', cx, cy + rad + 8, F(6), '#9fb3a6');
+        tekst('Zweden', cx, cy - rad + 9, F(6), '#5b6660'); tekst('onze populatie', cx, cy + rad - 9, F(6), '#5b6660');
         raken.forEach(([x, y]) => { R(x - 1, y - 1, 3, 3, '#1a1f1c'); R(x, y - 6, 1, 6, '#8a5a2b'); R(x - 1, y - 8, 3, 2, '#d65a4a'); });
         const [kx, ky] = kruis; ctx.strokeStyle = vast ? '#7bb661' : '#fff'; ctx.lineWidth = 1; ctx.beginPath(); ctx.arc(kx, ky, 6, 0, 7); ctx.stroke(); R(kx - 9, ky, 18, 1, ctx.strokeStyle); R(kx, ky - 9, 1, 18, ctx.strokeStyle);
         if (vast) { R(10, H - 16, 40, 6, '#0f1813'); R(10, H - 16, Math.min(40, span / 90 * 40), 6, span > 90 ? '#d65a4a' : '#7bb661'); }

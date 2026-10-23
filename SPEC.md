@@ -50,8 +50,8 @@ Tilemap 48 x 22. Legenda: `=` asfalt, `-` pad, `.` gras, `P` parkeren, `S` bouwz
 
 Straatnamen als labels: Kanaalweg (rij 0), De Strandwal (rij 7 west), De Bullaan (rij 7 oost), Rosendaal (kolom 47), De Olvendijk (rij 10), Het Landpad (kolom 16), De Hooge Venne (diagonaal), De Overtoom (rij 17), Het Kerkpad (kolom 10), De Beuk (kolom 34), De Kroft (rij 21).
 
-Locaties (marker op begaanbare tegel naast gebouw; NPC op tegel ernaast):
-0 Hoofdingang (start) (14,10) · 1 Keuken met Karakter (8,10) · 2 De Olvendijk (21,10) `[TJEERD: functie]` · 3 Olvendijk 79 (27,17) `[TJEERD: functie]` · 4 De Hooge Venne (27,9) · 5 `[TJEERD: gebouw beslisondersteuning]` tegel `[TJEERD]` · 6 Cultuurkoepel (7,13) · 7 Kwekerij (40,8) · 8 Nieuwbouw HIC (24,6).
+Locaties (deur = begaanbare tegel onder het gebouw; de NPC staat binnen):
+Hoofdingang (start) (14,10) · Keuken met Karakter (8,10) · Cultuurkoepel (5,15) · Polikliniek `[TJEERD]` (7,6) · De Teamkamer (15,7, discussie) · Nieuwbouw HIC (24,6) · Spreekkamer 4 (34,6, discussie) · Kwekerij (40,7) · Het Bestuursgebouw (25,10, discussie) · De Olvendijk (21,13) · De Hooge Venne (31,18) · Olvendijk 79 (16,21). Aanbevolen route in `content.route`.
 
 ## Spelregels (herzien na ronde 1)
 - Elk dilemma heeft vier opties, waarvan er twee goed klinken. Punten per optie 50, 30, 15 of 0; de regie-meter beweegt mee (+10, +5, 0, −10) en bepaalt alleen het profiel. Gevolg na keuze als "wat er dan gebeurt".

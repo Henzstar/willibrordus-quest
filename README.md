@@ -21,17 +21,20 @@ De test controleert de tilemap (22 rijen van 48 tekens), of elke locatie begaanb
 3. Het bord staat op dezelfde plek onder `beamer.html`. Alle paden zijn relatief, dus de submap is geen probleem.
 
 ## Waar staat wat
-- `js/content.js`: alle teksten, gebouwen, dilemma's, kaarten, zelfcheck, agenda-lijsten, tilemap, straatnamen en avatars. Alleen hier teksten wijzigen.
+- `js/content.js`: alle teksten, gebouwen, dilemma's (vier opties met punten), discussiescènes, kaarten, binnenkaarten, minigame-teksten, score-opzet, zelfcheck, agenda-lijsten, tilemap, straatnamen, decoratie, figuranten en avatars. Alleen hier teksten wijzigen.
 - `js/config.js`: eventId, firebaseUrl en boardEnabled voor het live bord (fase 2). Nu leeg.
-- `js/map.js`: kaart, camera, looppad, sprites. `js/game.js`: spelloop en opslag. `js/ui.js`: schermen en dialoogbox. `js/sfx.js`: geluid (standaard uit).
+- `js/tiles.js`: terrein, decoratie en binnentegels. `js/gebouwen.js`: gevels, daken en de Cultuurkoepel. `js/sprites.js`: personages. `js/map.js`: camera, looppad, overgangen. `js/interior.js`: buiten- en binnenwerelden, figuranten. `js/minigames.js`: noodkoffer, dicteer-ritme, bowlen, boogschieten. `js/score.js`: punten. `js/game.js`: spelloop en opslag. `js/ui.js`: schermen en dialoogbox. `js/sfx.js`: geluid (standaard uit).
 - `css/style.css`: stijl. `ref/demo.html`: de oorspronkelijke stijlreferentie.
 - `test/content.test.mjs`: de test.
 
 ## Nog in te vullen door Tjeerd
-Zoek in `js/content.js` op `TJEERD`. Open plekken: functie van De Olvendijk en Olvendijk 79; het gebouw voor de beslisondersteuning (nu id `poli`, tegel 13,4, naam met placeholder); cijfers spraakgestuurd rapporteren; toegestane AI-tools; wat er met opgenomen audio gebeurt; de afspraak over toestemming en opname; de naam en route van de stuurgroep; de noodprocedure bij EPD-uitval; datum en doelgroep van de e-learning; aanvulling op de agenda-lijst.
+Zoek in `js/content.js` op `TJEERD`. Open plekken: functie van De Olvendijk en Olvendijk 79; het gebouw voor de beslisondersteuning (id `poli`, deur op tegel 7,6); naam en functie van de Teamkamer, Spreekkamer 4 en het Bestuursgebouw; cijfers spraakgestuurd rapporteren; toegestane AI-tools; wat er met opgenomen audio gebeurt; de afspraak over toestemming en opname; de naam en route van de stuurgroep; de noodprocedure bij EPD-uitval (ook de vier stappen in de minigame noodkoffer); de bron van de KNMG-handreiking over opnemen; datum en doelgroep van de e-learning; aanvulling op de agenda-lijst.
 
 ## Spelverloop
-Start (naam, team of alleen, avatar) → kaart → acht gebouwen met elk een dilemma en een moet-weten-kaart → zelfcheck → agenda → eindscherm met profiel, score, kaarten en agenda. Voortgang staat in localStorage; herladen verliest niets. Het menu (knop in de HUD) geeft kaarten, zelfcheck, agenda, geluid en opnieuw beginnen. Op desktop: pijltjestoetsen lopen, Enter is "A".
+Start (naam, team of alleen, avatar) → landgoed → elf gebouwen: acht met een dilemma (vier opties, punten 50/30/15/0) en een moet-weten-kaart, drie discussiescènes zonder goed antwoord (keuze plus argument), vier minigames → zelfcheck → agenda → eindscherm met profiel, punten, kaarten en agenda. Je loopt zelf over het terrein (tik in beeld, of pijltjestoetsen), gaat bij een deur naar binnen en praat met de persoon met het uitroepteken (A · PRAAT, Enter, of tik op de persoon). Het kompas in de HUD wijst de aanbevolen volgende stop. Voortgang staat in localStorage; herladen verliest niets.
+
+## Punten (maximaal 1000)
+Dilemma's 8 × 50, kaarten 8 × 15, minigames 4 × 60, discussie 3 × 25, zelfcheck 25, agenda 40, tijdbonus 100/80/60/40/20 en daarna 10 op volgorde van afronden. De tijdbonus wordt alleen door het bord toegekend (fase 2) en alleen als alles is doorlopen.
 
 ## Fase 2 (volgt)
 Live bord via Firebase Realtime Database zonder SDK. Tjeerd maakt het project aan en zet twee waarden in `js/config.js`. De details komen in deze README bij oplevering van fase 2.

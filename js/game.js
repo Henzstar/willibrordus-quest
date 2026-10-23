@@ -141,9 +141,9 @@
     const mg = C.minigames[L.minigame];
     U.dialoog(L.npc, { tekst: vul(C.teksten.minigameStart, mg), knop: 'A · SPELEN' });
     verderHandler = () => {
-      U.toon(null); M.setPaused(true);
+      U.toon(null); M.setPaused(true); $('loc').hidden = true;
       MG.start(L.minigame, M.canvas(), res => {
-        M.setPaused(false); S.punten.minigame[L.id] = res.punten; bewaar(); hud(); X.kaart();
+        M.setPaused(false); $('loc').hidden = false; S.punten.minigame[L.id] = res.punten; bewaar(); hud(); X.kaart();
         U.dialoog(L.npc, { tekst: res.tekst + ' ' + vul(C.teksten.minigameKlaar, res) });
         verderHandler = () => geefKaart(L);
       });

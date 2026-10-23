@@ -35,7 +35,11 @@
 </div>
 <script src="./js/config.js"></script>
 <script src="./js/content.js"></script>
+<script src="./js/tiles.js"></script>
+<script src="./js/gebouwen.js"></script>
+<script src="./js/sprites.js"></script>
 <script src="./js/map.js"></script>
+<script src="./js/interior.js"></script>
 <script>
 (() => {
   'use strict';
@@ -43,7 +47,9 @@
   document.getElementById('titel').textContent = CONTENT.titel;
   document.getElementById('ondertitel').textContent = CONTENT.ondertitel;
   document.getElementById('url').textContent = location.href.replace(/beamer\.html.*$/, '').replace(/^https?:\/\//, '');
-  WQMap.init(document.getElementById('kaart'), CONTENT, { fullMap: true });
+  WQWereld.init(CONTENT);
+  WQMap.init(document.getElementById('kaart'), { fullMap: true });
+  WQMap.setWereld(WQWereld.buitenWereld(() => false, null), CONTENT.locaties[0].tegel[0], CONTENT.locaties[0].tegel[1]);
   WQMap.setHeroVisible(false);
 
   // Klok: &min=30 telt af vanaf het laden; zonder min toont hij de tijd.
