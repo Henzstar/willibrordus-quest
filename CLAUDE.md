@@ -10,10 +10,10 @@ Zie `SPEC.md` voor de volledige opdracht. Deze regels gelden voor elke sessie.
 - Bestanden onder 400 regels; `js/content.js` mag langer.
 
 ## Bestandsindeling
-`index.html`, `css/style.css`, `js/config.js`, `js/content.js`, `js/map.js`, `js/game.js`, `js/ui.js`, `js/sfx.js`, `beamer.html`, `test/content.test.mjs`, `README.md`, `SPEC.md`, `CLAUDE.md`. Stijlreferentie in `ref/demo.html` (niet wijzigen).
+`index.html`, `css/style.css`, `js/config.js`, `js/content.js`, `js/tiles.js`, `js/gebouwen.js`, `js/sprites.js`, `js/map.js`, `js/interior.js`, `js/minigames.js`, `js/score.js`, `js/game.js`, `js/ui.js`, `js/sfx.js`, `beamer.html`, `test/content.test.mjs`, `README.md`, `SPEC.md`, `CLAUDE.md`. Stijlreferentie in `ref/demo.html` (niet wijzigen).
 
 ## Inhoud
-- Alle teksten (dialogen, dilemma's, kaarten, lijsten, tilemap, legenda, straatnamen) staan alleen in `js/content.js`. Geen teksten in game.js, ui.js of index.html, behalve knoplabels van de interface.
+- Alle teksten (dialogen, dilemma's, discussiescènes, kaarten, lijsten, tilemap, binnenkaarten, legenda, straatnamen, minigame-teksten, score-opzet) staan alleen in `js/content.js`. Geen teksten in game.js, ui.js of index.html, behalve knoplabels van de interface.
 - Teksten letterlijk uit SPEC/opdracht overnemen. Alle `[TJEERD: ...]`-plekken blijven letterlijk staan tot Tjeerd ze invult.
 - Nederlands, spreektaal, droog. Geen echte namen van collega's.
 

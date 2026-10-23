@@ -22,7 +22,8 @@ Bestanden:
 - `css/style.css`
 - `js/config.js` (eventId, firebaseUrl, boardEnabled; fase 1 leeg)
 - `js/content.js` (alle teksten, gebouwen, dilemma's, kaarten, tilemap, legenda; geen logica)
-- `js/map.js` (tilemap op canvas, camera volgt held, BFS-looppad, markers)
+- `js/tiles.js` (buitentegels, autotiling, props), `js/gebouwen.js` (gevels als geheel, Cultuurkoepel), `js/sprites.js` (personages 16 x 24, vier richtingen)
+- `js/map.js` (wereld, camera volgt held, BFS-looppad, markers), `js/interior.js` (binnenkaarten en overgangen), `js/minigames.js` (vier minigames), `js/score.js` (punten)
 - `js/game.js` (state machine: start → kaart → gebouw → dialoog → keuze → gevolg → kaart-overzicht → zelfcheck → agenda → einde)
 - `js/ui.js` (dialoogbox met typewriter, keuzeknoppen, HUD, schermen)
 - `js/sfx.js` (optioneel, WebAudio-bliepjes, standaard uit)
@@ -42,7 +43,7 @@ Stijlreferentie: `ref/demo.html` (palet, HUD, dialoogbox, markers, lopen, drie s
 Besturing: tik of klik; desktop ook pijltjestoetsen en Enter als "A". Geen d-pad.
 
 ## Visuele stijl
-SNES-achtig, top-down, 16 x 16 px tegels, integer-opschaling, `image-rendering: pixelated`. Alles procedureel op canvas; sprites als 16 regels met één teken per pixel plus palet. Palet: gras `#7bb661`, donker gras `#5e9a4a`, pad `#d9c38a`, asfalt `#6b7280`, water `#5aa7d6`, boomkroon `#3f7d3a`, stam `#6b4a2b`, dak `#8b5e3c`, muur `#e8dcc5`, zand `#e0cfa0`, nieuwbouw `#f4f1ea`, kas `#dbe8f0`, akker `#a9b46a`, koepel `#c9a24d`, accent `#1d6b4f`, tekst `#1a1f1c`. Titels en HUD in Press Start 2P (Google Fonts, fallback monospace); dialoog en keuzes in systeem-sans-serif, min. 16 px. Dialoogbox onder de kaart met naamplaatje. Held 2 loopframes, water wisselt tint, markers wippen. Geluid uit.
+SNES-achtig met hoog detailniveau: gevels als geheel getekend (deuren, ramen, dakpannen, naambord), Cultuurkoepel kruisvormig met groene koperen koepel, paden met randen, water met oevers, hekken, lantaarns, bankjes, auto's, schaduwen. Personages 16 x 24 px, vier richtingen, twee loopframes, schaduw. Verder: top-down, 16 x 16 px tegels, integer-opschaling, `image-rendering: pixelated`. Alles procedureel op canvas; sprites als 16 regels met één teken per pixel plus palet. Palet: gras `#7bb661`, donker gras `#5e9a4a`, pad `#d9c38a`, asfalt `#6b7280`, water `#5aa7d6`, boomkroon `#3f7d3a`, stam `#6b4a2b`, dak `#8b5e3c`, muur `#e8dcc5`, zand `#e0cfa0`, nieuwbouw `#f4f1ea`, kas `#dbe8f0`, akker `#a9b46a`, koepel `#c9a24d`, accent `#1d6b4f`, tekst `#1a1f1c`. Titels en HUD in Press Start 2P (Google Fonts, fallback monospace); dialoog en keuzes in systeem-sans-serif, min. 16 px. Dialoogbox onder de kaart met naamplaatje. Held 2 loopframes, water wisselt tint, markers wippen. Geluid uit.
 
 ## Kaart
 Tilemap 48 x 22. Legenda: `=` asfalt, `-` pad, `.` gras, `P` parkeren, `S` bouwzand (begaanbaar); `T` boom, `W` water, `B` gebouw, `K` Cultuurkoepel, `G` kas, `N` nieuwbouw, `F` akker (blokkerend). Noord boven. Tilemap letterlijk in `js/content.js` (en in `ref/demo.html`). Benadering; later vervangen op basis van de officiële plattegrond.
@@ -52,10 +53,14 @@ Straatnamen als labels: Kanaalweg (rij 0), De Strandwal (rij 7 west), De Bullaan
 Locaties (marker op begaanbare tegel naast gebouw; NPC op tegel ernaast):
 0 Hoofdingang (start) (14,10) · 1 Keuken met Karakter (8,10) · 2 De Olvendijk (21,10) `[TJEERD: functie]` · 3 Olvendijk 79 (27,17) `[TJEERD: functie]` · 4 De Hooge Venne (27,9) · 5 `[TJEERD: gebouw beslisondersteuning]` tegel `[TJEERD]` · 6 Cultuurkoepel (7,13) · 7 Kwekerij (40,8) · 8 Nieuwbouw HIC (24,6).
 
-## Spelregels
-- Regie start op 50. Opties: +10, 0 of −10 (één keer −15, één keer +5). Effect na keuze met één regel gevolg; nooit "goed/fout" maar "wat er dan gebeurt".
-- Elk gebouw levert één kaart op, ongeacht de keuze. Kaarten terug te lezen via menu.
-- Geen tijdsdruk, geen rondes. Agenda op elk moment via menu. Zelfcheck telt niet mee.
+## Spelregels (herzien na ronde 1)
+- Elk dilemma heeft vier opties, waarvan er twee goed klinken. Punten per optie 50, 30, 15 of 0; de regie-meter beweegt mee (+10, +5, 0, −10) en bepaalt alleen het profiel. Gevolg na keuze als "wat er dan gebeurt".
+- Elk dilemma-gebouw levert één kaart op, ongeacht de keuze. Kaarten terug te lezen via menu.
+- Drie discussiescènes zonder goed antwoord (klacht van twintig pagina's, de digitale collega, de cliënt neemt op): keuze plus argument in één zin; alle keuzes gelijk beloond; het bord toont de verdeling.
+- Vier minigames na het dilemma in dat gebouw: noodkoffer (HIC, Simon-says), dicteer-ritme (Keuken, tik het foute woord), bowlen (Kwekerij), boogschieten (Hooge Venne). Elk hooguit 60 punten en circa een minuut.
+- Score, maximaal 1000: dilemma's 8 × 50, kaarten 8 × 15, minigames 4 × 60, discussie 3 × 25, zelfcheck 25, agenda 40, tijdbonus op volgorde van afronden 100/80/60/40/20 en daarna 10 (alleen via het bord, alleen als alles doorlopen is).
+- Lopen: 1 px per frame; je tikt op een plek in beeld of gebruikt pijltjestoetsen; geen bestemmingenlijst. HUD toont een kompas met de aanbevolen volgende locatie. Gebouwen ga je binnen via de deur; binnen loop je naar de NPC en praat je met A.
+- Geen tijdsdruk, geen rondes. Agenda op elk moment via menu.
 
 ## Inhoud
 Alle teksten staan letterlijk in de startopdracht en worden letterlijk overgenomen in `js/content.js` (alleen typografie en lengte aanpassen bij een volle box). Schema per gebouw: `{ id, naam, functie, tegel:[x,y], npc:{naam, rol, kleur}, intro:[regels], dilemma:{vraag, opties:[{tekst, effect, gevolg}]}, kaart:{titel, tekst, bron}, opdracht? }`. Alle `[TJEERD: ...]`-plekken blijven letterlijk staan.
