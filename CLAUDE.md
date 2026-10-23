@@ -21,4 +21,4 @@ Zie `SPEC.md` voor de volledige opdracht. Deze regels gelden voor elke sessie.
 - Eén commit per stap, Nederlandse commitboodschap in de vorm "Stap n: ...".
 - Geen refactors en geen extra features zonder vraag. Hooguit één vraag per keer, alleen als een keuze het ontwerp raakt.
 - Korte antwoorden in de chat. Nooit hele bestanden in de chat herhalen; verwijs naar bestand en regel.
-- Voor elke commit: `node --check js/*.js` en `node --test test/`. Handmatig testen via `python3 -m http.server 8000`. Geen screenshot-loops.
+- Voor elke commit: `node --check js/*.js` en `node --test`. Handmatig testen via `python3 -m http.server 8000`. Geen screenshot-loops.

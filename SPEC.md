@@ -75,7 +75,7 @@ Agenda-lijst organisatie: AI-geletterdheid regelen; aanspreekpunt digitalisering
 ## Werkwijze
 Bouwvolgorde, één commit per stap: (1) content.js met tilemap en negen locaties plus test; (2) map.js; (3) game.js en ui.js met start, kaart en één gebouw; (4) alle gebouwen, zelfcheck, agenda, einde, localStorage; (5) beamer.html fase 1; (6) README en smoke test.
 Bestanden onder 400 regels (content.js mag langer). Geen refactors of extra features zonder vraag. Hooguit één vraag per keer.
-Testen: `node --check` op elk JS-bestand; `node --test test/` (22 rijen van 48 tekens, elke locatietegel begaanbaar en bereikbaar vanaf start, unieke ids, elk dilemma 3 opties met effect, elk gebouw een kaart). Handmatig via `python3 -m http.server 8000`.
+Testen: `node --check` op elk JS-bestand; `node --test` (22 rijen van 48 tekens, elke locatietegel begaanbaar en bereikbaar vanaf start, unieke ids, elk dilemma 3 opties met effect, elk gebouw een kaart). Handmatig via `python3 -m http.server 8000`.
 
 ## Definition of done (fase 1)
 Speelbaar op iPhone en Android in Safari en Chrome, portrait; onder 300 KB; acht gebouwen plus start, zelfcheck en agenda met de teksten uit de opdracht; herladen verliest geen voortgang; beamer.html toont kaart, klok en URL; alle `[TJEERD: ...]`-plekken letterlijk in content.js; README beschrijft starten, testen, deployen en waar teksten te wijzigen zijn.
