@@ -6,6 +6,7 @@ const WQMap = (() => {
   let wereld = null; // { kaart, breedte, hoogte, begaanbaar:Set, offscreen, water:bool, sprites:fn, markers:fn, bg }
   const hero = { x: 0, y: 0, px: 0, py: 0, dir: 'down', frame: 0, look: {}, zichtbaar: true };
   let path = [], moving = false, onArrive = null, speed = 1, fade = { a: 0, richting: 0, cb: null }, bubbles = () => [];
+  let cam = { x: 0, y: 0, snap: true }, schud = 0, avondFn = () => 0, iris = { fase: 0, r: 0, cb: null };
 
   const tileAt = (x, y) => (wereld && wereld.kaart[y] && wereld.kaart[y][x]) || null;
   const walkable = (x, y) => { const ch = tileAt(x, y); return ch !== null && wereld.begaanbaar.has(ch); };
@@ -21,11 +22,35 @@ const WQMap = (() => {
     if (!fullMap) cv.style.width = (VW * T * scale) + 'px';
     ctx = cv.getContext('2d'); ctx.imageSmoothingEnabled = false;
   }
-  function camera() {
+  function doel() {
     const mw = wereld.breedte * T, mh = wereld.hoogte * T;
     const cx = mw <= VW * T ? (mw - VW * T) / 2 : Math.max(0, Math.min(mw - VW * T, hero.px - VW * T / 2 + 8));
     const cy = mh <= VH * T ? (mh - VH * T) / 2 : Math.max(0, Math.min(mh - VH * T, hero.py - VH * T / 2 + 8));
-    return [Math.round(cx), Math.round(cy)];
+    return [cx, cy];
+  }
+  function camera() {
+    const [dx, dy] = doel();
+    if (cam.snap) { cam.x = dx; cam.y = dy; cam.snap = false; }
+    else { cam.x += (dx - cam.x) * 0.18; cam.y += (dy - cam.y) * 0.18; if (Math.abs(dx - cam.x) < 0.5) cam.x = dx; if (Math.abs(dy - cam.y) < 0.5) cam.y = dy; }
+    let sx = 0, sy = 0; if (schud > 0) { schud--; sx = (Math.random() - 0.5) * 4; sy = (Math.random() - 0.5) * 3; }
+    return [Math.round(cam.x + sx), Math.round(cam.y + sy)];
+  }
+  // Avondlaag: blauwe tint, gloed om lantaarns, verlichte ramen. f = 0 (dag) tot 1 (avond).
+  function avond(c, camX, camY, f) {
+    if (f <= 0 || !wereld.lampen) return;
+    c.fillStyle = 'rgba(18,28,70,' + (0.38 * f) + ')'; c.fillRect(0, 0, c.canvas.width, c.canvas.height);
+    c.save(); c.globalCompositeOperation = 'lighter';
+    for (const [lx, ly] of wereld.lampen) { const x = lx - camX, y = ly - camY; if (x < -40 || y < -40 || x > c.canvas.width + 40 || y > c.canvas.height + 40) continue; const g = c.createRadialGradient(x, y, 2, x, y, 30); g.addColorStop(0, 'rgba(255,220,140,' + (0.55 * f) + ')'); g.addColorStop(1, 'rgba(255,200,100,0)'); c.fillStyle = g; c.fillRect(x - 30, y - 30, 60, 60); }
+    c.fillStyle = 'rgba(255,215,120,' + (0.55 * f) + ')';
+    for (const [rx, ry, rw, rh] of (wereld.ramen || [])) { const x = rx - camX, y = ry - camY; if (x < -20 || y < -20 || x > c.canvas.width + 20 || y > c.canvas.height + 20) continue; c.fillRect(x, y, rw, rh); }
+    c.restore();
+  }
+  function tekenIris(c) {
+    if (!iris.fase) return;
+    const cx = hero.px - cam.x + 8, cy = hero.py - cam.y + 4, max = Math.hypot(c.canvas.width, c.canvas.height);
+    if (iris.fase === 1) { iris.r -= max / 14; if (iris.r <= 0) { iris.r = 0; const cb = iris.cb; iris.cb = null; iris.fase = 2; cb && cb(); } }
+    else { iris.r += max / 14; if (iris.r >= max) { iris.fase = 0; return; } }
+    c.save(); c.beginPath(); c.rect(0, 0, c.canvas.width, c.canvas.height); c.arc(cx, cy, Math.max(0, iris.r), 0, Math.PI * 2, true); c.fillStyle = '#0f1813'; c.fill('evenodd'); c.restore();
   }
   function drawMarker(c, sx, sy, m) {
     const bob = Math.round(Math.sin(t / 12) * 2);
@@ -79,6 +104,8 @@ const WQMap = (() => {
       for (const m of (wereld.markers ? wereld.markers() : [])) drawMarker(ctx, m.x * T - camX, m.y * T - camY, m);
       for (const b of bubbles()) drawBubble(ctx, b.x * T - camX, b.y * T - camY, b.tekst);
       if (wereld.decor) wereld.decor.teken(ctx, camX, camY, t, 'boven');
+      avond(ctx, camX, camY, avondFn());
+      tekenIris(ctx);
     }
     if (fade.a > 0) { ctx.fillStyle = 'rgba(15,24,19,' + fade.a + ')'; ctx.fillRect(0, 0, cv.width, cv.height); }
     requestAnimationFrame(render);
@@ -103,7 +130,7 @@ const WQMap = (() => {
 
   // ---------- publieke API ----------
   function init(canvas, opties) { cv = canvas; fullMap = !!(opties && opties.fullMap); window.addEventListener('resize', () => { if (wereld) fit(); }); if (!running) { running = true; requestAnimationFrame(render); } }
-  function setWereld(w, startX, startY) { wereld = w; fit(); setHero(startX, startY); }
+  function setWereld(w, startX, startY) { wereld = w; fit(); setHero(startX, startY); cam.snap = true; }
   function setHero(x, y, dir) { hero.x = x; hero.y = y; hero.px = x * T; hero.py = y * T; path = []; moving = false; if (dir) hero.dir = dir; }
   function walkTo(x, y, maxLen) {
     if (!walkable(x, y)) return false;
@@ -118,12 +145,12 @@ const WQMap = (() => {
     const rect = cv.getBoundingClientRect(), sx = cv.width / rect.width, sy = cv.height / rect.height, [camX, camY] = camera();
     return [Math.floor(((ev.clientX - rect.left) * sx + camX) / T), Math.floor(((ev.clientY - rect.top) * sy + camY) / T)];
   }
-  function transition(cb) { fade.richting = 1; fade.cb = cb; }
+  function transition(cb) { if (iris.fase) { fade.richting = 1; fade.cb = cb; return; } iris.fase = 1; iris.r = Math.hypot(cv.width, cv.height); iris.cb = cb; }
   function richtingNaar(x, y) { const dx = x - hero.x, dy = y - hero.y; if (Math.abs(dx) < 1 && Math.abs(dy) < 1) return ''; const a = Math.atan2(-dy, dx); const pijlen = ['O', 'NO', 'N', 'NW', 'W', 'ZW', 'Z', 'ZO']; return pijlen[Math.round(((a + Math.PI * 2) % (Math.PI * 2)) / (Math.PI / 4)) % 8]; }
   return {
     init, setWereld, setHero, walkTo, stepDir, tileFromEvent, bfs, walkable, transition, richtingNaar,
     setLook: l => { hero.look = l; }, setHeroVisible: v => { hero.zichtbaar = v; }, setOnArrive: f => { onArrive = f; }, setBubbles: f => { bubbles = f; },
-    setPaused: v => { paused = v; }, isMoving: () => moving, heroTile: () => [hero.x, hero.y], heroDir: () => hero.dir, stop: () => { path = []; moving = false; hero.frame = 0; },
+    setPaused: v => { paused = v; }, isMoving: () => moving, schud: n => { schud = n || 12; }, setAvond: f => { avondFn = f; }, heroTile: () => [hero.x, hero.y], heroDir: () => hero.dir, stop: () => { path = []; moving = false; hero.frame = 0; },
     canvas: () => cv, ctx: () => ctx, T,
   };
 })();

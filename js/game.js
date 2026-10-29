@@ -135,7 +135,7 @@
   }
   function kies(L, i, o) {
     S.keuzes[L.id] = i; S.punten.dilemma[L.id] = o.punten; S.regie = Math.max(0, Math.min(100, S.regie + o.effect)); bewaar(); hud();
-    if (o.effect > 0) X.omhoog(); else if (o.effect < 0) X.omlaag(); else X.tik();
+    if (o.effect > 0) X.omhoog(); else if (o.effect < 0) { X.omlaag(); M.schud(14); } else X.tik();
     U.effect(o.punten, o.effect); $('dVerder').hidden = false; U.typ(o.gevolg);
     verderHandler = () => naKeuze(L);
   }
@@ -245,6 +245,7 @@
   // ---------- invoer ----------
   function init() {
     W.init(C); SC.init(C); MG.init(C); WQBoard.init(typeof CONFIG === 'object' ? CONFIG : null); M.init($('kaart')); M.setOnArrive(aankomst);
+    M.setAvond(() => { if (!S) return 0; const min = (Date.now() - S.gestart) / 60000; return Math.max(0, Math.min(1, (min - 10) / 10)); });
     $('startBtn').addEventListener('click', () => {
       const w = U.startWaarden(); const naam = w.naam || (w.modus === 'solo' ? 'speler' : 'team');
       wis(); begin(nieuweState(naam, w.modus, avatarKeuze.id), true);
