@@ -3,7 +3,7 @@
   'use strict';
   const U = WQUi, M = WQMap, C = CONTENT, X = WQSfx, W = WQWereld, SC = WQScore, MG = WQMinigames, MZ = WQMuziek, $ = U.$;
   const OPSLAG = 'wq.save.v3', GEBOUWEN = C.locaties.slice(1), KAARTEN = GEBOUWEN.filter(l => l.soort === 'dilemma').length;
-  let S = null, bezig = false, verderHandler = null, avatarKeuze = C.avatars[0], binnen = null, huidig = null, netBuiten = false;
+  let S = null, bezig = false, verderHandler = null, avatarKeuze = C.avatars[0], binnen = null, huidig = null, netBuiten = false, wachtVoorwerp = null;
 
   // ---------- state en opslag ----------
   function nieuweState(naam, modus, avatar) {
@@ -11,7 +11,7 @@
       versie: 3, naam, modus, avatar, regie: C.regieStart, bezocht: [], keuzes: {}, argumenten: {}, ergernis: '',
       punten: { dilemma: {}, minigame: {}, discussie: {} }, tijdbonus: 0,
       zelfcheck: C.zelfcheck.items.map(() => false), zelfcheckGedaan: false, agendaGedaan: false,
-      agenda: { zelf: '', zelfKaart: null, org: '', orgIndex: null, eigenaar: C.agenda.eigenaren[0] },
+      agenda: { zelf: '', zelfKaart: null, org: '', orgIndex: null, orgVrij: '', eigenaar: C.agenda.eigenaren[0] },
       hero: C.locaties[0].tegel.slice(), binnenIn: null, fase: 'kaart', gezien: [], playerId: Math.random().toString(36).slice(2, 10), gestart: Date.now(), klaarOp: null,
     };
   }
@@ -23,8 +23,9 @@
   const avatarVan = id => C.avatars.find(a => a.id === id) || C.avatars[0];
   const kaarten = () => S.bezocht.map(id => C.locaties.find(l => l.id === id)).filter(l => l.kaart).map(l => l.kaart);
   const volgende = () => { const id = C.route.find(i => !bezocht(i)); return id ? C.locaties.find(l => l.id === id) : null; };
-  const allesKlaar = () => GEBOUWEN.every(l => l.soort === 'plek' || bezocht(l.id));
-  const teGaan = () => GEBOUWEN.filter(l => l.soort !== 'plek' && l.id !== C.laatste && !bezocht(l.id)).length;
+  const VRAAG = l => l.soort === 'dilemma' || l.soort === 'discussie';
+  const allesKlaar = () => GEBOUWEN.every(l => !VRAAG(l) || bezocht(l.id));
+  const teGaan = () => GEBOUWEN.filter(l => VRAAG(l) && l.id !== C.laatste && !bezocht(l.id)).length;
   function hud() {
     const n = teGaan();
     U.hud({ naam: S.naam, punten: SC.totaal(S), kaarten: kaarten().length, totaal: KAARTEN, regie: S.regie, profiel: profiel().kort, kaartKnop: n ? vul(C.teksten.kaartKnop, { n }) : C.teksten.kaartKnopKlaar });
@@ -41,7 +42,7 @@
       const [hx, hy] = binnen && huidig ? huidig.tegel : M.heroTile();
       c.fillStyle = '#fff'; c.beginPath(); c.arc(hx * T + 16, hy * T + 16, 30 + Math.sin(t / 6) * 6, 0, 7); c.fill(); c.fillStyle = '#d65a4a'; c.beginPath(); c.arc(hx * T + 16, hy * T + 16, 20, 0, 7); c.fill();
       for (const L of GEBOUWEN) {
-        if (L.soort === 'plek' || bezocht(L.id)) continue;
+        if (!VRAAG(L) || bezocht(L.id)) continue;
         const x = L.tegel[0] * T + 16, dicht = L.id === C.laatste && teGaan() > 0, y = L.tegel[1] * T - 10 - (dicht ? 0 : Math.abs(Math.sin(t / 9)) * 30);
         if (!dicht && Math.floor(t / 14) % 3 === 0) continue;
         c.save(); c.translate(x, y); c.scale(9, 9);
@@ -79,8 +80,14 @@
   }
 
   // ---------- werelden ----------
-  function naarBuiten(pos) {
+  function naarBuiten(pos, vanuit) {
+    const vorige = huidig;
     binnen = null; huidig = null; S.binnenIn = null;
+    if (!S.gezien.includes('spook')) W.spookOpBegraafplaats(); else W.spookWeg();
+    if (vorige && S.gezien.includes('spook') && C.spook.fluister[vorige.id] && S.punten.dilemma[vorige.id] != null && S.punten.dilemma[vorige.id] < 30 && !S.gezien.includes('spook:' + vorige.id)) {
+      const [dx, dy] = pos, buur = [[1, 0], [-1, 0], [0, 1]].map(([a, b]) => [dx + a, dy + b]).find(([x, y]) => M.walkable(x, y));
+      if (buur) W.spookBij(buur[0], buur[1], M.tijd(), vorige.id);
+    }
     M.setWereld(W.buitenWereld(bezocht, volgende() && volgende().id), pos[0], pos[1]); M.setHero(pos[0], pos[1], 'down');
     U.locatie(C.teksten.landgoed); U.praatKnop(false); hud(); muziekBuiten(pos[0], pos[1]);
   }
@@ -95,7 +102,7 @@
     bezig = false; verderHandler = null;
     if (S.fase !== 'kaart') return hervat();
     const v = volgende();
-    U.hint(binnen ? (bezocht(huidig.id) ? C.teksten.alGedaanHint : C.teksten.praatHint) : (v ? C.teksten.loopHint : C.teksten.alles));
+    U.hint(binnen ? (bezocht(huidig.id) || S.gezien.includes(huidig.id) ? C.teksten.alGedaanHint : C.teksten.praatHint) : (v ? C.teksten.loopHint : C.teksten.alles));
     hud();
   }
   function aankomst(x, y) {
@@ -103,17 +110,24 @@
     if (bezig) return;
     if (binnen) {
       if (binnen.kaart[y][x] === 'D') { bezig = true; M.transition(() => { const L = huidig; naarBuiten(L.tegel); netBuiten = true; vrij(); naControle(); }); return; }
+      if (wachtVoorwerp) { const v = wachtVoorwerp; wachtVoorwerp = null; if (Math.abs(v.x - x) + Math.abs(v.y - y) <= 1) return toonVoorwerp(v.ch); }
       const naast = W.naastNpc(binnen, x, y); U.praatKnop(naast);
       if (naast && !bezocht(huidig.id)) gesprek(huidig);
       return;
     }
+    if (W.spookBijTegel(x, y)) return spookScene();
     const L = GEBOUWEN.find(l => l.tegel[0] === x && l.tegel[1] === y);
-    if (L && L.soort === 'plek') {
+    if (L && L.soort === 'grap' && !netBuiten) {
+      if (S.gezien.includes(L.id)) { bezig = true; M.stop(); U.dialoog(L.npc, { tekst: L.nogmaals }); verderHandler = () => { netBuiten = true; vrij(); }; return; }
+      bezig = true; M.transition(() => { naarBinnen(L); U.dialoog(L.npc, { tekst: L.intro[0], knop: 'A · EH, SORRY' }); verderHandler = () => { S.gezien.push(L.id); bewaar(); bezig = true; M.transition(() => { naarBuiten(L.tegel); netBuiten = true; vrij(); }); }; });
+      return;
+    }
+    if (L && L.soort === 'plek' && !L.binnen) {
       if (!S.gezien.includes(L.id)) { S.gezien.push(L.id); bewaar(); bezig = true; M.stop(); zeg(L.npc, L.intro, vrij); }
       muziekBuiten(x, y); return;
     }
     if (L && !netBuiten) {
-      const rest = GEBOUWEN.filter(l => l.id !== L.id && l.soort !== 'plek' && !bezocht(l.id)).length;
+      const rest = GEBOUWEN.filter(l => l.id !== L.id && VRAAG(l) && !bezocht(l.id)).length;
       if (L.id === C.laatste && rest > 0) { bezig = true; M.stop(); U.dialoog(L.npc, { tekst: vul(C.teksten.koepelDicht, { n: rest }) }); verderHandler = () => { netBuiten = true; vrij(); }; return; }
       if (L.id === C.laatste && !S.gezien.includes('koepelOpen')) { S.gezien.push('koepelOpen'); bewaar(); bezig = true; M.stop(); U.dialoog(L.npc, { tekst: C.teksten.koepelOpen }); verderHandler = () => { bezig = true; M.transition(() => { naarBinnen(L); vrij(); }); }; return; }
       bezig = true; M.transition(() => { naarBinnen(L); vrij(); }); return;
@@ -129,9 +143,22 @@
     if (bezig || !binnen) return;
     const [x, y] = M.heroTile(); if (!W.naastNpc(binnen, x, y)) return;
     if (!bezocht(huidig.id)) return gesprek(huidig);
-    bezig = true; U.dialoog(huidig.npc, { tekst: huidig.soort === 'dilemma' ? C.teksten.alBezocht : C.teksten.alGedaan });
+    bezig = true;
+    if (huidig.soort === 'plek') { U.dialoog(huidig.npc, { tekst: huidig.intro[huidig.intro.length - 1] }); verderHandler = vrij; return; }
+    U.dialoog(huidig.npc, { tekst: huidig.soort === 'dilemma' ? C.teksten.alBezocht : C.teksten.alGedaan });
     if (huidig.kaart) U.kaart(huidig.kaart, kaarten().indexOf(huidig.kaart) + 1, KAARTEN);
     verderHandler = vrij;
+  }
+  function spookScene() {
+    const sp = W.spook(), npc = { naam: C.spook.naam, rol: C.spook.rol, look: C.spook.look };
+    bezig = true; M.stop();
+    if (sp.bij === 'begraafplaats') { zeg(npc, C.spook.intro, () => { S.gezien.push('spook'); bewaar(); W.spookWeg(); U.dialoog(npc, { tekst: C.spook.tot }); verderHandler = vrij; }); return; }
+    const id = sp.bij; U.dialoog(npc, { tekst: C.spook.fluister[id] }); S.gezien.push('spook:' + id); bewaar();
+    verderHandler = () => { W.spookWeg(); U.dialoog(npc, { tekst: C.teksten.spookWeg }); verderHandler = vrij; };
+  }
+  function toonVoorwerp(ch) {
+    const v = C.voorwerpen[ch]; if (!v) return;
+    bezig = true; M.stop(); U.dialoog({ naam: v.naam, rol: C.teksten.voorwerp }, { tekst: v.tekst }); verderHandler = vrij;
   }
   function praatFigurant(f) {
     bezig = true; M.stop(); f.teller = (f.teller || 0) + 1;
@@ -154,6 +181,7 @@
   // ---------- gebouw ----------
   function gesprek(L) {
     bezig = true; M.stop(); U.praatKnop(false);
+    if (L.soort === 'plek') return zeg(L.npc, L.intro, () => { if (!bezocht(L.id)) S.bezocht.push(L.id); bewaar(); vrij(); });
     zeg(L.npc, L.intro, () => (L.soort === 'dilemma' ? dilemma(L) : discussie(L)));
   }
   function dilemma(L) {
@@ -190,7 +218,12 @@
     bewaar(); hud(); X.kaart();
     U.dialoog(L.npc, { tekst: C.teksten.kaartGevonden, knop: 'A · VERDER' });
     U.kaart(L.kaart, kaarten().length, KAARTEN);
-    verderHandler = L.id === C.laatste ? () => { bezig = false; naControle(); } : vrij;
+    verderHandler = L.id === C.laatste ? () => agendaVraag(L) : vrij;
+  }
+  function agendaVraag(L) {
+    const A = S.agenda, av = L.agendaVraag;
+    if (!av) { bezig = false; return naControle(); }
+    U.dialoog(L.npc, { tekst: av.vraag, zonderKnop: true, naTypen: () => U.keuzes(C.agenda.organisatieOpties, i => { A.orgIndex = i; A.org = C.agenda.organisatieOpties[i]; bewaar(); U.dialoog(L.npc, { tekst: av.vrij }); U.argument(120, A.orgVrij || ''); verderHandler = () => { A.orgVrij = $('dArgumentVeld').value.trim().slice(0, 120); bewaar(); U.dialoog(L.npc, { tekst: av.na }); verderHandler = () => { bezig = false; naControle(); }; }; }) });
   }
   function discussie(L) {
     U.dialoog(L.npc, { tekst: L.discussie.vraag, zonderKnop: true, naTypen: () => U.keuzes(L.discussie.opties, i => { S.keuzes[L.id] = i; bewaar(); argument(L); }) });
@@ -225,6 +258,7 @@
     if (!titels.length) $('agZelfLijst').appendChild(U.el('p', 'note', C.teksten.nogGeenKaarten));
     $('agZelfVrij').value = A.zelfKaart == null ? A.zelf : ''; $('agZelfVrij').maxLength = C.agenda.zelfMax;
     $('agZelfVrij').oninput = () => { if ($('agZelfVrij').value) { A.zelfKaart = null; document.querySelectorAll('input[name=agZelf]').forEach(r => { r.checked = false; }); } };
+    const orgKlaar = !!A.org; $('agOrgVraag').hidden = orgKlaar; $('agOrgLijst').hidden = orgKlaar; $('agOrgVrij').hidden = orgKlaar;
     U.vinkLijst('agOrgLijst', C.agenda.organisatieOpties, 'radio', 'agOrg', A.orgIndex, i => { A.orgIndex = i; $('agOrgVrij').value = ''; bewaar(); });
     $('agOrgVrij').value = A.orgIndex == null ? A.org : '';
     $('agOrgVrij').oninput = () => { if ($('agOrgVrij').value) { A.orgIndex = null; document.querySelectorAll('input[name=agOrg]').forEach(r => { r.checked = false; }); } };
@@ -232,14 +266,14 @@
     $('agTerug').onclick = () => { leesAgenda(); hervatNaMenu(); };
     $('agKlaar').onclick = () => {
       leesAgenda();
-      if (!A.zelf || !A.org) { $('agFout').textContent = C.teksten.agendaLeeg; $('agFout').hidden = false; return; }
+      if (!A.zelf) { $('agFout').textContent = C.teksten.agendaLeeg; $('agFout').hidden = false; return; }
       S.agendaGedaan = true; if (allesKlaar() && !S.klaarOp) S.klaarOp = Date.now(); S.fase = 'einde'; bewaar(); X.kaart(); einde();
     };
   }
   function leesAgenda() {
     const A = S.agenda;
     A.zelf = A.zelfKaart != null ? kaarten()[A.zelfKaart].titel : $('agZelfVrij').value.trim().slice(0, C.agenda.zelfMax);
-    A.org = A.orgIndex != null ? C.agenda.organisatieOpties[A.orgIndex] : $('agOrgVrij').value.trim().slice(0, 120);
+    if (!$('agOrgLijst').hidden) A.org = A.orgIndex != null ? C.agenda.organisatieOpties[A.orgIndex] : $('agOrgVrij').value.trim().slice(0, 120);
     A.eigenaar = $('agEigenaar').value; bewaar();
   }
   function einde() {
@@ -250,7 +284,7 @@
     U.scoreTabel('eScore', SC.delen(S), SC.labels(), SC.maxVoor);
     const b = $('eAgenda'); b.innerHTML = '';
     b.appendChild(U.el('span', 'kop', 'IK PAK ZELF OP')); b.appendChild(U.el('p', null, A.zelf || '—'));
-    b.appendChild(U.el('span', 'kop', 'GGZ NHN MOET AAN DE SLAG MET')); b.appendChild(U.el('p', null, A.org || '—'));
+    b.appendChild(U.el('span', 'kop', 'GGZ NHN MOET AAN DE SLAG MET')); b.appendChild(U.el('p', null, (A.org || '—') + (A.orgVrij ? ' · ' + A.orgVrij : '')));
     b.appendChild(U.el('span', 'kop', 'EIGENAAR')); b.appendChild(U.el('p', null, A.eigenaar || '—'));
     if (S.ergernis) { b.appendChild(U.el('span', 'kop', 'ERGERNIS UIT DE ZAAL')); b.appendChild(U.el('p', null, S.ergernis)); }
     U.kaartenLijst('eKaartenLijst', kaarten(), KAARTEN, C.teksten.nogGeenKaarten);
@@ -290,8 +324,16 @@
           const buur = [[0, 1], [1, 0], [-1, 0], [0, -1]].map(([dx, dy]) => [x + dx, y + dy]).find(([bx, by]) => M.walkable(bx, by));
           if (buur) M.walkTo(buur[0], buur[1]); return;
         }
+        const ch = binnen.kaart[y] && binnen.kaart[y][x];
+        if (ch && C.voorwerpen[ch]) {
+          const [hx, hy] = M.heroTile();
+          if (Math.abs(hx - x) + Math.abs(hy - y) <= 1) return toonVoorwerp(ch);
+          const buur = [[0, 1], [1, 0], [-1, 0], [0, -1]].map(([dx, dy]) => [x + dx, y + dy]).find(([bx, by]) => M.walkable(bx, by));
+          if (buur) { wachtVoorwerp = { x, y, ch }; M.walkTo(buur[0], buur[1]); } return;
+        }
         M.walkTo(x, y); return;
       }
+      if (W.spookBijTegel(x, y)) { const [hx, hy] = M.heroTile(); if (Math.abs(hx - x) + Math.abs(hy - y) <= 2) return spookScene(); }
       const f = W.figurantBij(x, y);
       if (f && f.x === x && f.y === y) { const [hx, hy] = M.heroTile(); if (Math.abs(hx - x) + Math.abs(hy - y) <= 2) return praatFigurant(f); }
       if (M.walkTo(x, y, 40)) { U.locatie(C.teksten.onderweg); U.praatKnop(false); }

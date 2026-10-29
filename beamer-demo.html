@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Willibrordus Quest · bord (demo)</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap">
+<link rel="stylesheet" href="./css/style.css">
+<style>
+  /* Schermmodus: kaart met teams links, ranglijst rechts, panelen voor de facilitator (toetsen 1 t/m 4). */
+  body { overflow: hidden; }
+  .beamer { height: 100vh; display: grid; grid-template-rows: auto 1fr auto; grid-template-columns: 1fr 420px; gap: 12px 16px; padding: 12px 24px; }
+  .beamer .balk { grid-column: 1 / -1; display: flex; justify-content: space-between; align-items: center; gap: 16px; }
+  .beamer h1 { font-size: clamp(16px, 2vw, 28px); }
+  .beamer .klok { font-family: var(--display); font-size: clamp(24px, 3.4vw, 48px); color: var(--fg); }
+  .beamer .klok.bijna { color: var(--warn); } .beamer .klok.om { color: var(--bad); }
+  .beamer .links { position: relative; min-height: 0; display: flex; flex-direction: column; gap: 10px; }
+  .kaartvak { position: relative; align-self: center; width: 100%; }
+  .kaartvak canvas { width: 100%; height: auto; display: block; }
+  .kaartvak #labels { position: absolute; left: 0; top: 0; pointer-events: none; }
+  #paneel { overflow: auto; max-height: calc(100vh - 180px); background: var(--panel); border: 2px solid var(--accent-strong); border-radius: 6px; padding: 12px 16px; }
+  #paneel h3 { font-family: var(--display); font-size: 10px; color: var(--accent); margin: 10px 0 8px; line-height: 1.6; }
+  .balk { display: grid; grid-template-columns: 1fr 240px 40px; gap: 10px; align-items: center; font-size: 15px; padding: 3px 0; }
+  .balk .bar { height: 14px; background: #0f1813; border: 1px solid var(--accent-strong); border-radius: 3px; overflow: hidden; }
+  .balk .bar i { display: block; height: 100%; background: var(--accent); transition: width .4s; }
+  .balk .n { font-family: var(--display); font-size: 10px; color: var(--accent); text-align: right; }
+  .argumenten { margin: 4px 0 10px; padding-left: 18px; font-size: 15px; line-height: 1.5; columns: 2; }
+  .argumenten.signalen { columns: 1; font-size: 17px; color: var(--warn); }
+  .rechts { display: flex; flex-direction: column; gap: 8px; min-height: 0; overflow: auto; }
+  .rechts h2 { font-size: 11px; }
+  .rij { display: grid; grid-template-columns: 28px 32px 1fr auto; gap: 8px; align-items: center; background: var(--panel); border: 2px solid var(--accent-strong); border-radius: 6px; padding: 6px 10px; }
+  .rij.klaar { border-color: var(--accent); }
+  .rij .nr { font-family: var(--display); font-size: 12px; color: var(--muted); }
+  .rij canvas { width: 32px; height: 48px; image-rendering: pixelated; }
+  .rij .naam { font-family: var(--display); font-size: 10px; line-height: 1.5; }
+  .rij .sub { font-size: 12px; color: var(--muted); }
+  .rij .pt { font-family: var(--display); font-size: 14px; color: var(--accent); }
+  .voet { grid-column: 1 / -1; display: flex; justify-content: space-between; align-items: center; gap: 16px; }
+  .tabs { display: flex; gap: 6px; }
+  .tabs .btn { width: auto; min-height: 40px; padding: 8px 12px; font-size: 8px; }
+  .tabs .btn.actief { background: var(--accent-strong); }
+  .url { font-family: var(--display); font-size: clamp(12px, 1.6vw, 24px); color: var(--accent); word-break: break-all; }
+  #status { font-size: 12px; color: var(--muted); }
+</style>
+</head>
+<body>
+<div class="beamer">
+  <div class="balk">
+    <div><h1 id="titel">Willibrordus Quest</h1><p class="sub" id="ondertitel">Wie stuurt?</p></div>
+    <div class="url" id="url"></div>
+    <div class="klok" id="klok">--:--</div>
+  </div>
+  <div class="links">
+    <div class="kaartvak" id="kaartvak"><canvas id="kaart" width="2048" height="1152" aria-label="Kaart van het landgoed"></canvas><canvas id="labels" width="2048" height="1152"></canvas></div>
+    <div id="paneel" hidden></div>
+  </div>
+  <div class="rechts"><h2>Ranglijst</h2><div id="rang"></div></div>
+  <div class="voet">
+    <div class="tabs">
+      <button class="btn actief" type="button" data-tab="kaart">1 · KAART</button>
+      <button class="btn" type="button" data-tab="dilemma">2 · DILEMMA'S</button>
+      <button class="btn" type="button" data-tab="discussie">3 · DISCUSSIE</button>
+      <button class="btn" type="button" data-tab="agenda">4 · AGENDA</button>
+    </div>
+    <span id="status">Verbinden...</span>
+  </div>
+</div>
+<script src="./js/config.js"></script>
+<script src="./js/content.js"></script>
+<script src="./js/tiles.js"></script>
+<script src="./js/binnen.js"></script>
+<script src="./js/gebouwen.js"></script>
+<script src="./js/sprites.js"></script>
+<script src="./js/decor.js"></script>
+<script src="./js/map.js"></script>
+<script src="./js/interior.js"></script>
+<script>window.WQ_DEMO = true;</script>
+<script src="./js/beamer.js"></script>
+</body>
+</html>

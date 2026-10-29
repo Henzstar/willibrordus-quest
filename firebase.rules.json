@@ -16,6 +16,7 @@
             "agenda": {
               "zelf": { ".validate": "newData.isString() && newData.val().length <= 120" },
               "org": { ".validate": "newData.isString() && newData.val().length <= 120" },
+              "orgVrij": { ".validate": "newData.isString() && newData.val().length <= 120" },
               "eigenaar": { ".validate": "newData.isString() && newData.val().length <= 40" },
               "$other": { ".validate": false }
             },

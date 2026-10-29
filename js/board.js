@@ -8,7 +8,7 @@ const WQBoard = (() => {
     return {
       naam: String(S.naam).slice(0, 20), avatar: S.avatar, modus: S.modus, regie: S.regie, punten,
       bezocht: S.bezocht.slice(0, 16), keuzes: S.keuzes, argumenten: S.argumenten, ergernis: S.ergernis.slice(0, 60),
-      zelfcheck: S.zelfcheck, agenda: { zelf: S.agenda.zelf.slice(0, 120), org: S.agenda.org.slice(0, 120), eigenaar: S.agenda.eigenaar.slice(0, 40) },
+      zelfcheck: S.zelfcheck, agenda: { zelf: S.agenda.zelf.slice(0, 120), org: S.agenda.org.slice(0, 120), orgVrij: (S.agenda.orgVrij || '').slice(0, 120), eigenaar: S.agenda.eigenaar.slice(0, 40) },
       locatie: locatie || 'buiten', tegel: S.hero, klaarOp: S.klaarOp || null, gestart: S.gestart, fase: S.fase, bijgewerkt: Date.now(),
     };
   }

@@ -20,8 +20,8 @@ h2 { font-family: var(--display); font-size: 11px; line-height: 1.6; margin: 0; 
 .hud { display: grid; grid-template-columns: 1fr auto auto auto; gap: 6px 12px; align-items: center; background: var(--panel); border: 2px solid var(--accent-strong); border-radius: 6px; padding: 8px 10px; font-size: 12px; }
 .hud .lab { font-family: var(--display); font-size: 8px; color: var(--muted); letter-spacing: .04em; }
 .hud .name { font-family: var(--display); font-size: 10px; color: var(--fg); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 30vw; }
-.hud .kaartknop { grid-column: 1 / -1; font-family: var(--display); font-size: 8px; color: var(--warn); background: var(--panel-2); border: 2px solid var(--warn); border-radius: 6px; padding: 10px; min-height: 40px; cursor: pointer; text-align: left; }
-.hud .kaartknop:hover { background: var(--accent-strong); }
+.hud .kaartknop { grid-column: 1 / -1; font-family: var(--display); font-size: 9px; color: #1a1f1c; background: var(--warn); border: 2px solid #fff7cc; border-radius: 6px; padding: 12px; min-height: 48px; cursor: pointer; text-align: center; box-shadow: 3px 3px 0 var(--accent-strong); }
+.hud .kaartknop:hover { background: #ffc96b; }
 .overzichtbox { align-items: stretch; }
 .overzichtvak { background: #0f1813; border: 2px solid var(--accent-strong); border-radius: 6px; overflow: hidden; }
 .overzichtvak canvas { width: 100%; height: auto; display: block; image-rendering: pixelated; }

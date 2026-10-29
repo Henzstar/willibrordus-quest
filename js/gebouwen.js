@@ -107,14 +107,15 @@ const WQGebouwen = (() => {
   function teken(c, C) {
     const MAP = C.tilemap, MW = MAP[0].length, MH = MAP.length;
     ramen = []; namen = {};
-    C.locaties.filter(l => l.soort === 'dilemma' || l.soort === 'discussie').forEach(l => { namen[l.tegel[0] + ',' + (l.tegel[1] - 1)] = (l.kortenaam || l.naam).split('[')[0].trim(); });
+    C.locaties.filter(l => l.binnen).forEach(l => { namen[l.tegel[0] + ',' + (l.tegel[1] - 1)] = (l.kortenaam || l.naam).split('[')[0].trim(); });
+    const borden = {}; (C.borden || []).forEach(b => { borden[b.tegel[0] + ',' + b.tegel[1]] = b.naam; });
     const at = (x, y) => (MAP[y] && MAP[y][x]) || '.';
     for (const b of blokken(MAP)) {
       const s = b.stijl, ch = b.ch, deuren = [];
       for (const [x, y] of b.tiles) {
         const boven = at(x, y - 1) === ch, onder = at(x, y + 1) === ch, links = at(x - 1, y) === ch, rechts = at(x + 1, y) === ch, sx = x * T, sy = y * T;
         if (onder) dak(c, s, sx, sy, boven, links, rechts, ch, x, y);
-        else { const deur = !!namen[x + ',' + y]; gevel(c, s, sx, sy, links, rechts, ch, deur); if (deur) deuren.push([x, y]); if (!links) { R(c, sx + 1, sy + 6, 2, 22, s.dakD); R(c, sx + 1, sy + 6, 1, 22, s.dakL); } if (!rechts) { R(c, sx + 29, sy + 6, 2, 22, s.dakD); R(c, sx + 29, sy + 6, 1, 22, s.dakL); } }
+        else { const deur = !!namen[x + ',' + y]; gevel(c, s, sx, sy, links, rechts, ch, deur); if (deur) deuren.push([x, y]); if (borden[x + ',' + y]) naambord(c, s, sx, sy + 4, borden[x + ',' + y]); if (!links) { R(c, sx + 1, sy + 6, 2, 22, s.dakD); R(c, sx + 1, sy + 6, 1, 22, s.dakL); } if (!rechts) { R(c, sx + 29, sy + 6, 2, 22, s.dakD); R(c, sx + 29, sy + 6, 1, 22, s.dakL); } }
         if (!boven && ch === 'B' && (x - b.x0) % 5 === 2) { R(c, sx + 20, sy - 8, 8, 14, s.dakD); R(c, sx + 18, sy - 10, 12, 3, '#3a2a20'); R(c, sx + 22, sy - 6, 4, 2, s.dakL); R(c, sx + 21, sy - 1, 1, 6, s.dakL); }
         if (ch === 'N') steiger(c, sx, sy, !onder);
       }

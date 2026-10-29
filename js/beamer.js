@@ -28,7 +28,27 @@
     for (let i = 2; i < delen.length - 1; i++) o = o[delen[i]] = o[delen[i]] || {};
     o[delen[delen.length - 1]] = data;
   }
+  // Demo: zes gesimuleerde teams die het landgoed doorlopen, voor een test zonder Firebase (beamer.html?demo=1).
+  function demo() {
+    const namen = ['Tafel 1', 'De Bitterballen', 'Team Koepel', 'Nachtdienst', 'FPA Noord', 'De Aios'];
+    const zinnen = ['Omdat de cliënt het dossier is, niet het probleem.', 'Zichtbaar in het dossier of niet gebeurd.', 'Eerst praten, dan schrijven.', 'Een schaduw is geen collega.', 'Regie begint bij toestemming.'];
+    const ergernissen = ['dubbel inloggen', 'wachtwoord elke dag opnieuw', 'printer offline', 'vier keer dezelfde vraag', 'update om acht uur', 'pop-up bij elk recept'];
+    namen.forEach((naam, i) => { spelers['demo' + i] = { id: 'demo' + i, naam, avatar: C.avatars[i % 4].id, modus: 'team', regie: 50, punten: 0, bezocht: [], keuzes: {}, argumenten: {}, ergernis: '', zelfcheck: C.zelfcheck.items.map(() => Math.random() < 0.5), agenda: { zelf: '', org: '', orgVrij: '', eigenaar: '' }, locatie: 'buiten', tegel: C.locaties[0].tegel, gestart: Date.now() - i * 60000, klaarOp: null }; });
+    $('status').textContent = 'Demo met gesimuleerde teams';
+    setInterval(() => {
+      const p = Object.values(spelers)[Math.floor(Math.random() * namen.length)], volgende = C.route.find(id => !p.bezocht.includes(id));
+      if (!volgende) { if (!p.klaarOp) { p.klaarOp = Date.now(); p.locatie = 'buiten'; p.tegel = C.locaties[0].tegel; } teken(); return; }
+      const L = LOC[volgende];
+      if (p.locatie !== volgende) { p.locatie = volgende; p.tegel = L.tegel; teken(); return; }
+      p.bezocht.push(volgende);
+      if (L.dilemma) { const i = Math.floor(Math.random() * 4); p.keuzes[volgende] = i; p.punten += L.dilemma.opties[i].punten + C.score.kaart + (L.minigame ? Math.floor(Math.random() * 61) : 0); p.regie = Math.max(0, Math.min(100, p.regie + L.dilemma.opties[i].effect)); }
+      if (L.discussie) { p.keuzes[volgende] = Math.floor(Math.random() * 4); p.argumenten[volgende] = zinnen[Math.floor(Math.random() * zinnen.length)]; p.punten += C.score.discussie; }
+      if (volgende === 'koepel') { p.ergernis = ergernissen[Math.floor(Math.random() * ergernissen.length)]; p.agenda = { zelf: L.kaart.titel, org: C.agenda.organisatieOpties[Math.floor(Math.random() * 7)], orgVrij: Math.random() < 0.5 ? zinnen[Math.floor(Math.random() * zinnen.length)] : '', eigenaar: C.agenda.eigenaren[Math.floor(Math.random() * 6)] }; p.punten += C.score.zelfcheck + C.score.agenda; }
+      teken();
+    }, 1500);
+  }
   function verbind() {
+    if (q.get('demo') || window.WQ_DEMO) return demo();
     if (!baseUrl || !eventId) { $('status').textContent = 'Geen bord geconfigureerd (js/config.js). De kaart werkt wel.'; return; }
     const url = baseUrl + '/events/' + encodeURIComponent(eventId) + '.json';
     try {
@@ -102,6 +122,7 @@
     const tel = (f) => { const m = {}; ps.forEach(p => { const k = f(p); if (k) m[k] = (m[k] || 0) + 1; }); return Object.entries(m).sort((a, b) => b[1] - a[1]); };
     const org = tel(p => p.agenda.org), eig = tel(p => p.agenda.eigenaar);
     balkjes(box, C.agenda.organisatieVraag, org, org.reduce((a, b) => a + b[1], 0));
+    const vrij = ps.filter(p => p.agenda.orgVrij); if (vrij.length) { const ulv = el('ul', 'argumenten'); vrij.forEach(p => ulv.appendChild(el('li', null, p.naam + ': ' + p.agenda.orgVrij))); box.appendChild(ulv); }
     balkjes(box, 'Eigenaar', eig, eig.reduce((a, b) => a + b[1], 0));
     const zc = C.zelfcheck.items.map((t, i) => [t, Object.values(spelers).filter(p => p.zelfcheck && p.zelfcheck[i]).length]);
     balkjes(box, 'Zelfcheck: ' + C.zelfcheck.vraag, zc, Object.values(spelers).length);

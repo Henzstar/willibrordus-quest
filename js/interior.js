@@ -33,8 +33,8 @@ const WQWereld = (() => {
         begaanbaar: new Set(Object.keys(C.legenda).filter(k => C.legenda[k].begaanbaar)),
         offscreen: WQTiles.tekenBuiten(C), overlay: WQTiles.tekenOverlay(C), water: true, bg: '#0f1813', decor: WQDecor,
         lampen: C.props.filter(p => p.type === 'lantaarn').map(p => [p.tegel[0] * T + 22, p.tegel[1] * T + 4]), ramen: WQGebouwen.ramen(),
-        sprites: t => { if (buiten.actief) beweegFiguranten(t); return figuranten.map(f => ({ px: f.px, py: f.py, dir: f.dir, frame: f.pad.length ? f.frame : 0, look: f.look })); },
-        markers: () => C.locaties.filter(l => l.id !== 'start').map(l => ({ x: l.tegel[0], y: l.tegel[1], done: buiten.bezocht(l.id), actief: l.id === buiten.actiefId, plek: l.soort === 'plek', dicht: l.id === C.laatste && !buiten.open() })),
+        sprites: t => { if (buiten.actief) beweegFiguranten(t); const lijst = figuranten.map(f => ({ px: f.px, py: f.py, dir: f.dir, frame: f.pad.length ? f.frame : 0, look: f.look })); if (spook.zichtbaar) { spook.f++; if (spook.tot && t > spook.tot) spook.zichtbaar = false; lijst.push({ px: spook.x * T, py: spook.y * T - 6 + Math.round(Math.sin(spook.f / 14) * 4), dir: spook.dir, frame: 0, look: C.spook.look, alpha: 0.55 + Math.sin(spook.f / 9) * 0.15, zaad: 99 }); } return lijst; },
+        markers: () => C.locaties.filter(l => l.id !== 'start' && l.soort !== 'grap').map(l => ({ x: l.tegel[0], y: l.tegel[1], done: buiten.bezocht(l.id), actief: l.id === buiten.actiefId, plek: l.soort === 'plek', dicht: l.id === C.laatste && !buiten.open() })),
       };
       maakFiguranten(); WQDecor.init(C);
       if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { buiten.offscreen = WQTiles.tekenBuiten(C); buiten.ramen = WQGebouwen.ramen(); });
@@ -50,11 +50,17 @@ const WQWereld = (() => {
     const w = {
       kaart: K, breedte: K[0].length, hoogte: K.length, begaanbaar: new Set(C.binnenBegaanbaar),
       offscreen: WQTiles.tekenBinnen(b, C), water: false, bg: '#0f1813', deur, npc: b.npc, locatie: L,
-      sprites: () => { const [hx, hy] = WQMap.heroTile(), dx = hx - b.npc[0], dy = hy - b.npc[1]; return [{ px: b.npc[0] * T, py: b.npc[1] * T, dir: Math.abs(dx) + Math.abs(dy) <= 2 && (dx || dy) ? richting(dx, dy) : 'down', frame: 0, look: L.npc.look, bubble: gedaan() ? null : '!' }]; },
+      sprites: () => { const [hx, hy] = WQMap.heroTile(), dx = hx - b.npc[0], dy = hy - b.npc[1]; const lijst = [{ px: b.npc[0] * T, py: b.npc[1] * T, dir: Math.abs(dx) + Math.abs(dy) <= 2 && (dx || dy) ? richting(dx, dy) : 'down', frame: 0, look: L.npc.look, bubble: gedaan() || L.soort === 'grap' ? null : '!' }]; (b.groep || []).forEach((g, i) => lijst.push({ px: g[0] * T, py: g[1] * T, dir: g[0] < 6 ? 'right' : 'left', frame: 0, look: C.figuranten[i % C.figuranten.length].look, zaad: i + 7 })); return lijst; },
       markers: () => [],
     };
     return w;
   }
   const naastNpc = (w, x, y) => w.npc && Math.abs(w.npc[0] - x) + Math.abs(w.npc[1] - y) === 1;
-  return { init: c => { C = c; }, buitenWereld, binnenWereld, naastNpc, figurantBij, figuranten: () => figuranten, buitenActief: v => { if (buiten) buiten.actief = v; } };
+  // Spook: staat op de begraafplaats tot hij gezien is; daarna verschijnt hij tijdelijk bij een deur.
+  const spook = { x: C ? 0 : 0, y: 0, zichtbaar: false, dir: 'down', f: 0, tot: 0, bij: null };
+  function spookOpBegraafplaats() { spook.x = C.spook.tegel[0]; spook.y = C.spook.tegel[1]; spook.zichtbaar = true; spook.tot = 0; spook.bij = 'begraafplaats'; }
+  function spookBij(x, y, t, id) { spook.x = x; spook.y = y; spook.zichtbaar = true; spook.tot = t + 60 * 14; spook.bij = id; spook.dir = 'down'; }
+  function spookWeg() { spook.zichtbaar = false; spook.bij = null; }
+  const spookBijTegel = (x, y) => spook.zichtbaar && Math.abs(spook.x - x) + Math.abs(spook.y - y) <= 1;
+  return { init: c => { C = c; }, buitenWereld, binnenWereld, naastNpc, figurantBij, figuranten: () => figuranten, buitenActief: v => { if (buiten) buiten.actief = v; }, spookOpBegraafplaats, spookBij, spookWeg, spookBijTegel, spook: () => spook };
 })();

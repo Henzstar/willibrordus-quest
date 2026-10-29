@@ -42,33 +42,37 @@ const WQMinigames = (() => {
     };
   }
 
-  // ---------- dicteer: tik het foute woord ----------
+  // ---------- dicteer: twee tekstblokken, tik het afwijkende woord; klok met tienden ----------
   function dicteer() {
-    const g = C.minigames.dicteer, zinnen = g.zinnen.map(z => ({ gesproken: z.gesproken, woorden: z.woorden.map(w => [w[0], w[1]]) }));
-    let zi = 0, wi = -1, timer = 20, punten = 0, hits = 0, missers = 0, flits = 0, getikt = false, totaal = zinnen.flatMap(z => z.woorden).filter(w => !w[1]).length;
-    const tempo = Math.round(g.tempo / 16.7);
+    const g = C.minigames.dicteer, rondes = g.rondes;
+    let ri = 0, t0 = performance.now(), punten = 0, goed = 0, totaalTijd = 0, flits = 0, chips = [], klaarMelding = 0, pauze = 0;
+    const woorden = tekst => tekst.split(' ');
+    const leg = (lijst, y0) => { ctx.font = FB(11); let x = 8, y = y0, uit = []; lijst.forEach((w, i) => { const tw = ctx.measureText(w).width + 8; if (x + tw > W - 6) { x = 8; y += 17; } uit.push({ w, i, x, y, tw }); x += tw + 3; }); return uit; };
+    const volgende = () => { ri++; t0 = performance.now(); chips = []; pauze = 0; if (ri >= rondes.length) setTimeout(() => eind({ punten: clamp(punten, 0, 60), tekst: vul(g.klaar, { goed, totaal: rondes.length, tijd: (totaalTijd / 1000).toFixed(1) }) }), 700); };
     return {
-      down() {
-        if (wi < 0 || getikt || zi >= zinnen.length) return;
-        getikt = true; const w = zinnen[zi].woorden[wi];
-        if (!w[1]) { hits++; punten += g.hit; w[2] = 'goed'; flits = 8; } else { missers++; punten = Math.max(0, punten - g.mis); w[2] = 'mis'; flits = -8; }
+      down(x, y) {
+        if (ri >= rondes.length || pauze) return;
+        const c = chips.find(ch => x >= ch.x - 3 && x <= ch.x + ch.tw - 3 && y >= ch.y - 9 && y <= ch.y + 8); if (!c) return;
+        const sec = (performance.now() - t0) / 1000;
+        if (c.w === rondes[ri].fout) { const p = Math.max(g.minimumBijGoed, g.puntenPerRonde - Math.floor(sec) * g.puntenAftrekPerSeconde); punten += p; goed++; totaalTijd += sec * 1000; flits = 10; klaarMelding = '+' + p; c.goed = true; pauze = 50; }
+        else { punten -= g.misser; flits = -10; klaarMelding = '-' + g.misser; c.mis = true; }
       },
-      tick() {
-        if (zi >= zinnen.length) return;
-        timer--;
-        if (timer <= 0) { wi++; getikt = false; timer = tempo; if (wi >= zinnen[zi].woorden.length) { zi++; wi = -1; timer = 50; if (zi >= zinnen.length) setTimeout(() => eind({ punten: clamp(punten, 0, 60), tekst: vul(g.klaar, { hits, totaal, missers }) }), 600); } }
-        if (flits > 0) flits--; if (flits < 0) flits++;
-      },
+      tick() { if (flits > 0) flits--; if (flits < 0) flits++; if (pauze > 0) { pauze--; if (pauze === 0) volgende(); return; } if (ri < rondes.length && (performance.now() - t0) / 1000 > g.maxSeconden) { totaalTijd += g.maxSeconden * 1000; klaarMelding = 'te laat'; pauze = 40; } },
       draw() {
-        kop(g.titel + ' · zin ' + Math.min(zi + 1, zinnen.length) + '/' + zinnen.length, 'Tik als het woord niet klopt');
+        const sec = ri < rondes.length ? Math.min(g.maxSeconden, (performance.now() - t0) / 1000) : 0;
+        kop(g.titel + ' · ' + Math.min(ri + 1, rondes.length) + '/' + rondes.length, 'Tik op het woord dat afwijkt');
         if (flits) R(0, 22, W, H - 22, flits > 0 ? 'rgba(123,182,97,.25)' : 'rgba(214,90,74,.3)');
-        if (zi >= zinnen.length) return;
-        tekst('GEZEGD', W / 2, 34, F(6), '#9fb3a6');
-        regels(zinnen[zi].gesproken, W / 2, 48, FB(11), '#eef3ee', W - 16, 13);
-        tekst('AI-SAMENVATTING', W / 2, 92, F(6), '#9fb3a6');
-        const ws = zinnen[zi].woorden.slice(0, wi + 1); ctx.font = FB(12);
-        let x = 10, y = 108; ws.forEach((w, i) => { const tw = ctx.measureText(w[0]).width + 8; if (x + tw > W - 6) { x = 10; y += 18; } const col = w[2] === 'goed' ? '#7bb661' : w[2] === 'mis' ? '#d65a4a' : i === wi ? '#fff7cc' : '#27382f'; R(x - 3, y - 8, tw, 16, col); tekst(w[0], x + tw / 2 - 3, y, FB(12), i === wi || w[2] ? '#1a1f1c' : '#9fb3a6'); x += tw + 2; });
-        tekst(punten + ' pt', W - 6, 11, F(7), '#fff', 'right');
+        tekst(sec.toFixed(1) + ' s', W - 6, 11, F(9), sec > 8 ? '#e0a84a' : '#fff', 'right');
+        if (ri >= rondes.length) return;
+        const r = rondes[ri];
+        tekst('GEZEGD', 8, 32, F(6), '#9fb3a6', 'left');
+        const g1 = leg(woorden(r.gesproken), 46); g1.forEach(ch => tekst(ch.w, ch.x + ch.tw / 2 - 4, ch.y, FB(11), '#eef3ee'));
+        const y2 = g1[g1.length - 1].y + 30;
+        tekst('AI-SAMENVATTING', 8, y2 - 12, F(6), '#9fb3a6', 'left');
+        chips = leg(woorden(r.samenvatting), y2 + 2);
+        chips.forEach(ch => { R(ch.x - 3, ch.y - 9, ch.tw, 17, ch.goed ? '#7bb661' : ch.mis ? '#d65a4a' : '#27382f'); tekst(ch.w, ch.x + ch.tw / 2 - 4, ch.y, FB(11), ch.goed || ch.mis ? '#1a1f1c' : '#fff7cc'); });
+        if (pauze && klaarMelding) tekst(klaarMelding, W / 2, H - 28, F(12), '#fff');
+        tekst(punten + ' pt', 8, 11, F(7), '#fff', 'left');
       },
     };
   }
