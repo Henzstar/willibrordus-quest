@@ -5,7 +5,7 @@ const WQTiles = (() => {
   const PAL = {
     gras: '#7bb661', gras2: '#6aa352', gras3: '#8cc46f', gras4: '#5e9a4a', pad: '#d9c38a', pad2: '#c4ad77', padRand: '#b89b63', padLicht: '#e6d4a3',
     asfalt: '#6b7280', asfalt2: '#9aa3ad', asfaltD: '#5c626e', stoep: '#a3aab3', stoepD: '#8a9099', water: '#5aa7d6', water2: '#8cc5e8', waterDiep: '#4a93c2', schuim: '#cfe9f7',
-    kroon: '#3f7d3a', kroonD: '#2f6b2e', kroonL: '#5aa35a', kroonXL: '#78bd6e', stam: '#6b4a2b', stamD: '#4e351f', stamL: '#8a6a3f',
+    kroon: '#3f7d3a', kroonD: '#2f6b2e', kroonL: '#5aa35a', kroonXL: '#78bd6e', herfst: '#d08a3a', herfstD: '#a9632a', herfstL: '#e8b24a', herfstXL: '#f2d27a', geel: '#c9b43a', geelD: '#9c8a2a', geelL: '#e0cf5a', blad: '#c9843a', bladD: '#a9632a', tak: '#5a4632', stam: '#6b4a2b', stamD: '#4e351f', stamL: '#8a6a3f',
     zand: '#e0cfa0', zand2: '#cdb985', hek: '#8d949c', akker: '#a9b46a', akker2: '#8f9a52', akker3: '#c3cc80', hout: '#8a5a2b', houtL: '#b07a3e',
     ink: '#1a1f1c', wit: '#ffffff', lamp: '#ffe9a8', bloem1: '#f2f2f2', bloem2: '#f6d44c', bloem3: '#e86f9a', bloem4: '#7a9bff', aarde: '#4e6b3a',
     heg: '#2f6b2e', hegL: '#4c9448', hegD: '#1f4d20', steen: '#9aa3ad', steenL: '#c3c9d1', steenD: '#6f767e', veld: '#8cc46f', veld2: '#7bb661', brug: '#a9774a', brug2: '#8a5a2b',
@@ -45,6 +45,7 @@ const WQTiles = (() => {
       if (h % 13 === 0 && ch === '.') { bloem(c, sx + 6 + (h & 7), sy + 8, PAL.bloem1); bloem(c, sx + 20, sy + 18 + (h & 3), PAL.bloem3); }
       if (h % 29 === 0 && ch === '.') { bloem(c, sx + 14, sy + 12, PAL.bloem4); bloem(c, sx + 24, sy + 24, PAL.bloem1); }
       if (h % 47 === 0 && ch === '.') { R(c, sx + 20, sy + 24, 7, 3, '#d9c38a'); R(c, sx + 22, sy + 22, 3, 2, '#d9c38a'); R(c, sx + 21, sy + 27, 5, 1, PAL.pad2); }
+      if (ch === '.') for (let i = 0; i < ((h >> 7) % 3); i++) { const lx = (h >> (i * 5 + 1)) & 31, ly = (h >> (i * 5 + 9)) & 31; R(c, sx + lx, sy + ly, 3, 2, i % 2 ? PAL.blad : PAL.geel); R(c, sx + lx + 1, sy + ly - 1, 1, 1, PAL.bladD); }
       const nat = (dx, dy) => at(dx, dy) === 'W';
       if (nat(0, -1)) R(c, sx, sy, T, 4, PAL.zand); if (nat(0, 1)) R(c, sx, sy + 28, T, 4, PAL.zand); if (nat(-1, 0)) R(c, sx, sy, 4, T, PAL.zand); if (nat(1, 0)) R(c, sx + 28, sy, 4, T, PAL.zand);
       if (ch === 'H') { const zh = (dx, dy) => at(dx, dy) === 'H'; R(c, sx, sy, T, T, PAL.heg); for (let i = 0; i < 14; i++) R(c, sx + 2 + ((h >> i) & 7) * 4, sy + 3 + ((h >> (i + 3)) & 7) * 3, 3, 2, (i & 1) ? PAL.hegL : PAL.hegD); randen(c, sx, sy, zh, PAL.hegD, 3); if (!zh(0, -1)) R(c, sx + 4, sy + 3, T - 8, 2, PAL.hegL); R(c, sx, sy + 30, T, 2, 'rgba(20,40,20,.35)'); }
@@ -52,13 +53,36 @@ const WQTiles = (() => {
       return;
     }
     const hard = k => '-=PS+'.includes(k);
+    if (ch === 'D') {
+      R(c, sx, sy, T, T, '#8fb86a'); for (let i = 0; i < 8; i++) R(c, sx + ((h >> i) & 31), sy + ((h >> (i + 5)) & 31), 2, 1, i % 2 ? PAL.gras2 : '#a9774a');
+      if (h % 4 === 0) { c.fillStyle = '#8a6a3f'; c.beginPath(); c.ellipse(sx + 16, sy + 20, 9, 4, 0, 0, 7); c.fill(); }
+      const d = (dx, dy) => at(dx, dy) === 'D';
+      const paal = (x, y) => { R(c, sx + x, sy + y, 3, 8, PAL.hout); R(c, sx + x, sy + y, 1, 8, PAL.houtL); };
+      if (!d(0, -1)) { R(c, sx, sy + 3, T, 2, PAL.houtL); R(c, sx, sy + 8, T, 2, PAL.houtL); paal(2, 0); paal(17, 0); }
+      if (!d(0, 1)) { R(c, sx, sy + 23, T, 2, PAL.houtL); R(c, sx, sy + 28, T, 2, PAL.houtL); paal(2, 21); paal(17, 21); }
+      if (!d(-1, 0)) { R(c, sx + 2, sy, 2, T, PAL.houtL); R(c, sx + 7, sy, 2, T, PAL.houtL); }
+      if (!d(1, 0)) { R(c, sx + 23, sy, 2, T, PAL.houtL); R(c, sx + 28, sy, 2, T, PAL.houtL); }
+      if (!d(-1, 0) && !d(0, -1)) { R(c, sx + 6, sy + 10, 14, 10, PAL.stamD); R(c, sx + 4, sy + 8, 18, 3, PAL.hout); R(c, sx + 8, sy + 13, 4, 7, '#2a1f14'); }
+      return;
+    }
+    if (ch === 'O') {
+      R(c, sx, sy, T, T, PAL.gras); const ox = at(-1, 0) === 'O' ? 0 : 32, oy = at(0, -1) === 'O' ? 0 : 32; // kwadrant van de 2 x 2 fontein
+      const cx = sx + (ox ? 32 : 0), cy = sy + (oy ? 32 : 0);
+      c.save(); c.beginPath(); c.rect(sx, sy, T, T); c.clip();
+      c.fillStyle = PAL.steen; c.beginPath(); c.ellipse(cx, cy, 30, 24, 0, 0, 7); c.fill();
+      c.fillStyle = PAL.steenL; c.beginPath(); c.ellipse(cx, cy - 2, 28, 21, 0, 0, 7); c.fill();
+      c.fillStyle = PAL.water; c.beginPath(); c.ellipse(cx, cy, 24, 17, 0, 0, 7); c.fill();
+      c.fillStyle = PAL.water2; c.beginPath(); c.ellipse(cx - 6, cy - 4, 8, 3, 0, 0, 7); c.fill();
+      c.fillStyle = PAL.steenD; c.beginPath(); c.ellipse(cx, cy + 2, 7, 4, 0, 0, 7); c.fill(); R(c, cx - 3, cy - 14, 6, 16, PAL.steenD); R(c, cx - 6, cy - 16, 12, 3, PAL.steenL); R(c, cx - 2, cy - 13, 1, 12, PAL.steenL);
+      c.restore(); return;
+    }
     if (ch === 'A') { R(c, sx, sy, T, T, (x + y) % 2 ? PAL.veld : PAL.veld2); for (let i = 0; i < 6; i++) R(c, sx + ((h >> i) & 31), sy + ((h >> (i + 4)) & 31), 1, 1, PAL.gras3); const a = (dx, dy) => at(dx, dy) === 'A'; if (!a(0, -1)) R(c, sx, sy + 2, T, 2, PAL.wit); if (!a(0, 1)) R(c, sx, sy + 28, T, 2, PAL.wit); if (!a(-1, 0)) R(c, sx + 2, sy, 2, T, PAL.wit); if (!a(1, 0)) R(c, sx + 28, sy, 2, T, PAL.wit); return; }
     if (ch === '+') { R(c, sx, sy, T, T, PAL.brug); for (let j = 0; j < T; j += 6) R(c, sx, sy + j, T, 1, PAL.brug2); R(c, sx, sy, T, 3, PAL.brug2); R(c, sx, sy + 29, T, 3, PAL.brug2); R(c, sx + 4, sy, 2, T, PAL.stamD); R(c, sx + 26, sy, 2, T, PAL.stamD); R(c, sx + 3, sy + 1, 1, T - 2, PAL.stamL); return; }
     if (ch === '-' || ch === 'S') {
       R(c, sx, sy, T, T, ch === '-' ? PAL.pad : PAL.zand);
       for (let i = 0; i < 7; i++) { const px = (h >> (i * 4)) & 31, py = (h >> (i * 4 + 3)) & 31; R(c, sx + px, sy + py, 2 + (i & 1), 1, ch === '-' ? PAL.pad2 : PAL.zand2); if (i % 3 === 0) R(c, sx + px, sy + py - 1, 1, 1, PAL.padLicht); }
       if (ch === '-' && h % 11 === 0) { R(c, sx + 18, sy + 12, 3, 3, PAL.padLicht); R(c, sx + 19, sy + 13, 1, 1, PAL.pad2); R(c, sx + 24, sy + 24, 3, 2, PAL.padRand); }
-      if (ch === '-' && h % 23 === 0) { R(c, sx + 10, sy + 20, 3, 2, '#c9843a'); R(c, sx + 11, sy + 19, 1, 1, '#a9632a'); }
+      if (ch === '-') for (let i = 0; i < ((h >> 9) % 4); i++) { const lx = (h >> (i * 4 + 2)) & 31, ly = (h >> (i * 4 + 11)) & 31; R(c, sx + lx, sy + ly, 3, 2, i % 2 ? PAL.blad : PAL.geelD); R(c, sx + lx + 1, sy + ly - 1, 1, 1, PAL.bladD); }
       const zh = (dx, dy) => hard(at(dx, dy)) || 'BKGN'.includes(at(dx, dy));
       randen(c, sx, sy, zh, ch === '-' ? PAL.padRand : PAL.hek, 2);
       if (ch === '-') { if (!zh(0, -1)) R(c, sx + 2, sy + 2, T - 4, 1, PAL.padLicht); if (!zh(-1, 0)) R(c, sx + 2, sy + 2, 1, T - 4, PAL.padLicht); grasrand(c, sx, sy, (dx, dy) => zh(dx, dy) || at(dx, dy) !== '.', h); }
@@ -86,11 +110,13 @@ const WQTiles = (() => {
     R(c, sx, sy, T, T, (hash(x, y) % 5 === 0) ? PAL.waterDiep : PAL.water);
     c.fillStyle = PAL.water2; c.fillRect(sx + ((o + x * 5) % 32), sy + 9, 8, 2); c.fillRect(sx + ((o + 16 + y * 7) % 32), sy + 22, 6, 2); c.fillRect(sx + ((o * 2 + x * 3) % 32), sy + 16, 3, 1);
     randen(c, sx, sy, zw, PAL.zand2, 4); randen(c, sx, sy, zw, PAL.schuim, 2);
+    const hl = hash(x, y); if (hl % 7 === 0 && zw(0, -1) && zw(0, 1)) { c.fillStyle = PAL.kroon; c.beginPath(); c.ellipse(sx + 10 + (hl & 7), sy + 12 + ((hl >> 3) & 7), 6, 4, 0, 0, 7); c.fill(); c.fillStyle = PAL.kroonL; c.beginPath(); c.ellipse(sx + 20 + (hl & 3), sy + 20, 5, 3, 0, 0, 7); c.fill(); R(c, sx + 9 + (hl & 7), sy + 10 + ((hl >> 3) & 7), 2, 2, PAL.bloem3); R(c, sx + 21, sy + 19, 1, 1, PAL.bloem2); }
     c.fillStyle = PAL.schuim; if (!zw(0, -1)) c.fillRect(sx + ((o >> 1) % 6) * 5, sy + 4, 3, 1); if (!zw(0, 1)) c.fillRect(sx + 5 + ((o >> 1) % 5) * 5, sy + 27, 3, 1);
   }
   // Bomen: stam in de grondlaag, kroon in de overlaylaag (valt vóór de held).
   function tekenBoom(c, x, y, sx, sy, laag) {
-    const h = hash(x, y), ox = (h >> 2) % 3, groot = h % 3 === 0, r = (groot ? 16 : 14) + (h % 2);
+    const h = hash(x, y), ox = (h >> 2) % 3, groot = h % 3 === 0, r = (groot ? 16 : 14) + (h % 2), sz = (h >> 6) % 10;
+    const K = sz < 3 ? { d: PAL.kroonD, m: PAL.kroon, l: PAL.kroonL, xl: PAL.kroonXL } : sz < 6 ? { d: PAL.herfstD, m: PAL.herfst, l: PAL.herfstL, xl: PAL.herfstXL } : sz < 8 ? { d: PAL.geelD, m: PAL.geel, l: PAL.geelL, xl: PAL.herfstXL } : null;
     if (laag === 'grond') { c.fillStyle = 'rgba(20,40,20,.28)'; c.beginPath(); c.ellipse(sx + 18 + ox, sy + 28, 14, 6, 0, 0, 7); c.fill(); }
     if (h % 5 === 0) { // naaldboom
       if (laag === 'grond') { R(c, sx + 14 + ox, sy + 22, 4, 9, PAL.stam); R(c, sx + 17 + ox, sy + 22, 1, 9, PAL.stamD); return; }
@@ -100,12 +126,20 @@ const WQTiles = (() => {
     }
     if (laag === 'grond') { R(c, sx + 13 + ox, sy + 16, 6, 15, PAL.stam); R(c, sx + 17 + ox, sy + 16, 2, 15, PAL.stamD); R(c, sx + 13 + ox, sy + 17, 1, 12, PAL.stamL); R(c, sx + 11 + ox, sy + 28, 3, 3, PAL.stam); R(c, sx + 18 + ox, sy + 29, 3, 2, PAL.stamD); return; }
     const cx = sx + 16 + ox, cy = sy + (groot ? 4 : 8);
-    c.fillStyle = PAL.kroonD; c.beginPath(); c.arc(cx, cy + 2, r, 0, 7); c.fill();
-    c.fillStyle = PAL.kroon; c.beginPath(); c.arc(cx, cy, r - 2, 0, 7); c.fill();
-    c.fillStyle = PAL.kroonL; c.beginPath(); c.arc(cx - 4, cy - 4, r - 7, 0, 7); c.fill();
-    c.fillStyle = PAL.kroonXL; c.beginPath(); c.arc(cx - 6, cy - 7, r - 11, 0, 7); c.fill();
-    for (let i = 0; i < 8; i++) { const a = (h >> i) & 7, bx = cx - r + 4 + ((h >> (i * 2)) % (r * 2 - 8)), by = cy - r + 4 + ((h >> (i * 2 + 5)) % (r * 2 - 8)); R(c, bx, by, 2, 1, a & 1 ? PAL.kroonL : PAL.kroonD); }
-    if (h % 7 === 0) { R(c, cx - 7, cy + 2, 2, 2, PAL.bloem3); R(c, cx + 5, cy - 3, 2, 2, PAL.bloem3); R(c, cx + 1, cy + 7, 2, 2, PAL.bloem1); }
+    if (!K) { // kale boom: takken
+      c.strokeStyle = PAL.tak; c.lineWidth = 2; c.lineCap = 'round';
+      [[0, -14, -9, -24], [0, -14, 8, -25], [0, -10, -13, -14], [0, -10, 12, -12], [-9, -24, -14, -30], [8, -25, 13, -31], [0, -14, 1, -30]].forEach(([x0, y0, x1, y1]) => { c.beginPath(); c.moveTo(cx + x0, sy + 20 + y0); c.lineTo(cx + x1, sy + 20 + y1); c.stroke(); });
+      c.lineWidth = 1; [[-13, -14, -17, -19], [12, -12, 17, -17], [1, -30, -3, -36], [1, -30, 5, -35]].forEach(([x0, y0, x1, y1]) => { c.beginPath(); c.moveTo(cx + x0, sy + 20 + y0); c.lineTo(cx + x1, sy + 20 + y1); c.stroke(); });
+      for (let i = 0; i < 5; i++) R(c, cx - 12 + ((h >> (i * 3)) % 24), sy - 8 + ((h >> (i * 3 + 2)) % 20), 2, 1, i % 2 ? PAL.blad : PAL.geel);
+      return;
+    }
+    c.fillStyle = K.d; c.beginPath(); c.arc(cx, cy + 2, r, 0, 7); c.fill();
+    c.fillStyle = K.m; c.beginPath(); c.arc(cx, cy, r - 2, 0, 7); c.fill();
+    c.fillStyle = K.l; c.beginPath(); c.arc(cx - 4, cy - 4, r - 7, 0, 7); c.fill();
+    c.fillStyle = K.xl; c.beginPath(); c.arc(cx - 6, cy - 7, r - 11, 0, 7); c.fill();
+    for (let i = 0; i < 8; i++) { const a = (h >> i) & 7, bx = cx - r + 4 + ((h >> (i * 2)) % (r * 2 - 8)), by = cy - r + 4 + ((h >> (i * 2 + 5)) % (r * 2 - 8)); R(c, bx, by, 2, 1, a & 1 ? K.l : K.d); }
+    if (sz >= 3 && (h >> 4) % 3 === 0) { c.fillStyle = PAL.gras; c.beginPath(); c.arc(cx + 6, cy + 4, 4, 0, 7); c.fill(); R(c, cx + 4, cy + 3, 1, 3, PAL.tak); R(c, cx + 7, cy + 1, 3, 1, PAL.tak); }
+    if (sz < 3 && h % 7 === 0) { R(c, cx - 7, cy + 2, 2, 2, PAL.bloem3); R(c, cx + 5, cy - 3, 2, 2, PAL.bloem3); }
   }
   // ---------- decoratie ----------
   const PROPS = {
@@ -152,5 +186,5 @@ const WQTiles = (() => {
     for (let y = 0; y < MH; y++) for (let x = 0; x < MW; x++) if (MAP[y][x] === 'T') tekenBoom(c, x, y, x * T, y * T, 'kroon');
     return off;
   }
-  return { T, PAL, hash, tekenBuiten, tekenOverlay, tekenWater, R, randen, bloem, tekenBinnen: (b, C) => WQBinnen.teken(b, C) };
+  return { T, PAL, hash, tekenBuiten, tekenOverlay, tekenWater, R, randen, bloem, tekenBinnen: (b, C, buiten, deur) => WQBinnen.teken(b, C, buiten, deur) };
 })();

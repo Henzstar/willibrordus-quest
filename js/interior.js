@@ -49,7 +49,7 @@ const WQWereld = (() => {
     K.forEach((row, y) => { const x = row.indexOf('D'); if (x >= 0) deur = [x, y]; });
     const w = {
       kaart: K, breedte: K[0].length, hoogte: K.length, begaanbaar: new Set(C.binnenBegaanbaar),
-      offscreen: WQTiles.tekenBinnen(b, C), water: false, bg: '#0f1813', deur, npc: b.npc, locatie: L,
+      offscreen: WQTiles.tekenBinnen(b, C, buiten && buiten.offscreen, L.tegel), water: false, bg: '#0f1813', deur, npc: b.npc, locatie: L,
       sprites: () => { const [hx, hy] = WQMap.heroTile(), dx = hx - b.npc[0], dy = hy - b.npc[1]; const lijst = [{ px: b.npc[0] * T, py: b.npc[1] * T, dir: Math.abs(dx) + Math.abs(dy) <= 2 && (dx || dy) ? richting(dx, dy) : 'down', frame: 0, look: L.npc.look, bubble: gedaan() || L.soort === 'grap' ? null : '!' }]; (b.groep || []).forEach((g, i) => lijst.push({ px: g[0] * T, py: g[1] * T, dir: g[0] < 6 ? 'right' : 'left', frame: 0, look: C.figuranten[i % C.figuranten.length].look, zaad: i + 7 })); return lijst; },
       markers: () => [],
     };

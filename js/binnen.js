@@ -32,7 +32,7 @@ const WQBinnen = (() => {
     V: (c, sx, sy) => { R(c, sx + 4, sy + 14, 24, 12, '#2a2d35'); R(c, sx + 6, sy + 16, 20, 8, '#3b3f4a'); R(c, sx + 8, sy + 18, 6, 4, '#5aa7d6'); R(c, sx + 18, sy + 18, 6, 4, '#5aa7d6'); R(c, sx + 2, sy + 17, 2, 6, '#1a1f1c'); R(c, sx + 28, sy + 17, 2, 6, '#1a1f1c'); R(c, sx + 6, sy + 26, 20, 2, '#1a1f1c'); R(c, sx + 12, sy + 10, 8, 4, '#8d949c'); },
     f: (c, sx, sy) => { R(c, sx + 6, sy + 2, 20, 28, '#2a2d35'); R(c, sx + 8, sy + 4, 16, 8, P.glas); R(c, sx + 10, sy + 6, 4, 4, P.wit); R(c, sx + 12, sy + 18, 8, 6, '#f4f4f4'); R(c, sx + 8, sy + 26, 16, 2, '#8d949c'); R(c, sx + 18, sy + 14, 4, 2, '#d65a4a'); R(c, sx + 10, sy + 14, 6, 2, '#7bb661'); },
   };
-  function teken(binnen, C) {
+  function teken(binnen, C, buiten, deur) {
     const K = binnen.kaart, W = K[0].length, H = K.length, vloer = VLOER[binnen.vloer] || VLOER.tegel;
     const off = document.createElement('canvas'); off.width = W * T; off.height = H * T;
     const c = off.getContext('2d'); c.imageSmoothingEnabled = false;
@@ -43,7 +43,7 @@ const WQBinnen = (() => {
       if ('#wBqFJUZ'.includes(ch)) {
         if (y === 0) { R(c, sx, sy, T, T, P.behang); for (let i = 4; i < T; i += 12) for (let j = 10; j < 26; j += 8) { R(c, sx + i, sy + j, 2, 2, P.behang2); R(c, sx + i + 6, sy + j + 4, 1, 1, P.behang2); } R(c, sx, sy, T, 6, P.muurTop); R(c, sx, sy + 6, T, 1, P.muurL); R(c, sx, sy + 26, T, 6, P.plint); R(c, sx, sy + 25, T, 1, '#cbbfa9'); }
         else { R(c, sx, sy, T, T, P.muurTop); R(c, sx + 4, sy + 4, 24, 24, '#6b5d54'); R(c, sx + 6, sy + 6, 20, 1, '#7d6e63'); if (y === H - 1) R(c, sx, sy, T, 4, '#7d6e63'); }
-        if (ch === 'w') { R(c, sx + 5, sy + 7, 22, 17, P.wit); R(c, sx + 7, sy + 9, 18, 13, P.glas); R(c, sx + 9, sy + 11, 4, 4, P.wit); R(c, sx + 15, sy + 9, 2, 13, P.wit); R(c, sx + 7, sy + 15, 18, 1, P.wit); R(c, sx + 7, sy + 18, 18, 4, '#7bb661'); R(c, sx + 3, sy + 7, 2, 17, '#c9a24d'); R(c, sx + 27, sy + 7, 2, 17, '#c9a24d'); }
+        if (ch === 'w') { R(c, sx + 5, sy + 7, 22, 17, P.wit); R(c, sx + 7, sy + 9, 18, 13, P.glas); if (buiten && deur) { const bx = Math.max(0, Math.min(buiten.width - 72, deur[0] * 32 + (x - W / 2) * 40 - 20)), by = Math.max(0, Math.min(buiten.height - 52, (deur[1] - 5) * 32)); c.drawImage(buiten, bx, by, 72, 52, sx + 7, sy + 9, 18, 13); c.fillStyle = 'rgba(180,220,245,.35)'; c.fillRect(sx + 7, sy + 9, 18, 13); } else R(c, sx + 7, sy + 18, 18, 4, '#7bb661'); R(c, sx + 9, sy + 11, 3, 3, 'rgba(255,255,255,.55)'); R(c, sx + 15, sy + 9, 2, 13, P.wit); R(c, sx + 7, sy + 15, 18, 1, P.wit); R(c, sx + 3, sy + 7, 2, 17, '#c9a24d'); R(c, sx + 27, sy + 7, 2, 17, '#c9a24d'); }
         if (ch === 'B') M.B(c, sx, sy);
         if (ch === 'F' || ch === 'J') { R(c, sx + 5, sy + 6, 22, 20, ch === 'F' ? '#c9a24d' : '#3b3f4a'); R(c, sx + 7, sy + 8, 18, 16, ch === 'F' ? '#e8dcc5' : '#dbe8f0'); R(c, sx + 12, sy + 10, 8, 7, ch === 'F' ? '#f1c9a5' : '#f1c9a5'); R(c, sx + 12, sy + 9, 8, 2, ch === 'F' ? '#f2f2f2' : '#c9a24d'); R(c, sx + 14, sy + 13, 1, 1, '#1a1f1c'); R(c, sx + 17, sy + 13, 1, 1, '#1a1f1c'); if (ch === 'F') { R(c, sx + 13, sy + 15, 6, 2, '#f2f2f2'); R(c, sx + 11, sy + 12, 2, 1, '#1a1f1c'); R(c, sx + 19, sy + 12, 2, 1, '#1a1f1c'); } else R(c, sx + 14, sy + 16, 4, 1, '#8a4a30'); R(c, sx + 10, sy + 17, 12, 6, ch === 'F' ? '#1a1f1c' : '#2b6cb0'); R(c, sx + 15, sy + 17, 2, 3, ch === 'F' ? '#f2f2f2' : '#f2f2f2'); }
         if (ch === 'U') { R(c, sx + 10, sy + 20, 12, 8, '#8d949c'); R(c, sx + 11, sy + 18, 10, 2, '#aab2bb'); R(c, sx + 12, sy + 8, 8, 10, '#e9e1d2'); R(c, sx + 11, sy + 6, 10, 4, '#d9d0bf'); R(c, sx + 10, sy + 15, 12, 4, '#d9d0bf'); R(c, sx + 14, sy + 11, 1, 1, '#9fb3a6'); R(c, sx + 17, sy + 11, 1, 1, '#9fb3a6'); R(c, sx + 14, sy + 14, 4, 1, '#c3c9d1'); R(c, sx + 15, sy + 4, 2, 3, '#c9a24d'); }
@@ -52,6 +52,15 @@ const WQBinnen = (() => {
       } else if (ch === 'D') { R(c, sx, sy, T, T, P.muurTop); R(c, sx + 4, sy, 24, T, P.vloer); R(c, sx + 6, sy + 12, 20, 16, P.kleed2); R(c, sx + 8, sy + 14, 16, 12, P.kleed); R(c, sx + 4, sy, 2, T, '#7d6e63'); R(c, sx + 26, sy, 2, T, '#7d6e63'); }
       else if (M[ch]) { c.fillStyle = 'rgba(0,0,0,.12)'; c.fillRect(sx + 4, sy + 26, 26, 4); M[ch](c, sx, sy); }
     }
+    // licht: vignet in de hoeken, warme kring om elke lamp, zacht licht uit de ramen
+    const g = c.createRadialGradient(W * T / 2, H * T / 2, Math.min(W, H) * T * 0.35, W * T / 2, H * T / 2, Math.max(W, H) * T * 0.8); g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(1, 'rgba(10,8,20,.28)'); c.fillStyle = g; c.fillRect(0, 0, W * T, H * T);
+    c.save(); c.globalCompositeOperation = 'lighter';
+    for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+      const ch = K[y][x];
+      if (ch === 'l') { const lg = c.createRadialGradient(x * T + 16, y * T + 8, 4, x * T + 16, y * T + 8, 70); lg.addColorStop(0, 'rgba(255,215,130,.28)'); lg.addColorStop(1, 'rgba(255,200,100,0)'); c.fillStyle = lg; c.fillRect(x * T - 70, y * T - 70, 172, 172); }
+      if (ch === 'w' && y === 0) { const lg = c.createLinearGradient(0, T, 0, T * 4); lg.addColorStop(0, 'rgba(200,225,255,.16)'); lg.addColorStop(1, 'rgba(200,225,255,0)'); c.fillStyle = lg; c.fillRect(x * T - 6, T, T + 12, T * 3); }
+    }
+    c.restore();
     return off;
   }
   return { teken, T };

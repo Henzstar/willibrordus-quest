@@ -89,9 +89,12 @@ const WQMap = (() => {
       ctx.drawImage(wereld.offscreen, -camX, -camY);
       if (wereld.water) {
         const tx0 = Math.max(0, Math.floor(camX / T)), ty0 = Math.max(0, Math.floor(camY / T));
+        ctx.save(); ctx.beginPath(); let nat = 0;
         for (let y = ty0; y <= Math.min(wereld.hoogte - 1, ty0 + VH); y++) for (let x = tx0; x <= Math.min(wereld.breedte - 1, tx0 + VW); x++) {
-          if (wereld.kaart[y][x] === 'W') WQTiles.tekenWater(ctx, wereld.kaart, x, y, x * T - camX, y * T - camY, t);
+          if (wereld.kaart[y][x] === 'W') { WQTiles.tekenWater(ctx, wereld.kaart, x, y, x * T - camX, y * T - camY, t); ctx.rect(x * T - camX + 4, y * T - camY + 4, T - 8, T - 8); nat++; }
         }
+        if (nat) { ctx.clip(); ctx.fillStyle = 'rgba(255,255,255,.16)'; for (let i = 0; i < 6; i++) { const wx = ((t * 0.25 + i * 173) % (wereld.breedte * T + 200)) - 100 - camX, wy = ((i * 97) % (wereld.hoogte * T)) - camY; ctx.beginPath(); ctx.ellipse(wx, wy, 60 + i * 9, 14 + (i % 3) * 4, 0, 0, 7); ctx.fill(); } }
+        ctx.restore();
       }
       if (wereld.decor) { wereld.decor.update(t); wereld.decor.teken(ctx, camX, camY, t, 'onder'); }
       const lijst = wereld.sprites ? wereld.sprites(t).slice() : [];
