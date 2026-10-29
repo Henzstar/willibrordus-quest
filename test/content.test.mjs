@@ -5,7 +5,7 @@ import { createRequire } from 'node:module';
 const require = createRequire(import.meta.url);
 const C = require('../js/content.js');
 const MAP = C.tilemap;
-const W = 48, H = 22;
+const W = 64, H = 36;
 const walk = (x, y) => y >= 0 && y < H && x >= 0 && x < W && C.legenda[MAP[y][x]].begaanbaar;
 const DILEMMA = C.locaties.filter(l => l.soort === 'dilemma');
 const DISCUSSIE = C.locaties.filter(l => l.soort === 'discussie');
@@ -23,7 +23,7 @@ function reachable(from, isWalk) {
   return seen;
 }
 
-test('tilemap is 22 rijen van 48 tekens met bekende tekens', () => {
+test('tilemap is 36 rijen van 64 tekens met bekende tekens', () => {
   assert.equal(MAP.length, H);
   for (const row of MAP) {
     assert.equal(row.length, W, row);
@@ -31,13 +31,16 @@ test('tilemap is 22 rijen van 48 tekens met bekende tekens', () => {
   }
 });
 
-test('twaalf locaties met unieke ids: start, acht dilemma, drie discussie', () => {
-  assert.equal(C.locaties.length, 12);
+test('dertien locaties met unieke ids: start, acht dilemma, drie discussie, één plek; koepel als laatste', () => {
+  assert.equal(C.locaties.length, 13);
   assert.equal(C.locaties[0].id, 'start');
   assert.equal(DILEMMA.length, 8);
   assert.equal(DISCUSSIE.length, 3);
-  assert.equal(new Set(C.locaties.map(l => l.id)).size, 12);
-  assert.deepEqual([...C.route].sort(), C.locaties.slice(1).map(l => l.id).sort());
+  assert.equal(C.locaties.filter(l => l.soort === 'plek').length, 1);
+  assert.equal(new Set(C.locaties.map(l => l.id)).size, 13);
+  assert.deepEqual([...C.route].sort(), C.locaties.filter(l => l.soort === 'dilemma' || l.soort === 'discussie').map(l => l.id).sort());
+  assert.equal(C.route[C.route.length - 1], C.laatste);
+  for (const l of C.locaties) assert.ok(l.muziek, l.id + ' zonder muziek');
 });
 
 test('elke deur is begaanbaar, bereikbaar vanaf de start en ligt onder een gebouw', () => {
@@ -46,14 +49,14 @@ test('elke deur is begaanbaar, bereikbaar vanaf de start en ligt onder een gebou
     const [x, y] = l.tegel;
     assert.ok(walk(x, y), l.id + ' deur niet begaanbaar');
     assert.ok(seen.has(x + ',' + y), l.id + ' niet bereikbaar');
-    if (l.id !== 'start') assert.ok('BKGN'.includes(MAP[y - 1][x]), l.id + ' deur niet onder een gebouw');
+    if (l.soort === 'dilemma' || l.soort === 'discussie') assert.ok('BKGN'.includes(MAP[y - 1][x]), l.id + ' deur niet onder een gebouw');
   }
   for (const f of C.figuranten) for (const t of f.route) assert.ok(walk(...t), f.naam + ' route niet begaanbaar');
   for (const p of C.props) { const [x, y] = p.tegel; assert.ok(x >= 0 && x < W && y >= 0 && y < H, p.type + ' buiten de kaart'); }
 });
 
 test('elke binnenkaart is rechthoekig, met één deur, bereikbare NPC-buur en begaanbare start', () => {
-  for (const l of C.locaties.slice(1)) {
+  for (const l of C.locaties.filter(l => l.binnen)) {
     const b = l.binnen, bw = b.kaart[0].length;
     assert.ok(b && b.kaart.length >= 6, l.id + ' zonder binnenkaart');
     for (const row of b.kaart) { assert.equal(row.length, bw, l.id); for (const ch of row) assert.ok(C.binnenLegenda[ch] !== undefined, l.id + ' onbekend teken ' + ch); }
@@ -89,7 +92,7 @@ test('dilemma: vier opties met punten en effect, kaart met bron; discussie: vier
     assert.ok(!l.kaart && !l.minigame);
   }
   for (const l of C.locaties.slice(1)) {
-    assert.ok(l.npc && l.npc.naam && l.npc.rol && l.npc.look, l.id + ' npc onvolledig');
+    assert.ok(l.npc && l.npc.naam && l.npc.rol && (l.npc.look || l.soort === 'plek'), l.id + ' npc onvolledig');
     assert.ok(l.intro.length >= 1 && l.intro.length <= 4, l.id + ' intro');
   }
 });

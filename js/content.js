@@ -5,30 +5,44 @@ const CONTENT = {
   ondertitel: 'Wie stuurt?',
   organisatie: 'GGZ Noord-Holland-Noord',
 
-  // Tilemap: 48 kolommen bij 22 rijen, noord is boven.
+  // Tilemap: 64 kolommen bij 36 rijen, noord is boven. Naar de plattegrond van Landgoed Willibrordus (nummer 11 = begraafplaats).
   tilemap: [
-    '================================================',
-    '..WWWWWWWWWWWWWWWWWWWWWWWWWWWWW.........=..FFFF=',
-    '....................SSSSSSSSSFFFF...TTT.=..FFFF=',
-    '......BBB.BBB.BBBB..SNNSSNNSSFFFFBBBBTT.=..FFFF=',
-    '.......BBBBB..B..B..SNNNNNNSSFFFFBBBB.GGGG.FFFF=',
-    '......BBB.BBB.B..B..SNNNNNNSSFFFFBBBB.GGGG.FFFF=',
-    '..............BBBB..SSSSSSSSSFFFF.....GGGG.....=',
-    '......==========================================',
-    '......=BBB..PPPPPPTTTTTTBBB........TTTTT-TTTTTT=',
-    '..BBTTTBBB..PPPPPPTTTTTTBBB-.......TTTBBBBTTTTT=',
-    '..BBTTT--------------------T-TTTTTTTTTBBBBTTTTT=',
-    '..BBTTTTTT-.TTTT-..BBBBBTTTTT-TTTTTTTTBBBBTTTTT=',
-    '.WBBKKKTTT-.TTTT-..BBBBBTTTTTT-TTTTTTTTTTTTTTTT=',
-    '.WBBKKK----TTTTT-------TTTTTTTT----TTTTTTTTTTTT=',
-    '..BBKKKTTT-TTTTT-.TTTTT..TTTBBBBBB-.FFFFFFTTTTT=',
-    '..BBB------TTTTT-.TTTTT..TTTB.BBBB-.FFFFFFTTTTT=',
-    '..BBTTTTTT-TTTTT-.TTTTT..TTTBBBBBB-.FFFFFFTTTTT=',
-    '..TTTTTTTT--------------------BBBB-.FFFFFFTTTTT=',
-    '..TTTTTTTTTTTTT..........TTT......-.FFFFFFTTTTT=',
-    '..TTTTTTTTTTTTTBBB....WWWWWWWWWWWWWWWWWWW.TTTTT=',
-    '...............BBB....B..B..B..B..B..B..B.TBTTT=',
-    '=====================..........................=',
+    '================================================================',
+    '.=..WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW............WW.=',
+    '.=..WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW............WW.=',
+    '.=..........................SSSSSSSSSSS.....................WW.=',
+    '.=..........................SSSSSSSSSSS....BB....BB.........WW.=',
+    '.=..T...BB...BB..BB...BB....SSNSNNNSNSS.T..BBBBBBBB.BBBBBB..WW.=',
+    '.=.TTT..BBBBBBB..BBBBBBB..T.SSNNNNNNNSS..T.BBBBBBBB.BBBBBB..WW.=',
+    '.=.TTTT.BBBBBBB..BBBBBBB.TT.SSNNNNNNNSS.T..BBBBBBBB.BBBBBB..WW.=',
+    '.=.TT...BBBBBBB..BBBBBBB.TT.SSNNNNNNNSS....BBBBBBBB.BBBBBB..WW.=',
+    '.=..TTT.BBBBBBB..BBBBBBB..T.SSNNNNNNNSS.-..BBBBBBBB.BBBBBB..WW.=',
+    '.=.TTTT.BBBBBBB..BBBBBBB....SSNNNNNNNSS.-..BBBBBBBB.BBBBBB..WW.=',
+    '.=..T......-........-.......SSSSSSSSSSS.-.....-.............WW.=',
+    '.=.T..====-=============================-HHHHHHH========-==++++=',
+    '.=....BBBB-.........PPPPPP-.......BBBBB.-HCCCCCH........-PP.WW.=',
+    '.=.TT.BBBB-..TTTT.T.PPPPPP-..TTT..BBBBB.-------H..GGGGGG-PP.WW.=',
+    '.=....BBBB-.TTTTTT..PPPPPP-...TTT.BBBBB.-HCCCCCH..GGGGGG-PP.WW.=',
+    '.=....BBBB-...............-.............-HHHHHHH..GGGGGG-...WW.=',
+    '.=--------------------------------------------------------..WW.=',
+    '.=......BBB.....-.........-.BBBBBBB.....-......HHHHHHHHH-...WW.=',
+    '.=......BBB.KKK.-.BBBBB...-.BBBBBBB.T...-.BBBBHAAAAAAAAA-.TTWW.=',
+    '.=.WWW..BBB.KKK.-.BBBBB...-WBBBBBBB.TTT.-.BBBBHAAAAAAAAA-.TTWW.=',
+    '.=.WWW..BBB.KKK.-.......T.-WW..-.BBBBBB.-.BBBBHAAAAAAAAA-.T.WW.=',
+    '.=.WWW..BBB..-..-.TTTTTT..-WW..-.BBBBBB.-.BBBBHAAAAAAAAA-...WW.=',
+    '.=....T.BBB..-..-.TTTT.TT.-WWT.-.BBBBBB.-.BBBBHAAAAAAAAA-...WW.=',
+    '.=...T..BBB..-..-.........-....-....-...-..-..HAAAAAAAAA-...WW.=',
+    '.=....T.-------------------------------------------------...WW.=',
+    '.=...T........PPPPP...............-....-.................FFFWW.=',
+    '.=....BBBBBB..PPPPP....BBBBBBB....-.BBBBBBB.T.TTTTTTTTT..FFFWW.=',
+    '.=....BBBBBB...........BBBBBBB....-.BBBBBBB..TTTTTTTTT...FFFWW.=',
+    '.=....BBBBBB..T.T.T.......-.......-.BBBBBBB.TTTTTTTTTT...FFFWW.=',
+    '.=...........TT.TTT.---------------...........TTTTTTT....FFFWW.=',
+    '.=....BBBBBBB...TTTT..-..............BBBBBBBBB.T.TT......FFFWW.=',
+    '.=....BBBBBBB.TTTTTTT.-..............BBBBBBBBB.T.TTT........WW.=',
+    '.=....BBBBBBB.....T...-.WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW.=',
+    '.=....................-.WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW.=',
+    '===============================................................=',
   ],
 
   legenda: {
@@ -44,6 +58,10 @@ const CONTENT = {
     'G': { naam: 'witte hal / kas', begaanbaar: false },
     'N': { naam: 'nieuwbouw', begaanbaar: false },
     'F': { naam: 'akker', begaanbaar: false },
+    'A': { naam: 'sportveld', begaanbaar: true },
+    '+': { naam: 'brug', begaanbaar: true },
+    'H': { naam: 'heg', begaanbaar: false },
+    'C': { naam: 'graven', begaanbaar: false },
   },
 
   // Binnenkaarten: # muur, w raam, . vloer, _ hout, r kleed (begaanbaar), D deur (uitgang), d bureau, m bureau met scherm,
@@ -53,42 +71,49 @@ const CONTENT = {
 
   // Straatnamen als kleine labels; richting h = horizontaal, v = verticaal; tegel = ankertegel.
   straten: [
-    { naam: 'Kanaalweg', tegel: [20, 0], richting: 'h' },
-    { naam: 'De Strandwal', tegel: [8, 7], richting: 'h' },
-    { naam: 'De Bullaan', tegel: [34, 7], richting: 'h' },
-    { naam: 'Rosendaal', tegel: [47, 12], richting: 'v' },
-    { naam: 'De Olvendijk', tegel: [11, 10], richting: 'h' },
-    { naam: 'Het Landpad', tegel: [16, 14], richting: 'v' },
-    { naam: 'De Hooge Venne', tegel: [34, 15], richting: 'v' },
-    { naam: 'De Overtoom', tegel: [12, 17], richting: 'h' },
-    { naam: 'Het Kerkpad', tegel: [10, 14], richting: 'v' },
-    { naam: 'De Beuk', tegel: [31, 13], richting: 'h' },
-    { naam: 'De Kroft', tegel: [4, 21], richting: 'h' },
+    { naam: 'Kanaalweg', tegel: [28, 0], richting: 'h' },
+    { naam: 'Kennemerstraatweg', tegel: [1, 22], richting: 'v' },
+    { naam: 'De Strandwal', tegel: [13, 12], richting: 'h' },
+    { naam: 'De Bullaan', tegel: [49, 12], richting: 'h' },
+    { naam: 'Rosendaal', tegel: [63, 18], richting: 'v' },
+    { naam: 'De Olvendijk', tegel: [18, 17], richting: 'h' },
+    { naam: 'Het Landpad', tegel: [26, 21], richting: 'v' },
+    { naam: 'De Hooge Venne', tegel: [40, 19], richting: 'v' },
+    { naam: 'De Overtoom', tegel: [20, 25], richting: 'h' },
+    { naam: 'Het Kerkpad', tegel: [16, 19], richting: 'v' },
+    { naam: 'Het Dije', tegel: [10, 13], richting: 'v' },
+    { naam: 'De Kroft', tegel: [24, 30], richting: 'h' },
+    { naam: 'Ypesteinerlaan', tegel: [8, 35], richting: 'h' },
+    { naam: 'Begraafplaats (11)', tegel: [41, 11], richting: 'h' },
+    { naam: 'Sportveld', tegel: [49, 21], richting: 'h' },
   ],
 
   // Losse decoratie buiten: type en tegel.
   props: [
-    { type: 'lantaarn', tegel: [10, 10] }, { type: 'lantaarn', tegel: [18, 10] }, { type: 'lantaarn', tegel: [23, 10] },
-    { type: 'lantaarn', tegel: [16, 13] }, { type: 'lantaarn', tegel: [16, 17] }, { type: 'lantaarn', tegel: [27, 13] },
-    { type: 'bank', tegel: [11, 11] }, { type: 'bank', tegel: [17, 12] }, { type: 'bank', tegel: [33, 9] }, { type: 'bank', tegel: [1, 11] },
-    { type: 'bloemen', tegel: [10, 9] }, { type: 'bloemen', tegel: [13, 5] }, { type: 'bloemen', tegel: [37, 6] }, { type: 'bloemen', tegel: [29, 8] },
-    { type: 'bloemen', tegel: [23, 13] }, { type: 'bloemen', tegel: [35, 18] }, { type: 'bloemen', tegel: [14, 18] },
-    { type: 'auto', tegel: [12, 8], kleur: '#c9403a' }, { type: 'auto', tegel: [14, 8], kleur: '#3b5fa8' }, { type: 'auto', tegel: [16, 9], kleur: '#e8e8e8' }, { type: 'auto', tegel: [13, 9], kleur: '#55585e' },
-    { type: 'kraan', tegel: [28, 2] }, { type: 'fietsen', tegel: [15, 9] }, { type: 'bord', tegel: [15, 11] },
+    { type: 'lantaarn', tegel: [12, 17] }, { type: 'lantaarn', tegel: [20, 17] }, { type: 'lantaarn', tegel: [28, 17] }, { type: 'lantaarn', tegel: [36, 17] }, { type: 'lantaarn', tegel: [44, 17] }, { type: 'lantaarn', tegel: [52, 17] },
+    { type: 'lantaarn', tegel: [12, 25] }, { type: 'lantaarn', tegel: [24, 25] }, { type: 'lantaarn', tegel: [36, 25] }, { type: 'lantaarn', tegel: [48, 25] }, { type: 'lantaarn', tegel: [40, 13] }, { type: 'lantaarn', tegel: [26, 19] },
+    { type: 'bank', tegel: [11, 16] }, { type: 'bank', tegel: [17, 21] }, { type: 'bank', tegel: [30, 16] }, { type: 'bank', tegel: [38, 24] }, { type: 'bank', tegel: [2, 18] }, { type: 'bank', tegel: [45, 15] }, { type: 'bank', tegel: [57, 18] },
+    { type: 'bloemen', tegel: [5, 16] }, { type: 'bloemen', tegel: [12, 16] }, { type: 'bloemen', tegel: [15, 11] }, { type: 'bloemen', tegel: [24, 11] }, { type: 'bloemen', tegel: [36, 16] }, { type: 'bloemen', tegel: [42, 11] }, { type: 'bloemen', tegel: [49, 17] }, { type: 'bloemen', tegel: [11, 23] }, { type: 'bloemen', tegel: [33, 24] }, { type: 'bloemen', tegel: [44, 26] }, { type: 'bloemen', tegel: [7, 26] }, { type: 'bloemen', tegel: [18, 28] },
+    { type: 'auto', tegel: [20, 13], kleur: '#c9403a' }, { type: 'auto', tegel: [22, 13], kleur: '#3b5fa8' }, { type: 'auto', tegel: [24, 14], kleur: '#e8e8e8' }, { type: 'auto', tegel: [21, 15], kleur: '#55585e' }, { type: 'auto', tegel: [15, 26], kleur: '#2f7d32' }, { type: 'auto', tegel: [17, 27], kleur: '#e0a84a' }, { type: 'auto', tegel: [57, 14], kleur: '#c9403a' },
+    { type: 'kraan', tegel: [38, 4] }, { type: 'fietsen', tegel: [19, 13] }, { type: 'fietsen', tegel: [6, 11] }, { type: 'bord', tegel: [3, 16] }, { type: 'bord', tegel: [41, 11] }, { type: 'bord', tegel: [39, 24] },
   ],
 
   // Figuranten buiten: staan stil of lopen heen en weer over een route (begaanbare tegels).
   figuranten: [
-    { naam: 'Ans', rol: 'cliëntenraad', look: { haar: '#d9d2c5', jas: '#b5443a', broek: '#3b3f4a', hoofd: 'kort' }, route: [[10, 10], [19, 10]], regels: [
+    { naam: 'Ans', rol: 'cliëntenraad', look: { haar: '#d9d2c5', jas: '#b5443a', broek: '#3b3f4a', hoofd: 'kort' }, route: [[10, 17], [24, 17]], regels: [
       'Jullie praten vanavond over ons. Praat ook met ons.',
       'Mijn dossier is van mij. Dat is geen mening, dat is de wet.',
       'Ik wil de samenvatting lezen voordat jij hem tekent. Mag dat?',
       'Beeldbellen is fijn. Als ik het zelf kies.',
       'Als het EPD eruit ligt, lig ik er ook uit. Weet jij dan nog wat ik slik?',
+      'Ben je al bij de begraafplaats geweest? Achter De Hooge Venne, nummer 11 op de plattegrond.',
     ] },
-    { naam: 'Kees', rol: 'tuinman', look: { haar: '#6b4a2b', jas: '#2f7d32', broek: '#5a4632', hoofd: 'kort' }, route: [[36, 6], [33, 6]], regels: ['De heggen groeien harder dan de ICT-projecten. Maar die knip ik tenminste zelf.'] },
-    { naam: 'Mo', rol: 'cliënt', look: { haar: '#1a1f1c', jas: '#6b7280', broek: '#3b3f4a', hoofd: 'knot' }, route: [[17, 12]], regels: ['Ik zit hier elke dag even. Het portaal zegt dat ik vandaag een afspraak heb. Niemand anders weet dat.'] },
-    { naam: 'Bep', rol: 'portier', look: { haar: '#9fb3a6', jas: '#c9a24d', broek: '#3b3f4a', hoofd: 'bril' }, route: [[13, 10]], regels: ['Kies een gebouw op de kaart. Het kompas in de HUD wijst de aanbevolen volgende stop.'] },
+    { naam: 'Kees', rol: 'tuinman', look: { haar: '#6b4a2b', jas: '#2f7d32', broek: '#5a4632', hoofd: 'kort' }, route: [[44, 11], [55, 11]], regels: ['De heggen groeien harder dan de ICT-projecten. Maar die knip ik tenminste zelf.', 'De begraafplaats ligt hier achter de heg. Loop even door het hek.'] },
+    { naam: 'Mo', rol: 'cliënt', look: { haar: '#1a1f1c', jas: '#6b7280', broek: '#3b3f4a', hoofd: 'knot' }, route: [[18, 21]], regels: ['Ik zit hier elke dag even. Het portaal zegt dat ik vandaag een afspraak heb. Niemand anders weet dat.'] },
+    { naam: 'Bep', rol: 'portier', look: { haar: '#9fb3a6', jas: '#c9a24d', broek: '#3b3f4a', hoofd: 'bril' }, route: [[3, 17]], regels: ['Het kompas in de HUD wijst de aanbevolen volgende stop. De Cultuurkoepel gaat als laatste open.'] },
+    { naam: 'Riet', rol: 'vrijwilliger begraafplaats', look: { haar: '#f2f2f2', jas: '#4a4a4a', broek: '#2a2d35', hoofd: 'knot' }, route: [[45, 14]], regels: ['Hier liggen de mensen die hier woonden toen er nog geen dossier was. Alleen een naam en een nummer.'] },
+    { naam: 'Daan', rol: 'verpleegkundige', look: { haar: '#6b4a2b', jas: '#f4f4f4', broek: '#3b3f4a', hoofd: 'kort' }, route: [[41, 17], [41, 24]], regels: ['Drie keer inloggen voor één recept. Ik tel het niet meer.'] },
+    { naam: 'Sanne', rol: 'aios', look: { haar: '#e0a84a', jas: '#2b6cb0', broek: '#3b3f4a', hoofd: 'lang' }, route: [[12, 11], [28, 11]], regels: ['Ik heb vanmorgen de samenvatting gewoon getekend. Ja, ik weet het.'] },
   ],
 
   // Avatars: de perk doet niets, behalve lachen.
@@ -115,20 +140,21 @@ const CONTENT = {
   },
 
   // Aanbevolen route over het landgoed (ids van locaties).
-  route: ['keuken', 'koepel', 'poli', 'team', 'hic', 'opname', 'kwekerij', 'bestuur', 'olvendijk', 'venne', 'olvendijk79'],
+  route: ['keuken', 'bestuur', 'poli', 'hic', 'venne', 'kwekerij', 'opname', 'team', 'olvendijk79', 'olvendijk', 'koepel'],
+  laatste: 'koepel',
 
   // Locaties: tegel = deur (begaanbare tegel onder het gebouw). soort: dilemma of discussie. binnen: binnenkaart, start en npc-positie.
   locaties: [
     {
-      id: 'start', naam: 'Hoofdingang', functie: 'start', tegel: [14, 10], soort: 'start',
+      id: 'start', naam: 'Hoofdingang', functie: 'start', tegel: [4, 17], soort: 'start', muziek: 'landgoed',
       npc: { naam: 'Bep', rol: 'portier', kleur: '#c9a24d' },
       intro: [
-        'Welkom op het landgoed. Je loopt vanavond langs het hele terrein. Overal wacht een keuze. Je regie-meter laat zien of je stuurt, of gestuurd wordt.',
-        'Tik op de kaart om te lopen. Bij een deur ga je naar binnen. Wissel per gebouw wie de telefoon vasthoudt; de anderen eten.',
+        'Welkom op het landgoed. Je loopt vanavond over het hele terrein. Overal wacht een keuze. Je regie-meter laat zien of je stuurt, of gestuurd wordt.',
+        'Tik op de kaart om te lopen. Bij een deur ga je naar binnen. De Cultuurkoepel gaat als laatste open. Wissel per gebouw wie de telefoon vasthoudt; de anderen eten.',
       ],
     },
     {
-      id: 'keuken', naam: 'Keuken met Karakter', functie: 'restaurant', thema: 'werklast begint bij registratie', tegel: [8, 10], soort: 'dilemma', minigame: 'dicteer',
+      id: 'keuken', naam: 'Keuken met Karakter', functie: 'restaurant', thema: 'werklast begint bij registratie', tegel: [8, 17], soort: 'dilemma', minigame: 'dicteer', muziek: 'restaurant',
       npc: { naam: 'Sam', rol: 'aios, bord bitterballen', kleur: '#2b6cb0', look: { haar: '#6b4a2b', jas: '#2b6cb0', broek: '#3b3f4a', hoofd: 'kort', extra: 'bord' } },
       binnen: { kaart: ['#####w#####', '#kkkk.....#', '#.........#', '#.tt..tt..#', '#.cc..cc..#', '#.........#', '#.tt..tt.p#', '#####D#####'], start: [5, 6], npc: [5, 2] },
       intro: ['Acht gesprekken gehad, nul rapportages geschreven. Het is 17.30 uur. Jij ook?'],
@@ -148,7 +174,7 @@ const CONTENT = {
       },
     },
     {
-      id: 'koepel', naam: 'Cultuurkoepel', functie: 'grote bijeenkomsten', thema: 'wie stuurt bij ons', tegel: [5, 15], soort: 'dilemma',
+      id: 'koepel', naam: 'Cultuurkoepel', functie: 'grote bijeenkomsten', thema: 'wie stuurt bij ons', tegel: [13, 22], soort: 'dilemma', muziek: 'koepel',
       npc: { naam: 'Henk', rol: 'voorzitter van een stuurgroep, bril, stapel papier', kleur: '#6b7280', look: { haar: '#9fb3a6', jas: '#6b7280', broek: '#2a2d35', hoofd: 'bril', extra: 'papier' } },
       binnen: { kaart: ['##w##w##w##', '#...SSS...#', '#.........#', '#PPP...PPP#', '#.........#', '#PPP...PPP#', '#p.......p#', '#####D#####'], start: [5, 6], npc: [5, 2] },
       intro: [
@@ -175,7 +201,7 @@ const CONTENT = {
       },
     },
     {
-      id: 'poli', naam: '[TJEERD: gebouw voor de beslisondersteuning, bijv. de polikliniek]', kortenaam: 'Polikliniek [TJEERD]', functie: '[TJEERD: functie]', thema: 'de computer denkt mee', tegel: [7, 6], soort: 'dilemma',
+      id: 'poli', naam: '[TJEERD: gebouw voor de beslisondersteuning, bijv. de polikliniek]', kortenaam: 'Polikliniek [TJEERD]', functie: '[TJEERD: functie]', thema: 'de computer denkt mee', tegel: [20, 11], soort: 'dilemma', muziek: 'kantoor',
       npc: { naam: 'Lars', rol: 'accountmanager van een leverancier, strak pak, laptop', kleur: '#4a4a4a', look: { haar: '#1a1f1c', jas: '#2a2d35', broek: '#2a2d35', hoofd: 'kort', extra: 'laptop' } },
       binnen: { kaart: ['##w#####w##', '#s..mdm..s#', '#...ccc...#', '#.........#', '#c.......c#', '#t.......t#', '#p.......p#', '#####D#####'], start: [5, 6], npc: [5, 3] },
       intro: ['Onze beslisondersteuning draait al in Zweden en het Verenigd Koninkrijk. Jullie zijn bijna aan de beurt. Kijk, hij stelt nu voor om de medicatie aan te passen.'],
@@ -195,7 +221,7 @@ const CONTENT = {
       },
     },
     {
-      id: 'team', naam: 'De Teamkamer', functie: '[TJEERD: naam en functie van dit gebouw]', thema: 'de digitale collega', tegel: [15, 7], soort: 'discussie',
+      id: 'team', naam: 'De Teamkamer', functie: '[TJEERD: naam en functie van dit gebouw]', thema: 'de digitale collega', tegel: [36, 24], soort: 'discussie', muziek: 'kantoor',
       npc: { naam: 'Mila', rol: 'regiebehandelaar', kleur: '#7a3e9d', look: { haar: '#1a1f1c', jas: '#7a3e9d', broek: '#3b3f4a', hoofd: 'lang' } },
       binnen: { kaart: ['##w##B##w##', '#.........#', '#.ctttttc.#', '#.c.....c.#', '#.ctttttc.#', '#.........#', '#p.m.....p#', '#####D#####'], start: [5, 6], npc: [5, 1] },
       intro: [
@@ -215,7 +241,7 @@ const CONTENT = {
       },
     },
     {
-      id: 'hic', naam: 'Nieuwbouw HIC', functie: 'high intensive care (in aanbouw)', thema: '2030', tegel: [24, 6], soort: 'dilemma', minigame: 'noodkoffer',
+      id: 'hic', naam: 'Nieuwbouw HIC', functie: 'high intensive care (in aanbouw)', thema: '2030', tegel: [33, 11], soort: 'dilemma', minigame: 'noodkoffer', muziek: 'bouw',
       npc: { naam: 'Jij, 2030', rol: 'jijzelf, helm op', kleur: '#e0a84a', look: { haar: '#e0a84a', jas: '#e0a84a', broek: '#3b3f4a', hoofd: 'helm' } },
       binnen: { kaart: ['##w##w##w##', '#x.......x#', '#.b..b..b.#', '#.........#', '#x..md....#', '#.......xx#', '#.........#', '#####D#####'], start: [5, 6], npc: [5, 3] },
       intro: [
@@ -238,7 +264,7 @@ const CONTENT = {
       },
     },
     {
-      id: 'opname', naam: 'Spreekkamer 4', functie: '[TJEERD: naam en functie van dit gebouw]', thema: 'de cliënt neemt op', tegel: [34, 6], soort: 'discussie',
+      id: 'opname', naam: 'Spreekkamer 4', functie: '[TJEERD: naam en functie van dit gebouw]', thema: 'de cliënt neemt op', tegel: [43, 24], soort: 'discussie', muziek: 'spreekkamer',
       npc: { naam: 'Dennis', rol: 'cliënt, 34, telefoon op tafel', kleur: '#2f5f8f', look: { haar: '#1a1f1c', jas: '#2f5f8f', broek: '#3b3f4a', hoofd: 'kort', extra: 'telefoon' } },
       binnen: { kaart: ['##w#####w##', '#s.......s#', '#...dm....#', '#...c.....#', '#.........#', '#...c.....#', '#p.......p#', '#####D#####'], start: [5, 6], npc: [4, 4] },
       intro: [
@@ -258,7 +284,7 @@ const CONTENT = {
       },
     },
     {
-      id: 'kwekerij', naam: 'Kwekerij', functie: 'werkplek voor mensen met afstand tot de arbeidsmarkt', thema: 'digitaal waar het kan', tegel: [40, 7], soort: 'dilemma', minigame: 'bowlen',
+      id: 'kwekerij', naam: 'Kwekerij', functie: 'werkplek voor mensen met afstand tot de arbeidsmarkt', thema: 'digitaal waar het kan', tegel: [52, 17], soort: 'dilemma', minigame: 'bowlen', muziek: 'kas',
       npc: { naam: 'Joop', rol: 'medewerker kwekerij, modder aan de handen', kleur: '#2f7d32', look: { haar: '#6b4a2b', jas: '#2f7d32', broek: '#5a4632', hoofd: 'kort', extra: 'modder' } },
       binnen: { kaart: ['#wwwwwwwww#', '#pp.pp.pp.#', '#.........#', '#pp.pp.pp.#', '#.........#', '#pp.pp.pp.#', '#x.......k#', '#####D#####'], start: [5, 6], npc: [6, 4] },
       intro: ['Ik werk hier drie dagen in de week. Ik heb een telefoon, maar dat portaal van jullie, daar kom ik niet in.'],
@@ -278,7 +304,7 @@ const CONTENT = {
       },
     },
     {
-      id: 'bestuur', naam: 'Het Bestuursgebouw', functie: '[TJEERD: naam en functie van dit gebouw]', thema: 'de klacht van twintig pagina’s', tegel: [25, 10], soort: 'discussie',
+      id: 'bestuur', naam: 'Het Bestuursgebouw', functie: '[TJEERD: naam en functie van dit gebouw]', thema: 'de klacht van twintig pagina’s', tegel: [11, 11], soort: 'discussie', muziek: 'kantoor',
       npc: { naam: 'Ingrid', rol: 'klachtenfunctionaris, dikke map', kleur: '#8a6d3b', look: { haar: '#8a6d3b', jas: '#a0522d', broek: '#2a2d35', hoofd: 'lang', extra: 'map' } },
       binnen: { kaart: ['##w##w##w##', '#.........#', '#.ctttttc.#', '#.c.....c.#', '#.ctttttc.#', '#.........#', '#pmd...s.p#', '#####D#####'], start: [5, 6], npc: [5, 1] },
       intro: [
@@ -298,7 +324,7 @@ const CONTENT = {
       },
     },
     {
-      id: 'olvendijk', naam: 'De Olvendijk', functie: '[TJEERD: functie]', thema: 'het dossier gaat de deur niet uit', tegel: [21, 13], soort: 'dilemma',
+      id: 'olvendijk', naam: 'De Olvendijk', functie: '[TJEERD: functie]', thema: 'het dossier gaat de deur niet uit', tegel: [31, 21], soort: 'dilemma', muziek: 'kantoor',
       npc: { naam: 'Fatima', rol: 'functionaris gegevensbescherming, koffie', kleur: '#7a3e9d', look: { haar: '#1a1f1c', jas: '#7a3e9d', broek: '#3b3f4a', hoofd: 'lang', extra: 'koffie' } },
       binnen: { kaart: ['##w##w##w##', '#s.s...mdm#', '#.........#', '#.mdm.....#', '#...c.....#', '#.........#', '#p.......p#', '#####D#####'], start: [5, 6], npc: [5, 2] },
       intro: ['Mooi gebouw, hè. Hier staan onze servers niet. Die staan ergens anders. Weet jij waar jouw gegevens staan als je op een knop drukt?'],
@@ -318,7 +344,7 @@ const CONTENT = {
       },
     },
     {
-      id: 'venne', naam: 'De Hooge Venne', functie: 'forensische psychiatrie', thema: 'het algoritme heeft een mening', tegel: [31, 18], soort: 'dilemma', minigame: 'boogschieten',
+      id: 'venne', naam: 'De Hooge Venne', functie: 'forensische psychiatrie', thema: 'het algoritme heeft een mening', tegel: [46, 11], soort: 'dilemma', minigame: 'boogschieten', muziek: 'kliniek',
       npc: { naam: 'Nadia', rol: 'forensisch psycholoog', kleur: '#b5443a', look: { haar: '#1a1f1c', jas: '#b5443a', broek: '#2a2d35', hoofd: 'knot' } },
       binnen: { kaart: ['#w#######w#', '#..s...s..#', '#.........#', '#.mdm.....#', '#..c....P.#', '#.........#', '#p......xx#', '#####D#####'], start: [5, 6], npc: [3, 5] },
       intro: [
@@ -341,7 +367,7 @@ const CONTENT = {
       },
     },
     {
-      id: 'olvendijk79', naam: 'Olvendijk 79', functie: '[TJEERD: functie]', thema: 'de cliënt vraagt wat je doet', tegel: [16, 21], soort: 'dilemma',
+      id: 'olvendijk79', naam: 'Olvendijk 79', functie: '[TJEERD: functie]', thema: 'de cliënt vraagt wat je doet', tegel: [26, 29], soort: 'dilemma', muziek: 'spreekkamer',
       npc: { naam: 'Willem', rol: 'cliënt, 58, komt voor een controle', kleur: '#8a6d3b', look: { haar: '#9fb3a6', jas: '#8a6d3b', broek: '#3b3f4a', hoofd: 'kort' } },
       binnen: { kaart: ['##w#####w##', '#s.......p#', '#...dm....#', '#...c.....#', '#.........#', '#....c....#', '#p........#', '#####D#####'], start: [5, 6], npc: [5, 4] },
       intro: ['Neemt dat ding ons gesprek op? Wat gebeurt daar dan mee?'],
@@ -359,6 +385,14 @@ const CONTENT = {
         tekst: 'Competentie 4 van de Federatie: informeer cliënten en naasten helder over het gebruik van AI. Bij dwang, wilsonbekwaamheid of crisis geldt extra zorgvuldigheid: [TJEERD: de GGZ NHN-afspraak over toestemming en opname].',
         bron: 'Federatie Medisch Specialisten, Competentieset Verantwoord gebruik van AI in de zorg (2026).',
       },
+    },
+    {
+      id: 'begraafplaats', naam: 'Begraafplaats', kortenaam: 'Begraafplaats (11)', functie: 'begraafplaats van het landgoed, nummer 11 op de plattegrond', tegel: [44, 14], soort: 'plek', muziek: 'begraafplaats',
+      npc: { naam: 'Riet', rol: 'vrijwilliger begraafplaats', kleur: '#4a4a4a' },
+      intro: [
+        'Hier liggen de mensen die hier woonden toen er nog geen dossier was. Alleen een naam en een nummer op een steen.',
+        'Wat jij vandaag over iemand vastlegt, blijft langer dan jij. Schrijf alsof die persoon meeleest. Dat is geen AI-regel, dat is fatsoen.',
+      ],
     },
   ],
 
@@ -400,6 +434,8 @@ const CONTENT = {
     alGedaan: 'Jullie hebben hier al gesproken. Het argument staat op het bord.',
     naAlles: 'Alle gebouwen gehad. Nog twee stappen: de zelfcheck en de agenda.',
     naarBinnen: 'Naar binnen',
+    koepelDicht: 'De koepel gaat pas open als je de rest van het landgoed gezien hebt. Nog {n} te gaan.',
+    koepelOpen: 'Alles gezien. De koepel is open. Dit is de laatste halte.',
     praat: 'A · PRAAT',
     volgende: 'VOLGENDE',
     alles: 'Alles bezocht',
