@@ -65,8 +65,8 @@ const CONTENT = {
   },
 
   // Binnenkaarten: # muur, w raam, . vloer, _ hout, r kleed (begaanbaar), D deur (uitgang), d bureau, m bureau met scherm,
-  // c stoel, t tafel, b bed, p plant, s kast, k balie/aanrecht, P bank, x kist, B whiteboard, S podium. Alles behalve . _ r D blokkeert.
-  binnenLegenda: { '#': 'muur', 'w': 'raam', '.': 'vloer', '_': 'hout', 'r': 'kleed', 'D': 'deur', 'd': 'bureau', 'm': 'scherm', 'c': 'stoel', 't': 'tafel', 'b': 'bed', 'p': 'plant', 's': 'kast', 'k': 'balie', 'P': 'bank', 'x': 'kist', 'B': 'whiteboard', 'S': 'podium' },
+  // c stoel, t tafel, b bed, p plant, s kast, k balie/aanrecht, P bank, x kist, B whiteboard, S podium, o orgel, l lamp, f koffieautomaat, q schilderij (op de bovenmuur). Alles behalve . _ r D blokkeert.
+  binnenLegenda: { '#': 'muur', 'w': 'raam', 'q': 'schilderij', '.': 'vloer', '_': 'hout', 'r': 'kleed', 'D': 'deur', 'd': 'bureau', 'm': 'scherm', 'c': 'stoel', 't': 'tafel', 'b': 'bed', 'p': 'plant', 's': 'kast', 'k': 'balie', 'P': 'bank', 'x': 'kist', 'B': 'whiteboard', 'S': 'podium', 'o': 'orgel', 'l': 'lamp', 'f': 'koffie' },
   binnenBegaanbaar: ['.', '_', 'r', 'D'],
 
   // Straatnamen als kleine labels; richting h = horizontaal, v = verticaal; tegel = ankertegel.
@@ -84,7 +84,7 @@ const CONTENT = {
     { naam: 'Het Dije', tegel: [10, 13], richting: 'v' },
     { naam: 'De Kroft', tegel: [24, 30], richting: 'h' },
     { naam: 'Ypesteinerlaan', tegel: [8, 35], richting: 'h' },
-    { naam: 'Begraafplaats (11)', tegel: [41, 11], richting: 'h' },
+    { naam: 'Begraafplaats (11)', tegel: [41, 16], richting: 'h' },
     { naam: 'Sportveld', tegel: [49, 21], richting: 'h' },
   ],
 
@@ -156,7 +156,7 @@ const CONTENT = {
     {
       id: 'keuken', naam: 'Keuken met Karakter', functie: 'restaurant', thema: 'werklast begint bij registratie', tegel: [8, 17], soort: 'dilemma', minigame: 'dicteer', muziek: 'restaurant',
       npc: { naam: 'Sam', rol: 'aios, bord bitterballen', kleur: '#2b6cb0', look: { haar: '#6b4a2b', jas: '#2b6cb0', broek: '#3b3f4a', hoofd: 'kort', extra: 'bord' } },
-      binnen: { kaart: ['#####w#####', '#kkkk.....#', '#.........#', '#.tt..tt..#', '#.cc..cc..#', '#.........#', '#.tt..tt.p#', '#####D#####'], start: [5, 6], npc: [5, 2] },
+      binnen: { kaart: ['#w#q#####w#q#', '#kkkkkf.....#', '#...........#', '#.tt..tt..tt#', '#.cc..cc..cc#', '#.........pl#', '#.tt.....tt.#', '#.cc.....cc.#', '######D######'], start: [6, 7], npc: [6, 2] },
       intro: ['Acht gesprekken gehad, nul rapportages geschreven. Het is 17.30 uur. Jij ook?'],
       dilemma: {
         vraag: 'Hoe krijg je de rapportages vanavond af?',
@@ -176,7 +176,7 @@ const CONTENT = {
     {
       id: 'koepel', naam: 'Cultuurkoepel', functie: 'grote bijeenkomsten', thema: 'wie stuurt bij ons', tegel: [13, 22], soort: 'dilemma', muziek: 'koepel',
       npc: { naam: 'Henk', rol: 'voorzitter van een stuurgroep, bril, stapel papier', kleur: '#6b7280', look: { haar: '#9fb3a6', jas: '#6b7280', broek: '#2a2d35', hoofd: 'bril', extra: 'papier' } },
-      binnen: { kaart: ['##w##w##w##', '#...SSS...#', '#.........#', '#PPP...PPP#', '#.........#', '#PPP...PPP#', '#p.......p#', '#####D#####'], start: [5, 6], npc: [5, 2] },
+      binnen: { kaart: ['#w#qw###wq#w#', '#..o.SSS.o..#', '#...........#', '#PPP..r..PPP#', '#PPP..r..PPP#', '#PPP..r..PPP#', '#...........#', '#p....r....p#', '######D######'], start: [6, 7], npc: [6, 2] },
       intro: [
         'Hier werd vroeger gebeden. Nu vergaderen we.',
         'Over elk digitaal initiatief in deze organisatie wordt ergens besloten. De vraag is of jij aan die tafel zit.',
@@ -203,7 +203,7 @@ const CONTENT = {
     {
       id: 'poli', naam: '[TJEERD: gebouw voor de beslisondersteuning, bijv. de polikliniek]', kortenaam: 'Polikliniek [TJEERD]', functie: '[TJEERD: functie]', thema: 'de computer denkt mee', tegel: [20, 11], soort: 'dilemma', muziek: 'kantoor',
       npc: { naam: 'Lars', rol: 'accountmanager van een leverancier, strak pak, laptop', kleur: '#4a4a4a', look: { haar: '#1a1f1c', jas: '#2a2d35', broek: '#2a2d35', hoofd: 'kort', extra: 'laptop' } },
-      binnen: { kaart: ['##w#####w##', '#s..mdm..s#', '#...ccc...#', '#.........#', '#c.......c#', '#t.......t#', '#p.......p#', '#####D#####'], start: [5, 6], npc: [5, 3] },
+      binnen: { kaart: ['##w#q#w#q#w##', '#s..mdm..s..#', '#...ccc.....#', '#...........#', '#c.........c#', '#t...r.....t#', '#c.........c#', '#p.f.......p#', '######D######'], start: [6, 7], npc: [6, 3] },
       intro: ['Onze beslisondersteuning draait al in Zweden en het Verenigd Koninkrijk. Jullie zijn bijna aan de beurt. Kijk, hij stelt nu voor om de medicatie aan te passen.'],
       dilemma: {
         vraag: 'Het systeem adviseert een medicatiewijziging bij een cliënt die je al jaren kent. Wat doe je?',
@@ -223,7 +223,7 @@ const CONTENT = {
     {
       id: 'team', naam: 'De Teamkamer', functie: '[TJEERD: naam en functie van dit gebouw]', thema: 'de digitale collega', tegel: [36, 24], soort: 'discussie', muziek: 'kantoor',
       npc: { naam: 'Mila', rol: 'regiebehandelaar', kleur: '#7a3e9d', look: { haar: '#1a1f1c', jas: '#7a3e9d', broek: '#3b3f4a', hoofd: 'lang' } },
-      binnen: { kaart: ['##w##B##w##', '#.........#', '#.ctttttc.#', '#.c.....c.#', '#.ctttttc.#', '#.........#', '#p.m.....p#', '#####D#####'], start: [5, 6], npc: [5, 1] },
+      binnen: { kaart: ['#w#q#B###qw##', '#...........#', '#.cttttttc..#', '#.c......c..#', '#.cttttttc..#', '#...........#', '#s.......m.f#', '#p.........p#', '######D######'], start: [6, 7], npc: [6, 1] },
       intro: [
         'Vanaf volgend jaar zit er een AI-assistent vast in ons MDO. Hij leest het dossier, vat samen, stelt voor. Hij praat mee.',
         'Niemand heeft gevraagd of wij dat willen. Maar nu hij er is: hoe werk je samen met een collega die nooit slaapt en nooit aansprakelijk is?',
@@ -243,7 +243,7 @@ const CONTENT = {
     {
       id: 'hic', naam: 'Nieuwbouw HIC', functie: 'high intensive care (in aanbouw)', thema: '2030', tegel: [33, 11], soort: 'dilemma', minigame: 'noodkoffer', muziek: 'bouw',
       npc: { naam: 'Jij, 2030', rol: 'jijzelf, helm op', kleur: '#e0a84a', look: { haar: '#e0a84a', jas: '#e0a84a', broek: '#3b3f4a', hoofd: 'helm' } },
-      binnen: { kaart: ['##w##w##w##', '#x.......x#', '#.b..b..b.#', '#.........#', '#x..md....#', '#.......xx#', '#.........#', '#####D#####'], start: [5, 6], npc: [5, 3] },
+      binnen: { kaart: ['##w###w###w##', '#x.b..b..b.x#', '#..........x#', '#.....md....#', '#x..........#', '#.b..b..b...#', '#x.......xx.#', '#...........#', '######D######'], start: [6, 7], npc: [6, 4] },
       intro: [
         'Dit gebouw staat er dan allang. De rapportage schrijft zichzelf en jij tekent. De beslisondersteuning is gevalideerd op onze mensen. De staf beslist mee over elk systeem. De tijd die vrijkomt gaat naar de cliënt bij wie het ingewikkeld is.',
         'Maar eerst: het is 2030, het is nacht op de HIC, en het EPD ligt eruit.',
@@ -266,7 +266,7 @@ const CONTENT = {
     {
       id: 'opname', naam: 'Spreekkamer 4', functie: '[TJEERD: naam en functie van dit gebouw]', thema: 'de cliënt neemt op', tegel: [43, 24], soort: 'discussie', muziek: 'spreekkamer',
       npc: { naam: 'Dennis', rol: 'cliënt, 34, telefoon op tafel', kleur: '#2f5f8f', look: { haar: '#1a1f1c', jas: '#2f5f8f', broek: '#3b3f4a', hoofd: 'kort', extra: 'telefoon' } },
-      binnen: { kaart: ['##w#####w##', '#s.......s#', '#...dm....#', '#...c.....#', '#.........#', '#...c.....#', '#p.......p#', '#####D#####'], start: [5, 6], npc: [4, 4] },
+      binnen: { kaart: ['##w##q####w##', '#s.........s#', '#....dm.....#', '#....c......#', '#...........#', '#....c......#', '#...........#', '#p...r.....l#', '######D######'], start: [6, 7], npc: [5, 4] },
       intro: [
         'Ik neem dit gesprek op. Voor mezelf, zodat ik het thuis nog eens kan horen. Vorige keer wist ik de helft niet meer.',
         'En ik wil niet dat jullie het opnemen. Dat ding op tafel gaat uit.',
@@ -286,7 +286,7 @@ const CONTENT = {
     {
       id: 'kwekerij', naam: 'Kwekerij', functie: 'werkplek voor mensen met afstand tot de arbeidsmarkt', thema: 'digitaal waar het kan', tegel: [52, 17], soort: 'dilemma', minigame: 'bowlen', muziek: 'kas',
       npc: { naam: 'Joop', rol: 'medewerker kwekerij, modder aan de handen', kleur: '#2f7d32', look: { haar: '#6b4a2b', jas: '#2f7d32', broek: '#5a4632', hoofd: 'kort', extra: 'modder' } },
-      binnen: { kaart: ['#wwwwwwwww#', '#pp.pp.pp.#', '#.........#', '#pp.pp.pp.#', '#.........#', '#pp.pp.pp.#', '#x.......k#', '#####D#####'], start: [5, 6], npc: [6, 4] },
+      binnen: { kaart: ['#wwwwwwwwwww#', '#pp.pp.pp.pp#', '#...........#', '#pp.pp.pp.pp#', '#...........#', '#pp.pp.pp.pp#', '#x........kk#', '#x.........l#', '######D######'], start: [6, 7], npc: [6, 4] },
       intro: ['Ik werk hier drie dagen in de week. Ik heb een telefoon, maar dat portaal van jullie, daar kom ik niet in.'],
       dilemma: {
         vraag: 'Je wilt Joops controleafspraken voortaan via beeldbellen en het cliëntportaal doen. Wat doe je?',
@@ -306,7 +306,7 @@ const CONTENT = {
     {
       id: 'bestuur', naam: 'Het Bestuursgebouw', functie: '[TJEERD: naam en functie van dit gebouw]', thema: 'de klacht van twintig pagina’s', tegel: [11, 11], soort: 'discussie', muziek: 'kantoor',
       npc: { naam: 'Ingrid', rol: 'klachtenfunctionaris, dikke map', kleur: '#8a6d3b', look: { haar: '#8a6d3b', jas: '#a0522d', broek: '#2a2d35', hoofd: 'lang', extra: 'map' } },
-      binnen: { kaart: ['##w##w##w##', '#.........#', '#.ctttttc.#', '#.c.....c.#', '#.ctttttc.#', '#.........#', '#pmd...s.p#', '#####D#####'], start: [5, 6], npc: [5, 1] },
+      binnen: { kaart: ['##w#q#w#q#w##', '#...........#', '#.cttttttc..#', '#.c......c..#', '#.cttttttc..#', '#...........#', '#pmd....s..f#', '#...........#', '######D######'], start: [6, 7], npc: [6, 1] },
       intro: [
         'Er ligt een klacht van een cliënt. Twintig pagina’s, 43 klachtpunten, geschreven met AI. Over jouw behandeling.',
         'De geneesheer-directeur zegt: als ik dit moet beantwoorden ben ik een dag kwijt aan dossieronderzoek. Niet beantwoorden mag niet. Wettelijk is er geen grens aan een klacht.',
@@ -326,7 +326,7 @@ const CONTENT = {
     {
       id: 'olvendijk', naam: 'De Olvendijk', functie: '[TJEERD: functie]', thema: 'het dossier gaat de deur niet uit', tegel: [31, 21], soort: 'dilemma', muziek: 'kantoor',
       npc: { naam: 'Fatima', rol: 'functionaris gegevensbescherming, koffie', kleur: '#7a3e9d', look: { haar: '#1a1f1c', jas: '#7a3e9d', broek: '#3b3f4a', hoofd: 'lang', extra: 'koffie' } },
-      binnen: { kaart: ['##w##w##w##', '#s.s...mdm#', '#.........#', '#.mdm.....#', '#...c.....#', '#.........#', '#p.......p#', '#####D#####'], start: [5, 6], npc: [5, 2] },
+      binnen: { kaart: ['##w###q###w##', '#s.s....mdm.#', '#...........#', '#.mdm.......#', '#...c.......#', '#...........#', '#f.......r..#', '#p.........p#', '######D######'], start: [6, 7], npc: [6, 2] },
       intro: ['Mooi gebouw, hè. Hier staan onze servers niet. Die staan ergens anders. Weet jij waar jouw gegevens staan als je op een knop drukt?'],
       dilemma: {
         vraag: 'Je moet een ingewikkelde brief aan de huisarts schrijven. Je wilt hulp van AI.',
@@ -346,7 +346,7 @@ const CONTENT = {
     {
       id: 'venne', naam: 'De Hooge Venne', functie: 'forensische psychiatrie', thema: 'het algoritme heeft een mening', tegel: [46, 11], soort: 'dilemma', minigame: 'boogschieten', muziek: 'kliniek',
       npc: { naam: 'Nadia', rol: 'forensisch psycholoog', kleur: '#b5443a', look: { haar: '#1a1f1c', jas: '#b5443a', broek: '#2a2d35', hoofd: 'knot' } },
-      binnen: { kaart: ['#w#######w#', '#..s...s..#', '#.........#', '#.mdm.....#', '#..c....P.#', '#.........#', '#p......xx#', '#####D#####'], start: [5, 6], npc: [3, 5] },
+      binnen: { kaart: ['#w###q#####w#', '#..s.....s..#', '#...........#', '#.mdm...P...#', '#..c........#', '#...........#', '#p.......xx.#', '#...........l', '######D######'], start: [6, 7], npc: [4, 5] },
       intro: [
         'Welkom in de forensische kliniek. Hier beslissen we over vrijheid.',
         'Sinds kort helpt een algoritme mee met de risicotaxatie. Het zegt vandaag: hoog risico op recidive.',
@@ -369,7 +369,7 @@ const CONTENT = {
     {
       id: 'olvendijk79', naam: 'Olvendijk 79', functie: '[TJEERD: functie]', thema: 'de cliënt vraagt wat je doet', tegel: [26, 29], soort: 'dilemma', muziek: 'spreekkamer',
       npc: { naam: 'Willem', rol: 'cliënt, 58, komt voor een controle', kleur: '#8a6d3b', look: { haar: '#9fb3a6', jas: '#8a6d3b', broek: '#3b3f4a', hoofd: 'kort' } },
-      binnen: { kaart: ['##w#####w##', '#s.......p#', '#...dm....#', '#...c.....#', '#.........#', '#....c....#', '#p........#', '#####D#####'], start: [5, 6], npc: [5, 4] },
+      binnen: { kaart: ['##w###q###w##', '#s.........p#', '#....dm.....#', '#....c......#', '#...........#', '#.....c.....#', '#...........#', '#p....r....l#', '######D######'], start: [6, 7], npc: [6, 4] },
       intro: ['Neemt dat ding ons gesprek op? Wat gebeurt daar dan mee?'],
       dilemma: {
         vraag: 'Wat zeg je tegen Willem?',

@@ -67,12 +67,14 @@ const WQMap = (() => {
           if (wereld.kaart[y][x] === 'W') WQTiles.tekenWater(ctx, wereld.kaart, x, y, x * T - camX, y * T - camY, t);
         }
       }
+      if (wereld.decor) { wereld.decor.update(t); wereld.decor.teken(ctx, camX, camY, t, 'onder'); }
       const lijst = wereld.sprites ? wereld.sprites(t).slice() : [];
       if (hero.zichtbaar) lijst.push({ px: hero.px, py: hero.py, dir: hero.dir, frame: moving ? hero.frame : 0, look: hero.look });
       lijst.sort((a, b) => a.py - b.py);
       for (const s of lijst) { WQSprites.draw(ctx, s.look, s.dir || 'down', s.frame || 0, s.px - camX, s.py - camY); if (s.bubble) drawBubble(ctx, s.px - camX, s.py - camY, s.bubble); }
       for (const m of (wereld.markers ? wereld.markers() : [])) drawMarker(ctx, m.x * T - camX, m.y * T - camY, m);
       for (const b of bubbles()) drawBubble(ctx, b.x * T - camX, b.y * T - camY, b.tekst);
+      if (wereld.decor) wereld.decor.teken(ctx, camX, camY, t, 'boven');
     }
     if (fade.a > 0) { ctx.fillStyle = 'rgba(15,24,19,' + fade.a + ')'; ctx.fillRect(0, 0, cv.width, cv.height); }
     requestAnimationFrame(render);
