@@ -31,13 +31,16 @@ test('tilemap is 36 rijen van 64 tekens met bekende tekens', () => {
   }
 });
 
-test('dertien locaties met unieke ids: start, acht dilemma, drie discussie, één plek; koepel als laatste', () => {
-  assert.equal(C.locaties.length, 13);
+test('locaties met unieke ids: start, acht dilemma, drie discussie, twee plekken, één grap; koepel als laatste', () => {
   assert.equal(C.locaties[0].id, 'start');
   assert.equal(DILEMMA.length, 8);
   assert.equal(DISCUSSIE.length, 3);
-  assert.equal(C.locaties.filter(l => l.soort === 'plek').length, 1);
-  assert.equal(new Set(C.locaties.map(l => l.id)).size, 13);
+  assert.equal(C.locaties.filter(l => l.soort === 'plek').length, 2);
+  assert.equal(C.locaties.filter(l => l.soort === 'grap').length, 1);
+  assert.equal(new Set(C.locaties.map(l => l.id)).size, C.locaties.length);
+  assert.ok(C.spook && C.spook.intro.length && Object.keys(C.spook.fluister).length >= 6);
+  assert.ok(walk(...C.spook.tegel), 'spook niet op begaanbare tegel');
+  for (const b of C.borden) assert.ok('BKGN'.includes(MAP[b.tegel[1]][b.tegel[0]]), b.naam + ' bord niet op een gebouw');
   assert.deepEqual([...C.route].sort(), C.locaties.filter(l => l.soort === 'dilemma' || l.soort === 'discussie').map(l => l.id).sort());
   assert.equal(C.route[C.route.length - 1], C.laatste);
   for (const l of C.locaties) assert.ok(l.muziek, l.id + ' zonder muziek');
@@ -49,7 +52,7 @@ test('elke deur is begaanbaar, bereikbaar vanaf de start en ligt onder een gebou
     const [x, y] = l.tegel;
     assert.ok(walk(x, y), l.id + ' deur niet begaanbaar');
     assert.ok(seen.has(x + ',' + y), l.id + ' niet bereikbaar');
-    if (l.soort === 'dilemma' || l.soort === 'discussie') assert.ok('BKGN'.includes(MAP[y - 1][x]), l.id + ' deur niet onder een gebouw');
+    if (l.binnen) assert.ok('BKGN'.includes(MAP[y - 1][x]), l.id + ' deur niet onder een gebouw');
   }
   for (const f of C.figuranten) for (const t of f.route) assert.ok(walk(...t), f.naam + ' route niet begaanbaar');
   for (const p of C.props) { const [x, y] = p.tegel; assert.ok(x >= 0 && x < W && y >= 0 && y < H, p.type + ' buiten de kaart'); }
@@ -69,6 +72,7 @@ test('elke binnenkaart is rechthoekig, met één deur, bereikbare NPC-buur en be
     assert.ok(isWalk(nx, ny), l.id + ' npc niet op vloer');
     const buur = [[1, 0], [-1, 0], [0, 1], [0, -1]].some(([dx, dy]) => seen.has((nx + dx) + ',' + (ny + dy)));
     assert.ok(buur, l.id + ' npc niet bereikbaar');
+    for (const ch of Object.keys(C.voorwerpen)) for (let y = 0; y < b.kaart.length; y++) { const x = b.kaart[y].indexOf(ch); if (x >= 0 && y > 0) assert.ok([[1, 0], [-1, 0], [0, 1], [0, -1]].some(([dx, dy]) => seen.has((x + dx) + ',' + (y + dy))), l.id + ' voorwerp ' + ch + ' niet bereikbaar'); }
   }
 });
 
@@ -103,7 +107,8 @@ test('score telt op tot het maximum; minigames compleet', () => {
   assert.equal(totaal, s.max);
   assert.equal(Object.keys(mg).length, 4);
   assert.equal(mg.noodkoffer.rondes * mg.noodkoffer.puntenPerRonde, s.minigameMax);
-  assert.equal(mg.dicteer.zinnen.flatMap(z => z.woorden).filter(w => !w[1]).length * mg.dicteer.hit, s.minigameMax);
+  assert.equal(mg.dicteer.rondes.length * mg.dicteer.puntenPerRonde, s.minigameMax);
+  for (const r of mg.dicteer.rondes) { assert.ok(r.samenvatting.split(' ').includes(r.fout), 'fout woord niet in samenvatting'); assert.equal(r.gesproken.split(' ').length, r.samenvatting.split(' ').length, 'gesproken en samenvatting even lang'); }
   assert.equal(mg.bowlen.kegels.length * mg.bowlen.worpen * mg.bowlen.puntenPerKegel, s.minigameMax);
   assert.equal(mg.boogschieten.pijlen * mg.boogschieten.ringen[0], s.minigameMax);
   assert.equal(C.zelfcheck.items.length, 6);
