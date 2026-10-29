@@ -1,29 +1,29 @@
 // State machine: start → landgoed → gebouw (binnen) → dialoog → keuze → gevolg → minigame → kaart → ... → zelfcheck → agenda → einde.
 (() => {
   'use strict';
-  const U = WQUi, M = WQMap, C = CONTENT, X = WQSfx, W = WQWereld, SC = WQScore, MG = WQMinigames, $ = U.$;
-  const OPSLAG = 'wq.save.v2', GEBOUWEN = C.locaties.slice(1), KAARTEN = GEBOUWEN.filter(l => l.soort === 'dilemma').length;
+  const U = WQUi, M = WQMap, C = CONTENT, X = WQSfx, W = WQWereld, SC = WQScore, MG = WQMinigames, MZ = WQMuziek, $ = U.$;
+  const OPSLAG = 'wq.save.v3', GEBOUWEN = C.locaties.slice(1), KAARTEN = GEBOUWEN.filter(l => l.soort === 'dilemma').length;
   let S = null, bezig = false, verderHandler = null, avatarKeuze = C.avatars[0], binnen = null, huidig = null, netBuiten = false;
 
   // ---------- state en opslag ----------
   function nieuweState(naam, modus, avatar) {
     return {
-      versie: 2, naam, modus, avatar, regie: C.regieStart, bezocht: [], keuzes: {}, argumenten: {}, ergernis: '',
+      versie: 3, naam, modus, avatar, regie: C.regieStart, bezocht: [], keuzes: {}, argumenten: {}, ergernis: '',
       punten: { dilemma: {}, minigame: {}, discussie: {} }, tijdbonus: 0,
       zelfcheck: C.zelfcheck.items.map(() => false), zelfcheckGedaan: false, agendaGedaan: false,
       agenda: { zelf: '', zelfKaart: null, org: '', orgIndex: null, eigenaar: C.agenda.eigenaren[0] },
-      hero: C.locaties[0].tegel.slice(), binnenIn: null, fase: 'kaart', playerId: Math.random().toString(36).slice(2, 10), gestart: Date.now(), klaarOp: null,
+      hero: C.locaties[0].tegel.slice(), binnenIn: null, fase: 'kaart', gezien: [], playerId: Math.random().toString(36).slice(2, 10), gestart: Date.now(), klaarOp: null,
     };
   }
-  function bewaar() { try { localStorage.setItem(OPSLAG, JSON.stringify(S)); } catch (e) { /* privémodus */ } }
-  function laad() { try { const s = JSON.parse(localStorage.getItem(OPSLAG)); return s && s.versie === 2 ? s : null; } catch (e) { return null; } }
+  function bewaar() { try { localStorage.setItem(OPSLAG, JSON.stringify(S)); } catch (e) { /* privémodus */ } WQBoard.verstuur(S, SC.totaal(S), binnen && huidig ? huidig.id : 'buiten'); }
+  function laad() { try { const s = JSON.parse(localStorage.getItem(OPSLAG)); return s && s.versie === 3 ? s : null; } catch (e) { return null; } }
   function wis() { try { localStorage.removeItem(OPSLAG); } catch (e) { /* niets */ } }
   const profiel = () => C.profielen.find(p => S.regie >= p.min && S.regie <= p.max) || C.profielen[0];
   const bezocht = id => S.bezocht.includes(id);
   const avatarVan = id => C.avatars.find(a => a.id === id) || C.avatars[0];
   const kaarten = () => S.bezocht.map(id => C.locaties.find(l => l.id === id)).filter(l => l.kaart).map(l => l.kaart);
   const volgende = () => { const id = C.route.find(i => !bezocht(i)); return id ? C.locaties.find(l => l.id === id) : null; };
-  const allesKlaar = () => GEBOUWEN.every(l => bezocht(l.id));
+  const allesKlaar = () => GEBOUWEN.every(l => l.soort === 'plek' || bezocht(l.id));
   function hud() {
     const v = volgende();
     const kompas = binnen ? '' : v ? C.teksten.volgende + ': ' + (v.kortenaam || v.naam) + ' ' + M.richtingNaar(v.tegel[0], v.tegel[1]) : C.teksten.alles;
@@ -56,14 +56,15 @@
   function naarBuiten(pos) {
     binnen = null; huidig = null; S.binnenIn = null;
     M.setWereld(W.buitenWereld(bezocht, volgende() && volgende().id), pos[0], pos[1]); M.setHero(pos[0], pos[1], 'down');
-    U.locatie(C.teksten.landgoed); U.praatKnop(false); hud();
+    U.locatie(C.teksten.landgoed); U.praatKnop(false); hud(); muziekBuiten(pos[0], pos[1]);
   }
   function naarBinnen(L, pos) {
     huidig = L; binnen = W.binnenWereld(L, () => bezocht(L.id)); W.buitenActief(false); S.binnenIn = L.id;
     const p = pos || [binnen.deur[0], binnen.deur[1] - 1];
     M.setWereld(binnen, p[0], p[1]); M.setHero(p[0], p[1], 'up'); S.hero = p.slice(); bewaar();
-    U.locatie(L.kortenaam || L.naam); U.praatKnop(W.naastNpc(binnen, p[0], p[1])); hud();
+    U.locatie(L.kortenaam || L.naam); U.praatKnop(W.naastNpc(binnen, p[0], p[1])); hud(); MZ.speel(L.muziek || 'kantoor');
   }
+  function muziekBuiten(x, y) { const P = C.locaties.find(l => l.soort === 'plek'); const bij = P && Math.abs(x - P.tegel[0]) <= 4 && Math.abs(y - P.tegel[1]) <= 3; MZ.speel(bij ? P.muziek : C.locaties[0].muziek); }
   function vrij() {
     bezig = false; verderHandler = null;
     if (S.fase !== 'kaart') return hervat();
@@ -81,8 +82,17 @@
       return;
     }
     const L = GEBOUWEN.find(l => l.tegel[0] === x && l.tegel[1] === y);
-    if (L && !netBuiten) { bezig = true; M.transition(() => { naarBinnen(L); vrij(); }); return; }
-    netBuiten = false; hud();
+    if (L && L.soort === 'plek') {
+      if (!S.gezien.includes(L.id)) { S.gezien.push(L.id); bewaar(); bezig = true; M.stop(); zeg(L.npc, L.intro, vrij); }
+      muziekBuiten(x, y); return;
+    }
+    if (L && !netBuiten) {
+      const rest = GEBOUWEN.filter(l => l.id !== L.id && l.soort !== 'plek' && !bezocht(l.id)).length;
+      if (L.id === C.laatste && rest > 0) { bezig = true; M.stop(); U.dialoog(L.npc, { tekst: vul(C.teksten.koepelDicht, { n: rest }) }); verderHandler = () => { netBuiten = true; vrij(); }; return; }
+      if (L.id === C.laatste && !S.gezien.includes('koepelOpen')) { S.gezien.push('koepelOpen'); bewaar(); bezig = true; M.stop(); U.dialoog(L.npc, { tekst: C.teksten.koepelOpen }); verderHandler = () => { bezig = true; M.transition(() => { naarBinnen(L); vrij(); }); }; return; }
+      bezig = true; M.transition(() => { naarBinnen(L); vrij(); }); return;
+    }
+    netBuiten = false; hud(); muziekBuiten(x, y);
   }
   function naControle() {
     if (!allesKlaar() || S.fase !== 'kaart') return;
@@ -141,9 +151,9 @@
     const mg = C.minigames[L.minigame];
     U.dialoog(L.npc, { tekst: vul(C.teksten.minigameStart, mg), knop: 'A · SPELEN' });
     verderHandler = () => {
-      U.toon(null); M.setPaused(true); $('loc').hidden = true;
+      U.toon(null); M.setPaused(true); $('loc').hidden = true; MZ.speel('minigame');
       MG.start(L.minigame, M.canvas(), res => {
-        M.setPaused(false); $('loc').hidden = false; S.punten.minigame[L.id] = res.punten; bewaar(); hud(); X.kaart();
+        M.setPaused(false); $('loc').hidden = false; MZ.speel(L.muziek || 'kantoor'); S.punten.minigame[L.id] = res.punten; bewaar(); hud(); X.kaart();
         U.dialoog(L.npc, { tekst: res.tekst + ' ' + vul(C.teksten.minigameKlaar, res) });
         verderHandler = () => geefKaart(L);
       });
@@ -154,7 +164,7 @@
     bewaar(); hud(); X.kaart();
     U.dialoog(L.npc, { tekst: C.teksten.kaartGevonden, knop: 'A · VERDER' });
     U.kaart(L.kaart, kaarten().length, KAARTEN);
-    verderHandler = vrij;
+    verderHandler = L.id === C.laatste ? () => { bezig = false; naControle(); } : vrij;
   }
   function discussie(L) {
     U.dialoog(L.npc, { tekst: L.discussie.vraag, zonderKnop: true, naTypen: () => U.keuzes(L.discussie.opties, i => { S.keuzes[L.id] = i; bewaar(); argument(L); }) });
@@ -207,7 +217,7 @@
     A.eigenaar = $('agEigenaar').value; bewaar();
   }
   function einde() {
-    U.kaartZichtbaar(false); U.toon('s-einde'); $('kopregel').hidden = false;
+    U.kaartZichtbaar(false); U.toon('s-einde'); $('kopregel').hidden = false; MZ.speel('einde');
     const p = profiel(), A = S.agenda;
     $('eProfiel').textContent = p.naam.toUpperCase(); $('eNaam').textContent = S.naam;
     $('ePunten').textContent = SC.totaal(S); $('eRegie').textContent = S.regie;
@@ -220,10 +230,10 @@
     U.kaartenLijst('eKaartenLijst', kaarten(), KAARTEN, C.teksten.nogGeenKaarten);
     $('eVerderBtn').hidden = allesKlaar();
   }
-  function opnieuw() { if (!window.confirm(C.teksten.wissen)) return; wis(); S = null; bezig = false; verderHandler = null; binnen = null; startScherm(); }
+  function opnieuw() { if (!window.confirm(C.teksten.wissen)) return; MZ.stop(); wis(); S = null; bezig = false; verderHandler = null; binnen = null; startScherm(); }
 
   // ---------- menu ----------
-  function openMenu() { if (!S) return; $('mGeluid').textContent = 'GELUID: ' + (X.isAan() ? 'AAN' : 'UIT'); U.menu(true); }
+  function openMenu() { if (!S) return; $('mGeluid').textContent = 'GELUID: ' + (X.isAan() ? 'AAN' : 'UIT'); $('mMuziek').textContent = 'MUZIEK: ' + (MZ.isAan() ? 'AAN' : 'UIT'); U.menu(true); }
   function hervatNaMenu() {
     if (S.fase === 'einde') return einde();
     if (S.fase === 'agenda') return agenda();
@@ -234,7 +244,7 @@
 
   // ---------- invoer ----------
   function init() {
-    W.init(C); SC.init(C); MG.init(C); M.init($('kaart')); M.setOnArrive(aankomst);
+    W.init(C); SC.init(C); MG.init(C); WQBoard.init(typeof CONFIG === 'object' ? CONFIG : null); M.init($('kaart')); M.setOnArrive(aankomst);
     $('startBtn').addEventListener('click', () => {
       const w = U.startWaarden(); const naam = w.naam || (w.modus === 'solo' ? 'speler' : 'team');
       wis(); begin(nieuweState(naam, w.modus, avatarKeuze.id), true);
@@ -264,6 +274,7 @@
     $('mKaarten').addEventListener('click', () => { U.menu(false); toonKaarten(); });
     $('mZelfcheck').addEventListener('click', () => { U.menu(false); zelfcheck(hervatNaMenu); });
     $('mAgenda').addEventListener('click', () => { U.menu(false); agenda(); });
+    $('mMuziek').addEventListener('click', () => { MZ.zet(!MZ.isAan()); $('mMuziek').textContent = 'MUZIEK: ' + (MZ.isAan() ? 'AAN' : 'UIT'); });
     $('mGeluid').addEventListener('click', () => { X.zet(!X.isAan()); $('mGeluid').textContent = 'GELUID: ' + (X.isAan() ? 'AAN' : 'UIT'); });
     $('mOpnieuw').addEventListener('click', () => { U.menu(false); opnieuw(); });
     $('opnieuwBtn').addEventListener('click', opnieuw);

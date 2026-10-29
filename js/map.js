@@ -29,6 +29,8 @@ const WQMap = (() => {
   }
   function drawMarker(c, sx, sy, m) {
     const bob = Math.round(Math.sin(t / 12) * 2);
+    if (m.dicht && !m.done) { c.fillStyle = '#6b7280'; c.fillRect(sx + 5, sy - 15 + bob, 6, 6); c.fillRect(sx + 7, sy - 9 + bob, 2, 3); c.fillStyle = '#e0a84a'; c.fillRect(sx + 6, sy - 13 + bob, 4, 3); c.fillStyle = '#1a1f1c'; c.fillRect(sx + 7, sy - 12 + bob, 2, 1); return; }
+    if (m.plek) { c.fillStyle = m.done ? '#9fb3a6' : '#f2f2f2'; c.fillRect(sx + 7, sy - 15 + bob, 2, 8); c.fillRect(sx + 5, sy - 13 + bob, 6, 2); return; }
     if (m.done) {
       c.fillStyle = '#1d6b4f'; c.fillRect(sx + 4, sy - 13 + bob, 8, 8);
       c.fillStyle = '#fff'; c.fillRect(sx + 6, sy - 9 + bob, 1, 2); c.fillRect(sx + 7, sy - 8 + bob, 1, 2); c.fillRect(sx + 8, sy - 9 + bob, 1, 2); c.fillRect(sx + 9, sy - 10 + bob, 1, 2);

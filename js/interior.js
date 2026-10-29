@@ -28,12 +28,13 @@ const WQWereld = (() => {
         begaanbaar: new Set(Object.keys(C.legenda).filter(k => C.legenda[k].begaanbaar)),
         offscreen: WQTiles.tekenBuiten(C), water: true, bg: '#0f1813', decor: WQDecor,
         sprites: t => { if (buiten.actief) beweegFiguranten(t); return figuranten.map(f => ({ px: f.px, py: f.py, dir: f.dir, frame: f.pad.length ? f.frame : 0, look: f.look })); },
-        markers: () => C.locaties.filter(l => l.id !== 'start').map(l => ({ x: l.tegel[0], y: l.tegel[1], done: buiten.bezocht(l.id), actief: l.id === buiten.actiefId })),
+        markers: () => C.locaties.filter(l => l.id !== 'start').map(l => ({ x: l.tegel[0], y: l.tegel[1], done: buiten.bezocht(l.id), actief: l.id === buiten.actiefId, plek: l.soort === 'plek', dicht: l.id === C.laatste && !buiten.open() })),
       };
       maakFiguranten(); WQDecor.init(C);
       if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { buiten.offscreen = WQTiles.tekenBuiten(C); });
     }
     buiten.bezocht = bezocht; buiten.actiefId = actiefId; buiten.actief = true;
+    buiten.open = () => C.locaties.filter(l => l.soort === 'dilemma' || l.soort === 'discussie').every(l => l.id === C.laatste || bezocht(l.id));
     return buiten;
   }
   function binnenWereld(L, gedaan) {

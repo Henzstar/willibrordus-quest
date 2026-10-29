@@ -7,30 +7,61 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap">
 <link rel="stylesheet" href="./css/style.css">
 <style>
-  /* Schermmodus: kaart groot, klok en URL eromheen. Fase 2 voegt teams en ranglijst toe. */
+  /* Schermmodus: kaart met teams links, ranglijst rechts, panelen voor de facilitator (toetsen 1 t/m 4). */
   body { overflow: hidden; }
-  .beamer { height: 100vh; display: grid; grid-template-rows: auto 1fr auto; gap: 12px; padding: 16px 24px; }
-  .beamer .balk { display: flex; justify-content: space-between; align-items: center; gap: 16px; }
-  .beamer h1 { font-size: clamp(16px, 2.4vw, 32px); }
-  .beamer .klok { font-family: var(--display); font-size: clamp(24px, 4vw, 56px); color: var(--fg); }
-  .beamer .klok.bijna { color: var(--warn); }
-  .beamer .klok.om { color: var(--bad); }
-  .beamer .screen { align-self: center; justify-self: center; max-width: 100%; max-height: 100%; }
-  .beamer canvas { width: min(calc(100vw - 48px), calc((100vh - 230px) * 768 / 352)); height: auto; }
-  .beamer .url { font-family: var(--display); font-size: clamp(16px, 2.6vw, 36px); color: var(--accent); text-align: center; word-break: break-all; }
-  .beamer .sub { text-align: center; }
+  .beamer { height: 100vh; display: grid; grid-template-rows: auto 1fr auto; grid-template-columns: 1fr 420px; gap: 12px 16px; padding: 12px 24px; }
+  .beamer .balk { grid-column: 1 / -1; display: flex; justify-content: space-between; align-items: center; gap: 16px; }
+  .beamer h1 { font-size: clamp(16px, 2vw, 28px); }
+  .beamer .klok { font-family: var(--display); font-size: clamp(24px, 3.4vw, 48px); color: var(--fg); }
+  .beamer .klok.bijna { color: var(--warn); } .beamer .klok.om { color: var(--bad); }
+  .beamer .links { position: relative; min-height: 0; display: flex; flex-direction: column; gap: 10px; }
+  .kaartvak { position: relative; align-self: center; width: 100%; }
+  .kaartvak canvas { width: 100%; height: auto; display: block; }
+  .kaartvak #labels { position: absolute; left: 0; top: 0; pointer-events: none; }
+  #paneel { overflow: auto; max-height: calc(100vh - 180px); background: var(--panel); border: 2px solid var(--accent-strong); border-radius: 6px; padding: 12px 16px; }
+  #paneel h3 { font-family: var(--display); font-size: 10px; color: var(--accent); margin: 10px 0 8px; line-height: 1.6; }
+  .balk { display: grid; grid-template-columns: 1fr 240px 40px; gap: 10px; align-items: center; font-size: 15px; padding: 3px 0; }
+  .balk .bar { height: 14px; background: #0f1813; border: 1px solid var(--accent-strong); border-radius: 3px; overflow: hidden; }
+  .balk .bar i { display: block; height: 100%; background: var(--accent); transition: width .4s; }
+  .balk .n { font-family: var(--display); font-size: 10px; color: var(--accent); text-align: right; }
+  .argumenten { margin: 4px 0 10px; padding-left: 18px; font-size: 15px; line-height: 1.5; columns: 2; }
+  .rechts { display: flex; flex-direction: column; gap: 8px; min-height: 0; overflow: auto; }
+  .rechts h2 { font-size: 11px; }
+  .rij { display: grid; grid-template-columns: 28px 32px 1fr auto; gap: 8px; align-items: center; background: var(--panel); border: 2px solid var(--accent-strong); border-radius: 6px; padding: 6px 10px; }
+  .rij.klaar { border-color: var(--accent); }
+  .rij .nr { font-family: var(--display); font-size: 12px; color: var(--muted); }
+  .rij canvas { width: 32px; height: 48px; image-rendering: pixelated; }
+  .rij .naam { font-family: var(--display); font-size: 10px; line-height: 1.5; }
+  .rij .sub { font-size: 12px; color: var(--muted); }
+  .rij .pt { font-family: var(--display); font-size: 14px; color: var(--accent); }
+  .voet { grid-column: 1 / -1; display: flex; justify-content: space-between; align-items: center; gap: 16px; }
+  .tabs { display: flex; gap: 6px; }
+  .tabs .btn { width: auto; min-height: 40px; padding: 8px 12px; font-size: 8px; }
+  .tabs .btn.actief { background: var(--accent-strong); }
+  .url { font-family: var(--display); font-size: clamp(12px, 1.6vw, 24px); color: var(--accent); word-break: break-all; }
+  #status { font-size: 12px; color: var(--muted); }
 </style>
 </head>
 <body>
 <div class="beamer">
   <div class="balk">
-    <div><h1 id="titel">Willibrordus Quest</h1><p class="sub" id="ondertitel" style="text-align:left">Wie stuurt?</p></div>
+    <div><h1 id="titel">Willibrordus Quest</h1><p class="sub" id="ondertitel">Wie stuurt?</p></div>
+    <div class="url" id="url"></div>
     <div class="klok" id="klok">--:--</div>
   </div>
-  <div class="screen"><canvas id="kaart" width="768" height="352" aria-label="Kaart van het landgoed"></canvas></div>
-  <div>
-    <div class="url" id="url"></div>
-    <p class="sub" id="hint">Open de link op één telefoon per team.</p>
+  <div class="links">
+    <div class="kaartvak" id="kaartvak"><canvas id="kaart" width="1024" height="576" aria-label="Kaart van het landgoed"></canvas><canvas id="labels" width="1024" height="576"></canvas></div>
+    <div id="paneel" hidden></div>
+  </div>
+  <div class="rechts"><h2>Ranglijst</h2><div id="rang"></div></div>
+  <div class="voet">
+    <div class="tabs">
+      <button class="btn actief" type="button" data-tab="kaart">1 · KAART</button>
+      <button class="btn" type="button" data-tab="dilemma">2 · DILEMMA'S</button>
+      <button class="btn" type="button" data-tab="discussie">3 · DISCUSSIE</button>
+      <button class="btn" type="button" data-tab="agenda">4 · AGENDA</button>
+    </div>
+    <span id="status">Verbinden...</span>
   </div>
 </div>
 <script src="./js/config.js"></script>
@@ -41,31 +72,6 @@
 <script src="./js/decor.js"></script>
 <script src="./js/map.js"></script>
 <script src="./js/interior.js"></script>
-<script>
-(() => {
-  'use strict';
-  const q = new URLSearchParams(location.search);
-  document.getElementById('titel').textContent = CONTENT.titel;
-  document.getElementById('ondertitel').textContent = CONTENT.ondertitel;
-  document.getElementById('url').textContent = location.href.replace(/beamer\.html.*$/, '').replace(/^https?:\/\//, '');
-  WQWereld.init(CONTENT);
-  WQMap.init(document.getElementById('kaart'), { fullMap: true });
-  WQMap.setWereld(WQWereld.buitenWereld(() => false, null), CONTENT.locaties[0].tegel[0], CONTENT.locaties[0].tegel[1]);
-  WQMap.setHeroVisible(false);
-
-  // Klok: &min=30 telt af vanaf het laden; zonder min toont hij de tijd.
-  const klok = document.getElementById('klok');
-  const minuten = parseInt(q.get('min'), 10);
-  const eind = minuten > 0 ? Date.now() + minuten * 60000 : null;
-  const pad = n => String(n).padStart(2, '0');
-  function tik() {
-    if (!eind) { const d = new Date(); klok.textContent = pad(d.getHours()) + ':' + pad(d.getMinutes()); return; }
-    const rest = Math.max(0, Math.round((eind - Date.now()) / 1000));
-    klok.textContent = pad(Math.floor(rest / 60)) + ':' + pad(rest % 60);
-    klok.className = 'klok' + (rest === 0 ? ' om' : rest < 300 ? ' bijna' : '');
-  }
-  tik(); setInterval(tik, 1000);
-})();
-</script>
+<script src="./js/beamer.js"></script>
 </body>
 </html>

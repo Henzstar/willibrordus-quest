@@ -1,0 +1,41 @@
+{
+  "rules": {
+    "events": {
+      "$eventId": {
+        ".read": true,
+        "players": {
+          "$playerId": {
+            ".write": "$eventId.matches(/^[a-z0-9-]{2,24}$/) && $playerId.matches(/^[a-z0-9]{4,16}$/) && newData.hasChildren(['naam', 'punten', 'bijgewerkt'])",
+            ".validate": "newData.child('naam').isString() && newData.child('naam').val().length <= 20 && newData.child('punten').isNumber() && newData.child('regie').isNumber() && newData.child('bijgewerkt').isNumber()",
+            "naam": { ".validate": "newData.isString() && newData.val().length <= 20" },
+            "avatar": { ".validate": "newData.isString() && newData.val().length <= 20" },
+            "modus": { ".validate": "newData.isString() && newData.val().length <= 8" },
+            "ergernis": { ".validate": "newData.isString() && newData.val().length <= 60" },
+            "locatie": { ".validate": "newData.isString() && newData.val().length <= 24" },
+            "fase": { ".validate": "newData.isString() && newData.val().length <= 12" },
+            "agenda": {
+              "zelf": { ".validate": "newData.isString() && newData.val().length <= 120" },
+              "org": { ".validate": "newData.isString() && newData.val().length <= 120" },
+              "eigenaar": { ".validate": "newData.isString() && newData.val().length <= 40" },
+              "$other": { ".validate": false }
+            },
+            "argumenten": { "$id": { ".validate": "newData.isString() && newData.val().length <= 120" } },
+            "keuzes": { "$id": { ".validate": "newData.isNumber()" } },
+            "bezocht": { "$i": { ".validate": "newData.isString() && newData.val().length <= 24" } },
+            "zelfcheck": { "$i": { ".validate": "newData.isBoolean()" } },
+            "tegel": { "$i": { ".validate": "newData.isNumber()" } },
+            "klaarOp": { ".validate": "newData.isNumber() || newData.val() == null" },
+            "gestart": { ".validate": "newData.isNumber()" },
+            "$other": { ".validate": false }
+          }
+        },
+        "bord": {
+          ".write": "$eventId.matches(/^[a-z0-9-]{2,24}$/)",
+          "afgerond": { ".validate": "newData.isBoolean()" },
+          "$other": { ".validate": false }
+        },
+        "$other": { ".validate": false }
+      }
+    }
+  }
+}
