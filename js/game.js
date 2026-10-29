@@ -39,16 +39,16 @@
     const teken = () => {
       t++; c.drawImage(w.offscreen, 0, 0); if (w.overlay) c.drawImage(w.overlay, 0, 0);
       const [hx, hy] = binnen && huidig ? huidig.tegel : M.heroTile();
-      c.fillStyle = '#fff'; c.beginPath(); c.arc(hx * T + 16, hy * T + 16, 14 + Math.sin(t / 6) * 3, 0, 7); c.fill(); c.fillStyle = '#d65a4a'; c.beginPath(); c.arc(hx * T + 16, hy * T + 16, 9, 0, 7); c.fill();
+      c.fillStyle = '#fff'; c.beginPath(); c.arc(hx * T + 16, hy * T + 16, 30 + Math.sin(t / 6) * 6, 0, 7); c.fill(); c.fillStyle = '#d65a4a'; c.beginPath(); c.arc(hx * T + 16, hy * T + 16, 20, 0, 7); c.fill();
       for (const L of GEBOUWEN) {
         if (L.soort === 'plek' || bezocht(L.id)) continue;
-        const x = L.tegel[0] * T + 16, dicht = L.id === C.laatste && teGaan() > 0, y = L.tegel[1] * T - 20 - (dicht ? 0 : Math.abs(Math.sin(t / 9)) * 18);
+        const x = L.tegel[0] * T + 16, dicht = L.id === C.laatste && teGaan() > 0, y = L.tegel[1] * T - 10 - (dicht ? 0 : Math.abs(Math.sin(t / 9)) * 30);
         if (!dicht && Math.floor(t / 14) % 3 === 0) continue;
-        c.save(); c.translate(x, y); c.scale(4, 4);
+        c.save(); c.translate(x, y); c.scale(9, 9);
         c.fillStyle = dicht ? '#6b7280' : '#fff7cc'; c.fillRect(-4, -10, 8, 8); c.fillRect(-1, -2, 2, 3);
         c.fillStyle = dicht ? '#e0a84a' : '#d65a4a'; c.fillRect(-2, -8, 4, 4); if (dicht) { c.fillStyle = '#1a1f1c'; c.fillRect(-1, -7, 2, 2); }
         c.restore();
-        c.font = '14px "Press Start 2P", monospace'; c.textAlign = 'center'; c.fillStyle = '#1a1f1c'; c.fillText((L.kortenaam || L.naam).split('[')[0].trim(), x + 1, y - 52 + 1); c.fillStyle = dicht ? '#9fb3a6' : '#fff7cc'; c.fillText((L.kortenaam || L.naam).split('[')[0].trim(), x, y - 52);
+        c.font = '26px "Press Start 2P", monospace'; c.textAlign = 'center'; c.fillStyle = '#1a1f1c'; c.fillText((L.kortenaam || L.naam).split('[')[0].trim(), x + 2, y - 104 + 2); c.fillStyle = dicht ? '#9fb3a6' : '#fff7cc'; c.fillText((L.kortenaam || L.naam).split('[')[0].trim(), x, y - 104);
       }
       overzichtRaf = requestAnimationFrame(teken);
     };
