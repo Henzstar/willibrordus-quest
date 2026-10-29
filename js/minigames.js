@@ -154,7 +154,7 @@ const WQMinigames = (() => {
     const k = klaar; klaar = null; setTimeout(() => k(res), 0);
   }
   function start(id, canvas, cb) {
-    cv = canvas; ctx = cv.getContext('2d'); klaar = cb; oud = [cv.width, cv.height]; cv.width = oud[0] * 2; cv.height = oud[1] * 2; W = cv.width; H = cv.height; ctx.imageSmoothingEnabled = false; tijd = 0;
+    cv = canvas; ctx = cv.getContext('2d'); klaar = cb; oud = [cv.width, cv.height]; const k = oud[0] >= 300 ? 1 : 2; cv.width = oud[0] * k; cv.height = oud[1] * k; W = cv.width; H = cv.height; ctx.imageSmoothingEnabled = false; tijd = 0;
     cv.addEventListener('pointerdown', onDown); cv.addEventListener('pointerup', onUp); cv.addEventListener('pointercancel', onUp); document.addEventListener('keydown', onKey); document.addEventListener('keyup', onKey);
     actief = GAMES[id](); loop();
   }

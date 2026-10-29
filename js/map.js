@@ -1,11 +1,12 @@
 // Wereld op canvas: camera die de held volgt, BFS-looppad, markers, sprites en overgangen. Werelden komen uit tiles.js en interior.js.
 const WQMap = (() => {
   'use strict';
-  const T = 16;
+  const T = 32;
+  let fpsTeller = 0, fpsTijd = 0, fps = 0;
   let cv, ctx, scale = 2, VW = 11, VH = 11, fullMap = false, t = 0, running = false, paused = false;
   let wereld = null; // { kaart, breedte, hoogte, begaanbaar:Set, offscreen, water:bool, sprites:fn, markers:fn, bg }
   const hero = { x: 0, y: 0, px: 0, py: 0, dir: 'down', frame: 0, look: {}, zichtbaar: true };
-  let path = [], moving = false, onArrive = null, speed = 1, fade = { a: 0, richting: 0, cb: null }, bubbles = () => [];
+  let path = [], moving = false, onArrive = null, speed = 2, fade = { a: 0, richting: 0, cb: null }, bubbles = () => [];
   let cam = { x: 0, y: 0, snap: true }, schud = 0, avondFn = () => 0, iris = { fase: 0, r: 0, cb: null };
 
   const tileAt = (x, y) => (wereld && wereld.kaart[y] && wereld.kaart[y][x]) || null;
@@ -15,8 +16,8 @@ const WQMap = (() => {
     if (fullMap && wereld) { VW = wereld.breedte; VH = wereld.hoogte; }
     else {
       const w = cv.parentElement.clientWidth || 360;
-      scale = w >= 480 ? 3 : 2;
-      VW = Math.max(10, Math.min(16, Math.floor(w / (scale * T)))); VH = 11;
+      scale = w >= 720 ? 2 : 1;
+      VW = Math.max(9, Math.min(16, Math.floor(w / (scale * T)))); VH = 10;
     }
     cv.width = VW * T; cv.height = VH * T;
     if (!fullMap) cv.style.width = (VW * T * scale) + 'px';
@@ -24,15 +25,15 @@ const WQMap = (() => {
   }
   function doel() {
     const mw = wereld.breedte * T, mh = wereld.hoogte * T;
-    const cx = mw <= VW * T ? (mw - VW * T) / 2 : Math.max(0, Math.min(mw - VW * T, hero.px - VW * T / 2 + 8));
-    const cy = mh <= VH * T ? (mh - VH * T) / 2 : Math.max(0, Math.min(mh - VH * T, hero.py - VH * T / 2 + 8));
+    const cx = mw <= VW * T ? (mw - VW * T) / 2 : Math.max(0, Math.min(mw - VW * T, hero.px - VW * T / 2 + 16));
+    const cy = mh <= VH * T ? (mh - VH * T) / 2 : Math.max(0, Math.min(mh - VH * T, hero.py - VH * T / 2 + 16));
     return [cx, cy];
   }
   function camera() {
     const [dx, dy] = doel();
     if (cam.snap) { cam.x = dx; cam.y = dy; cam.snap = false; }
     else { cam.x += (dx - cam.x) * 0.18; cam.y += (dy - cam.y) * 0.18; if (Math.abs(dx - cam.x) < 0.5) cam.x = dx; if (Math.abs(dy - cam.y) < 0.5) cam.y = dy; }
-    let sx = 0, sy = 0; if (schud > 0) { schud--; sx = (Math.random() - 0.5) * 4; sy = (Math.random() - 0.5) * 3; }
+    let sx = 0, sy = 0; if (schud > 0) { schud--; sx = (Math.random() - 0.5) * 8; sy = (Math.random() - 0.5) * 6; }
     return [Math.round(cam.x + sx), Math.round(cam.y + sy)];
   }
   // Avondlaag: blauwe tint, gloed om lantaarns, verlichte ramen. f = 0 (dag) tot 1 (avond).
@@ -40,35 +41,33 @@ const WQMap = (() => {
     if (f <= 0 || !wereld.lampen) return;
     c.fillStyle = 'rgba(18,28,70,' + (0.38 * f) + ')'; c.fillRect(0, 0, c.canvas.width, c.canvas.height);
     c.save(); c.globalCompositeOperation = 'lighter';
-    for (const [lx, ly] of wereld.lampen) { const x = lx - camX, y = ly - camY; if (x < -40 || y < -40 || x > c.canvas.width + 40 || y > c.canvas.height + 40) continue; const g = c.createRadialGradient(x, y, 2, x, y, 30); g.addColorStop(0, 'rgba(255,220,140,' + (0.55 * f) + ')'); g.addColorStop(1, 'rgba(255,200,100,0)'); c.fillStyle = g; c.fillRect(x - 30, y - 30, 60, 60); }
+    for (const [lx, ly] of wereld.lampen) { const x = lx - camX, y = ly - camY; if (x < -40 || y < -40 || x > c.canvas.width + 40 || y > c.canvas.height + 40) continue; const g = c.createRadialGradient(x, y, 4, x, y, 60); g.addColorStop(0, 'rgba(255,220,140,' + (0.55 * f) + ')'); g.addColorStop(1, 'rgba(255,200,100,0)'); c.fillStyle = g; c.fillRect(x - 60, y - 60, 120, 120); }
     c.fillStyle = 'rgba(255,215,120,' + (0.55 * f) + ')';
     for (const [rx, ry, rw, rh] of (wereld.ramen || [])) { const x = rx - camX, y = ry - camY; if (x < -20 || y < -20 || x > c.canvas.width + 20 || y > c.canvas.height + 20) continue; c.fillRect(x, y, rw, rh); }
     c.restore();
   }
   function tekenIris(c) {
     if (!iris.fase) return;
-    const cx = hero.px - cam.x + 8, cy = hero.py - cam.y + 4, max = Math.hypot(c.canvas.width, c.canvas.height);
+    const cx = hero.px - cam.x + 16, cy = hero.py - cam.y + 8, max = Math.hypot(c.canvas.width, c.canvas.height);
     if (iris.fase === 1) { iris.r -= max / 14; if (iris.r <= 0) { iris.r = 0; const cb = iris.cb; iris.cb = null; iris.fase = 2; cb && cb(); } }
     else { iris.r += max / 14; if (iris.r >= max) { iris.fase = 0; return; } }
     c.save(); c.beginPath(); c.rect(0, 0, c.canvas.width, c.canvas.height); c.arc(cx, cy, Math.max(0, iris.r), 0, Math.PI * 2, true); c.fillStyle = '#0f1813'; c.fill('evenodd'); c.restore();
   }
   function drawMarker(c, sx, sy, m) {
-    const bob = Math.round(Math.sin(t / 12) * 2);
-    if (m.dicht && !m.done) { c.fillStyle = '#6b7280'; c.fillRect(sx + 5, sy - 15 + bob, 6, 6); c.fillRect(sx + 7, sy - 9 + bob, 2, 3); c.fillStyle = '#e0a84a'; c.fillRect(sx + 6, sy - 13 + bob, 4, 3); c.fillStyle = '#1a1f1c'; c.fillRect(sx + 7, sy - 12 + bob, 2, 1); return; }
-    if (m.plek) { c.fillStyle = m.done ? '#9fb3a6' : '#f2f2f2'; c.fillRect(sx + 7, sy - 15 + bob, 2, 8); c.fillRect(sx + 5, sy - 13 + bob, 6, 2); return; }
-    if (m.done) {
-      c.fillStyle = '#1d6b4f'; c.fillRect(sx + 4, sy - 13 + bob, 8, 8);
-      c.fillStyle = '#fff'; c.fillRect(sx + 6, sy - 9 + bob, 1, 2); c.fillRect(sx + 7, sy - 8 + bob, 1, 2); c.fillRect(sx + 8, sy - 9 + bob, 1, 2); c.fillRect(sx + 9, sy - 10 + bob, 1, 2);
-    } else {
-      c.fillStyle = m.actief ? '#fff' : '#fff7cc'; c.fillRect(sx + 5, sy - 15 + bob, 6, 6); c.fillRect(sx + 7, sy - 9 + bob, 2, 3);
-      c.fillStyle = m.actief ? '#d65a4a' : '#1a1f1c'; c.fillRect(sx + 7, sy - 13 + bob, 2, 2);
-    }
+    const bob = Math.round(Math.sin(t / 12) * 3);
+    c.save(); c.translate(sx, sy + bob); c.scale(2, 2);
+    if (m.dicht && !m.done) { c.fillStyle = '#6b7280'; c.fillRect(5, -15, 6, 6); c.fillRect(7, -9, 2, 3); c.fillStyle = '#e0a84a'; c.fillRect(6, -13, 4, 3); c.fillStyle = '#1a1f1c'; c.fillRect(7, -12, 2, 1); }
+    else if (m.plek) { c.fillStyle = m.done ? '#9fb3a6' : '#f2f2f2'; c.fillRect(7, -15, 2, 8); c.fillRect(5, -13, 6, 2); }
+    else if (m.done) { c.fillStyle = '#1d6b4f'; c.fillRect(4, -13, 8, 8); c.fillStyle = '#fff'; c.fillRect(6, -9, 1, 2); c.fillRect(7, -8, 1, 2); c.fillRect(8, -9, 1, 2); c.fillRect(9, -10, 1, 2); }
+    else { c.fillStyle = m.actief ? '#fff' : '#fff7cc'; c.fillRect(5, -15, 6, 6); c.fillRect(7, -9, 2, 3); c.fillStyle = m.actief ? '#d65a4a' : '#1a1f1c'; c.fillRect(7, -13, 2, 2); }
+    c.restore();
   }
   function drawBubble(c, sx, sy, tekst) {
-    const bob = Math.round(Math.sin(t / 10) * 1);
-    c.fillStyle = '#fff'; c.fillRect(sx + 4, sy - 20 + bob, 8, 8); c.fillRect(sx + 7, sy - 12 + bob, 2, 2);
-    c.fillStyle = '#1a1f1c'; c.fillRect(sx + 7, sy - 18 + bob, 2, 4); c.fillRect(sx + 7, sy - 13 + bob, 2, 1);
-    if (tekst === '?') { c.fillStyle = '#fff'; c.fillRect(sx + 7, sy - 18 + bob, 2, 4); c.fillStyle = '#1a1f1c'; c.fillRect(sx + 6, sy - 18 + bob, 4, 1); c.fillRect(sx + 9, sy - 17 + bob, 1, 1); c.fillRect(sx + 7, sy - 16 + bob, 2, 1); c.fillRect(sx + 7, sy - 14 + bob, 1, 1); }
+    const bob = Math.round(Math.sin(t / 10) * 2);
+    c.save(); c.translate(sx, sy + bob); c.scale(2, 2);
+    c.fillStyle = '#fff'; c.fillRect(4, -22, 8, 8); c.fillRect(7, -14, 2, 2);
+    c.fillStyle = '#1a1f1c'; c.fillRect(7, -20, 2, 4); c.fillRect(7, -15, 2, 1);
+    c.restore();
   }
   function step() {
     if (!moving || !path.length) return;
@@ -76,12 +75,12 @@ const WQMap = (() => {
     if (tx !== hero.px) { const d = Math.sign(tx - hero.px); hero.dir = d < 0 ? 'left' : 'right'; hero.px += speed * d; }
     else if (ty !== hero.py) { const d = Math.sign(ty - hero.py); hero.dir = d < 0 ? 'up' : 'down'; hero.py += speed * d; }
     if (hero.px === tx && hero.py === ty) { hero.x = nx; hero.y = ny; path.shift(); }
-    if (t % 7 === 0) hero.frame = (hero.frame + 1) % 4;
+    if (t % 8 === 0) hero.frame = (hero.frame + 1) % 4;
     if (!path.length) { moving = false; hero.frame = 0; if (onArrive) onArrive(hero.x, hero.y); }
   }
   function render() {
     if (!running) return;
-    t++;
+    t++; fpsTeller++; const nu = performance.now(); if (nu - fpsTijd >= 1000) { fps = fpsTeller; fpsTeller = 0; fpsTijd = nu; }
     if (!paused) step();
     if (fade.richting) { fade.a = Math.max(0, Math.min(1, fade.a + fade.richting * 0.08)); if (fade.a === 1 && fade.richting > 0) { const cb = fade.cb; fade.cb = null; fade.richting = -1; cb && cb(); } if (fade.a === 0 && fade.richting < 0) fade.richting = 0; }
     if (!paused && wereld && cv.offsetParent !== null) {
@@ -100,7 +99,7 @@ const WQMap = (() => {
       lijst.sort((a, b) => a.py - b.py);
       lijst.forEach((s, i) => { WQSprites.draw(ctx, s.look, s.dir || 'down', s.frame || 0, s.px - camX, s.py - camY, 1, t, s.zaad != null ? s.zaad : i); if (s.bubble) drawBubble(ctx, s.px - camX, s.py - camY, s.bubble); });
       if (wereld.overlay) ctx.drawImage(wereld.overlay, -camX, -camY);
-      if (moving && hero.zichtbaar && tileAt(hero.x, hero.y) === '.' && wereld.overlay) { for (let i = 0; i < 3; i++) { const k = (t * 7 + i * 31) % 16; ctx.fillStyle = i % 2 ? '#5e9a4a' : '#8cc46f'; ctx.fillRect(hero.px - camX + 2 + ((k * 5 + i * 3) % 12), hero.py - camY + 12 - (k % 5), 1, 1); } }
+      if (moving && hero.zichtbaar && tileAt(hero.x, hero.y) === '.' && wereld.overlay) { for (let i = 0; i < 4; i++) { const k = (t * 7 + i * 31) % 16; ctx.fillStyle = i % 2 ? '#5e9a4a' : '#8cc46f'; ctx.fillRect(hero.px - camX + 4 + ((k * 5 + i * 3) % 24), hero.py - camY + 26 - (k % 8), 2, 2); } }
       for (const m of (wereld.markers ? wereld.markers() : [])) drawMarker(ctx, m.x * T - camX, m.y * T - camY, m);
       for (const b of bubbles()) drawBubble(ctx, b.x * T - camX, b.y * T - camY, b.tekst);
       if (wereld.decor) wereld.decor.teken(ctx, camX, camY, t, 'boven');
@@ -151,6 +150,6 @@ const WQMap = (() => {
     init, setWereld, setHero, walkTo, stepDir, tileFromEvent, bfs, walkable, transition, richtingNaar,
     setLook: l => { hero.look = l; }, setHeroVisible: v => { hero.zichtbaar = v; }, setOnArrive: f => { onArrive = f; }, setBubbles: f => { bubbles = f; },
     setPaused: v => { paused = v; }, isMoving: () => moving, schud: n => { schud = n || 12; }, setAvond: f => { avondFn = f; }, heroTile: () => [hero.x, hero.y], heroDir: () => hero.dir, stop: () => { path = []; moving = false; hero.frame = 0; },
-    canvas: () => cv, ctx: () => ctx, T,
+    canvas: () => cv, ctx: () => ctx, T, fps: () => fps,
   };
 })();

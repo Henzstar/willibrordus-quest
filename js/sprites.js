@@ -1,7 +1,7 @@
-// Personages van 16 x 24 px: vier richtingen, twee loopframes, kapsels en attributen. Gecachet per uiterlijk.
+// Personages: 16 x 24 ontwerp, opgeschaald naar 32 x 48 met EPX (scale2x) plus detailpixels (ooglicht, mond, schaduw, zoom). Gecachet per uiterlijk.
 const WQSprites = (() => {
   'use strict';
-  const W = 16, H = 24;
+  const W = 16, H = 24, SW = 32, SH = 48;
   // k lijn, s huid, h haar, c jas, C jas donker, p broek, e schoen, i oog, . leeg
   const DOWN = [
     '................', '................', '.....kkkkkk.....', '....khhhhhhk....', '...khhhhhhhhk...', '...khhhhhhhhk...', '...khhsssshhk...', '...kssssssssk...',
@@ -44,11 +44,14 @@ const WQSprites = (() => {
     return rows;
   }
   function portret(look, open) {
-    const s = 3, cv = document.createElement('canvas'); cv.width = W * s; cv.height = W * s;
+    const s = 2, cv = document.createElement('canvas'); cv.width = SW * s; cv.height = SW * s;
     const c = cv.getContext('2d'); c.imageSmoothingEnabled = false;
-    const kleur = { ...KLEUR, h: look.haar || '#6b4a2b', c: look.jas || '#2b6cb0', C: donker(look.jas || '#2b6cb0'), m: '#8a4a30', M: '#5a1f1a', H: '#f2c230' };
-    const rows = portretRaster(look, open);
-    for (let y = 0; y < W; y++) for (let x = 0; x < W; x++) { const ch = rows[y][x]; if (ch === '.' || !kleur[ch]) continue; c.fillStyle = kleur[ch]; c.fillRect(x * s, y * s, s, s); }
+    const haar = look.haar || '#6b4a2b', jas = look.jas || '#2b6cb0';
+    const kleur = { ...KLEUR, h: haar, L: lichter(haar), c: jas, C: donker(jas), m: '#8a4a30', M: '#5a1f1a', H: '#f2c230', o: '#e8b090' };
+    const rows = scale2x(portretRaster(look, open));
+    if (look.hoofd !== 'helm') for (let y = 2; y <= 5; y++) for (let x = 8; x < 14; x++) if (rows[y][x] === 'h' && rows[y - 1][x] === 'k') rows[y][x] = 'L';
+    for (let x = 8; x < 24; x++) if (rows[17][x] === 's') rows[17][x] = 'o';
+    for (let y = 0; y < SW; y++) for (let x = 0; x < SW; x++) { const ch = rows[y][x]; if (ch === '.' || !kleur[ch]) continue; c.fillStyle = kleur[ch]; c.fillRect(x * s, y * s, s, s); }
     return cv;
   }
   function pas(rows, look, dir) {
@@ -76,13 +79,47 @@ const WQSprites = (() => {
     if (extra === 'map' && dir !== 'up') for (let y = 13; y <= 16; y++) for (let x = hand; x <= hand + 3; x++) zet(x, y, (y === 13 || x === hand) ? 'k' : 'F');
     return rows;
   }
+  // EPX/scale2x: verdubbelt het raster en rondt trappen af op basis van de buren.
+  function scale2x(rows) {
+    const h = rows.length, w = rows[0].length, uit = [];
+    const g = (x, y) => (y < 0 || y >= h || x < 0 || x >= w) ? '.' : rows[y][x];
+    for (let y = 0; y < h; y++) { const r1 = [], r2 = []; for (let x = 0; x < w; x++) {
+      const P = g(x, y), A = g(x, y - 1), B = g(x + 1, y), C = g(x - 1, y), D = g(x, y + 1);
+      let e0 = P, e1 = P, e2 = P, e3 = P;
+      if (C === A && C !== D && A !== B) e0 = A; if (A === B && A !== C && B !== D) e1 = B; if (D === C && D !== B && C !== A) e2 = C; if (B === D && B !== A && D !== C) e3 = D;
+      r1.push(e0, e1); r2.push(e2, e3); } uit.push(r1, r2); }
+    return uit;
+  }
+  // Detailpixels op het 32 x 48-raster: ooglicht, mond, haarlicht, schaduwzijde van jas en broek, zoom, schoenzolen.
+  function detail(rows, dir, look) {
+    const zet = (x, y, ch) => { if (rows[y] && x >= 0 && x < SW && rows[y][x] !== '.' ) rows[y][x] = ch; };
+    const is = (x, y, ch) => rows[y] && rows[y][x] === ch;
+    for (let y = 0; y < SH; y++) for (let x = 0; x < SW; x++) {
+      const ch = rows[y][x];
+      if (ch === 'i') { if (is(x + 1, y, 'i') && !is(x, y - 1, 'i')) zet(x + 1, y, 'w'); }
+      if (ch === 'c' && (is(x + 1, y, 'k') || is(x + 2, y, 'k')) && !is(x - 1, y, 'k')) zet(x, y, 'C');
+      if (ch === 'p' && (is(x + 1, y, 'k') || is(x + 2, y, 'k'))) zet(x, y, 'q');
+      if (ch === 'h' && is(x - 1, y, 'k') && y < 12 && !is(x, y - 1, 'k')) zet(x, y, 'L');
+      if (ch === 'e' && is(x, y + 1, 'k')) zet(x, y, 'E');
+    }
+    if (dir === 'down') { for (let x = 13; x <= 18; x++) if (is(x, 19, 's')) zet(x, 19, 'o'); if (is(15, 20, 's')) zet(15, 20, 'o'); if (is(16, 20, 's')) zet(16, 20, 'o'); }
+    if (dir === 'side') { for (let x = 16; x <= 18; x++) if (is(x, 19, 's')) zet(x, 19, 'o'); }
+    for (let x = 0; x < SW; x++) if (is(x, 36, 'p') || is(x, 36, 'q')) zet(x, 36, 'K');
+    if (look.hoofd !== 'helm') for (let x = 8; x <= 12; x++) if (is(x, 7, 'h')) zet(x, 7, 'L');
+    return rows;
+  }
   function maak(look, dir, frame) {
-    const cv = document.createElement('canvas'); cv.width = W; cv.height = H;
+    const cv = document.createElement('canvas'); cv.width = SW; cv.height = SH;
     const c = cv.getContext('2d');
-    const kleur = { ...KLEUR, h: look.haar || '#6b4a2b', c: look.jas || '#2b6cb0', C: donker(look.jas || '#2b6cb0'), p: look.broek || '#3b3f4a', H: '#f2c230', M: '#6b4a2b', B: '#8a5a2b', G: '#8d949c', b: '#5aa7d6', F: '#c9a24d' };
-    const rows = pas(raster(dir, frame), look, dir);
-    for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) { const ch = rows[y][x]; if (ch === '.' || !kleur[ch]) continue; c.fillStyle = kleur[ch]; c.fillRect(x, y, 1, 1); }
+    const jas = look.jas || '#2b6cb0', broek = look.broek || '#3b3f4a', haar = look.haar || '#6b4a2b';
+    const kleur = { ...KLEUR, h: haar, L: lichter(haar), c: jas, C: donker(jas), p: broek, q: donker(broek), K: '#2a1f14', E: '#111', o: '#c98a6a', H: '#f2c230', M: '#6b4a2b', B: '#8a5a2b', G: '#8d949c', b: '#5aa7d6', F: '#c9a24d' };
+    const rows = detail(scale2x(pas(raster(dir, frame), look, dir)), dir, look);
+    for (let y = 0; y < SH; y++) for (let x = 0; x < SW; x++) { const ch = rows[y][x]; if (ch === '.' || !kleur[ch]) continue; c.fillStyle = kleur[ch]; c.fillRect(x, y, 1, 1); }
     return cv;
+  }
+  function lichter(hex) {
+    const n = parseInt(hex.slice(1), 16), r = Math.min(255, (n >> 16) + 45), g = Math.min(255, ((n >> 8) & 255) + 45), b = Math.min(255, (n & 255) + 45);
+    return '#' + ((r << 16) | (g << 8) | b).toString(16).padStart(6, '0');
   }
   function donker(hex) {
     const n = parseInt(hex.slice(1), 16), r = Math.max(0, (n >> 16) - 40), g = Math.max(0, ((n >> 8) & 255) - 40), b = Math.max(0, (n & 255) - 40);
@@ -97,20 +134,20 @@ const WQSprites = (() => {
   // Tekent een personage met voeten op de onderrand van tegel (x, y) in pixels; schaduw eronder.
   // t = tijd in frames voor idle (ademen, knipperen); zaad spreidt de animatie over personages.
   function draw(c, look, dir, frame, x, y, scale, t, zaad) {
-    const s = scale || 1, img = sprite(look, dir, frame), bob = (frame === 1 || frame === 3) ? -1 : 0, tt = (t || 0) + (zaad || 0) * 37;
-    c.fillStyle = 'rgba(0,0,0,.25)'; c.beginPath(); c.ellipse(x + 8 * s, y + 15 * s, 6 * s, 2.5 * s, 0, 0, 7); c.fill();
-    const adem = frame === 0 && (tt % 110) < 8 ? 1 : 0, ox = x, oy = y - 8 * s + bob * s;
-    c.save(); if (dir === 'left') { c.translate(x + W * s, 0); c.scale(-1, 1); c.translate(-x, 0); }
-    if (adem) { c.drawImage(img, 0, 0, W, 12, ox, oy + s, W * s, 12 * s); c.drawImage(img, 0, 12, W, 12, ox, oy + 12 * s, W * s, 12 * s); }
-    else c.drawImage(img, ox, oy, W * s, H * s);
-    if (dir === 'down' && frame === 0 && (tt % 170) < 5 && look.hoofd !== 'bril' && look.hoofd !== 'helm') { c.fillStyle = KLEUR.s; c.fillRect(ox + 5 * s, oy + 8 * s + adem * s, s, s); c.fillRect(ox + 10 * s, oy + 8 * s + adem * s, s, s); }
+    const s = scale || 1, img = sprite(look, dir, frame), bob = (frame === 1 || frame === 3) ? -2 : 0, tt = (t || 0) + (zaad || 0) * 37;
+    c.fillStyle = 'rgba(0,0,0,.25)'; c.beginPath(); c.ellipse(x + 16 * s, y + 30 * s, 12 * s, 5 * s, 0, 0, 7); c.fill();
+    const adem = frame === 0 && (tt % 110) < 8 ? 1 : 0, ox = x, oy = y - 16 * s + bob * s;
+    c.save(); if (dir === 'left') { c.translate(x + SW * s, 0); c.scale(-1, 1); c.translate(-x, 0); }
+    if (adem) { c.drawImage(img, 0, 0, SW, 24, ox, oy + s, SW * s, 24 * s); c.drawImage(img, 0, 24, SW, 24, ox, oy + 24 * s, SW * s, 24 * s); }
+    else c.drawImage(img, ox, oy, SW * s, SH * s);
+    if (dir === 'down' && frame === 0 && (tt % 170) < 5 && look.hoofd !== 'bril' && look.hoofd !== 'helm') { c.fillStyle = KLEUR.s; c.fillRect(ox + 10 * s, oy + 16 * s + adem * s, 2 * s, 2 * s); c.fillRect(ox + 20 * s, oy + 16 * s + adem * s, 2 * s, 2 * s); }
     c.restore();
   }
   function avatarCanvas(look, s) {
-    const cv = document.createElement('canvas'); cv.width = W * s; cv.height = H * s;
-    const c = cv.getContext('2d'); c.imageSmoothingEnabled = false; c.drawImage(sprite(look, 'down', 0), 0, 0, W * s, H * s);
+    const cv = document.createElement('canvas'); cv.width = SW * s; cv.height = SH * s;
+    const c = cv.getContext('2d'); c.imageSmoothingEnabled = false; c.drawImage(sprite(look, 'down', 0), 0, 0, SW * s, SH * s);
     return cv;
   }
-  return { draw, sprite, avatarCanvas, portret, W, H };
+  return { draw, sprite, avatarCanvas, portret, W: SW, H: SH };
 })();
 if (typeof module === 'object' && module.exports) module.exports = WQSprites;

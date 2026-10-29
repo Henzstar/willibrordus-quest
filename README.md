@@ -23,7 +23,7 @@ De test controleert de tilemap (22 rijen van 48 tekens), of elke locatie begaanb
 ## Waar staat wat
 - `js/content.js`: alle teksten, gebouwen, dilemma's (vier opties met punten), discussiescènes, kaarten, binnenkaarten, minigame-teksten, score-opzet, zelfcheck, agenda-lijsten, tilemap, straatnamen, decoratie, figuranten en avatars. Alleen hier teksten wijzigen.
 - `js/config.js`: eventId, firebaseUrl en boardEnabled voor het live bord (fase 2). Nu leeg.
-- `js/tiles.js`: terrein, decoratie en binnentegels. `js/gebouwen.js`: gevels, daken en de Cultuurkoepel. `js/sprites.js`: personages. `js/map.js`: camera, looppad, overgangen. `js/interior.js`: buiten- en binnenwerelden, figuranten. `js/minigames.js`: noodkoffer, dicteer-ritme, bowlen, boogschieten. `js/score.js`: punten. `js/game.js`: spelloop en opslag. `js/ui.js`: schermen en dialoogbox. `js/sfx.js`: geluid (standaard uit).
+- `js/tiles.js`: terrein (32 x 32 px) met autotiling en decoratie. `js/binnen.js`: binnentegels met vloerpatronen. `js/gebouwen.js`: gevels, daken en de Cultuurkoepel. `js/sprites.js`: personages 32 x 48 (ontwerp 16 x 24, opgeschaald met scale2x plus detail) en portretten. `js/decor.js`: bewegende decoratie. `js/map.js`: camera, looppad, overgangen, avondlicht, fps-meter. `js/interior.js`: buiten- en binnenwerelden, figuranten. `js/minigames.js`: noodkoffer, dicteer-ritme, bowlen, boogschieten. `js/score.js`: punten. `js/game.js`: spelloop en opslag. `js/ui.js`: schermen en dialoogbox. `js/sfx.js`: geluid (standaard uit).
 - `css/style.css`: stijl. `ref/demo.html`: de oorspronkelijke stijlreferentie.
 - `test/content.test.mjs`: de test.
 
@@ -52,6 +52,9 @@ Wat Tjeerd in de Firebase-console doet (tien regels):
 10. Wil je een tweede sessie, gebruik dan een nieuwe `eventId`.
 
 De game stuurt per team één klein JSON-object (naam, avatar, regie, punten, bezochte gebouwen, keuzes, argumenten, ergernis, zelfcheck, agenda, locatie). Geen andere gegevens. Verzenden blokkeert nooit; fouten worden stil genegeerd.
+
+## Prestaties
+Het menu toont de actuele fps. Gemeten in headless Chromium op een telefoonviewport: 60 fps, ook met zesvoudige CPU-vertraging en de avondlaag aan. Een echte meting op een oudere iPhone of Android blijft nodig.
 
 ## Muziek
 Chiptune per gebied via WebAudio (`js/music.js`), standaard aan, uit te zetten in het menu. De keuze wordt onthouden.

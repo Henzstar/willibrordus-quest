@@ -35,7 +35,7 @@
     U.kaartZichtbaar(false); U.toon('s-start');
     $('verderBtn').hidden = !laad();
     $('startTekst').textContent = C.locaties[0].intro[0];
-    U.avatars(C.avatars, av => WQSprites.avatarCanvas(av, 3), avatarKeuze.id, av => { avatarKeuze = av; X.tik(); });
+    U.avatars(C.avatars, av => WQSprites.avatarCanvas(av, 2), avatarKeuze.id, av => { avatarKeuze = av; X.tik(); });
   }
   function begin(state, nieuw) {
     S = state; M.setLook(avatarVan(S.avatar)); bewaar();
@@ -233,7 +233,7 @@
   function opnieuw() { if (!window.confirm(C.teksten.wissen)) return; MZ.stop(); wis(); S = null; bezig = false; verderHandler = null; binnen = null; startScherm(); }
 
   // ---------- menu ----------
-  function openMenu() { if (!S) return; $('mGeluid').textContent = 'GELUID: ' + (X.isAan() ? 'AAN' : 'UIT'); $('mMuziek').textContent = 'MUZIEK: ' + (MZ.isAan() ? 'AAN' : 'UIT'); U.menu(true); }
+  function openMenu() { if (!S) return; $('mFps').textContent = M.fps() + ' fps'; $('mGeluid').textContent = 'GELUID: ' + (X.isAan() ? 'AAN' : 'UIT'); $('mMuziek').textContent = 'MUZIEK: ' + (MZ.isAan() ? 'AAN' : 'UIT'); U.menu(true); }
   function hervatNaMenu() {
     if (S.fase === 'einde') return einde();
     if (S.fase === 'agenda') return agenda();

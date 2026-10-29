@@ -47,14 +47,14 @@
     return Object.values(spelers).map(p => {
       const L = LOC[p.locatie]; const tegel = L && L.id !== 'start' ? L.tegel : (p.tegel || C.locaties[0].tegel);
       const av = C.avatars.find(a => a.id === p.avatar) || C.avatars[0];
-      return { px: tegel[0] * 16, py: tegel[1] * 16, dir: 'down', frame: 0, look: av, naam: p.naam };
+      return { px: tegel[0] * 32, py: tegel[1] * 32, dir: 'down', frame: 0, look: av, naam: p.naam };
     });
   }
   function tekenLabels() {
     const ov = $('labels'), cv = $('kaart'); ov.width = cv.width; ov.height = cv.height; const c = ov.getContext('2d');
-    c.clearRect(0, 0, ov.width, ov.height); c.font = '6px "Press Start 2P", monospace'; c.textAlign = 'center'; c.textBaseline = 'bottom';
+    c.clearRect(0, 0, ov.width, ov.height); c.font = '11px "Press Start 2P", monospace'; c.textAlign = 'center'; c.textBaseline = 'bottom';
     const perTegel = {};
-    for (const s of teamSprites()) { const k = s.px + ',' + s.py; perTegel[k] = (perTegel[k] || 0) + 1; const w = c.measureText(s.naam).width + 4; const y = s.py - 10 - (perTegel[k] - 1) * 8; c.fillStyle = 'rgba(15,24,19,.8)'; c.fillRect(s.px + 8 - w / 2, y - 7, w, 8); c.fillStyle = '#fff7cc'; c.fillText(s.naam, s.px + 8, y); }
+    for (const s of teamSprites()) { const k = s.px + ',' + s.py; perTegel[k] = (perTegel[k] || 0) + 1; const w = c.measureText(s.naam).width + 8; const y = s.py - 20 - (perTegel[k] - 1) * 14; c.fillStyle = 'rgba(15,24,19,.8)'; c.fillRect(s.px + 16 - w / 2, y - 13, w, 15); c.fillStyle = '#fff7cc'; c.fillText(s.naam, s.px + 16, y); }
   }
 
   // ---------- panelen ----------
@@ -66,7 +66,7 @@
     lijst.forEach((p, i) => {
       const r = el('div', 'rij' + (p.klaarOp ? ' klaar' : ''));
       r.appendChild(el('b', 'nr', String(i + 1)));
-      const av = C.avatars.find(a => a.id === p.avatar) || C.avatars[0]; r.appendChild(WQSprites.avatarCanvas(av, 2));
+      const av = C.avatars.find(a => a.id === p.avatar) || C.avatars[0]; r.appendChild(WQSprites.avatarCanvas(av, 1));
       const t = el('div', 'tekst'); t.appendChild(el('div', 'naam', p.naam)); t.appendChild(el('div', 'sub', (LOC[p.locatie] ? (LOC[p.locatie].kortenaam || LOC[p.locatie].naam) : 'op het landgoed') + ' · kaarten ' + p.kaarten + '/8' + (p.bonus ? ' · tijdbonus +' + p.bonus : ''))); r.appendChild(t);
       r.appendChild(el('b', 'pt', String(p.totaal))); box.appendChild(r);
     });

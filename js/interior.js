@@ -1,7 +1,7 @@
 // Werelden: buiten (landgoed) en binnen (per gebouw). Figuranten lopen heen en weer; NPC's binnen staan met een uitroepteken.
 const WQWereld = (() => {
   'use strict';
-  const T = 16;
+  const T = 32;
   let C, buiten = null, figuranten = [];
 
   function maakFiguranten() {
@@ -18,8 +18,8 @@ const WQWereld = (() => {
       if (f.wacht > 0) { f.wacht--; f.frame = 0; continue; }
       if (!f.pad.length) { const doel = f.route[f.doel % f.route.length]; f.pad = WQMap.bfs([f.x, f.y], doel) || []; f.doel++; if (!f.pad.length) { f.wacht = 120; continue; } }
       const [nx, ny] = f.pad[0], tx = nx * T, ty = ny * T;
-      if (tx !== f.px) { const d = Math.sign(tx - f.px); f.dir = d < 0 ? 'left' : 'right'; f.px += d; }
-      else if (ty !== f.py) { const d = Math.sign(ty - f.py); f.dir = d < 0 ? 'up' : 'down'; f.py += d; }
+      if (tx !== f.px) { const d = Math.sign(tx - f.px); f.dir = d < 0 ? 'left' : 'right'; f.px += d * 2; }
+      else if (ty !== f.py) { const d = Math.sign(ty - f.py); f.dir = d < 0 ? 'up' : 'down'; f.py += d * 2; }
       if (f.px === tx && f.py === ty) { f.x = nx; f.y = ny; f.pad.shift(); if (!f.pad.length) f.wacht = 90 + (t % 60); }
       if (t % 8 === 0) f.frame = (f.frame + 1) % 4;
     }
@@ -32,7 +32,7 @@ const WQWereld = (() => {
         kaart: C.tilemap, breedte: C.tilemap[0].length, hoogte: C.tilemap.length,
         begaanbaar: new Set(Object.keys(C.legenda).filter(k => C.legenda[k].begaanbaar)),
         offscreen: WQTiles.tekenBuiten(C), overlay: WQTiles.tekenOverlay(C), water: true, bg: '#0f1813', decor: WQDecor,
-        lampen: C.props.filter(p => p.type === 'lantaarn').map(p => [p.tegel[0] * T + 11, p.tegel[1] * T + 2]), ramen: WQGebouwen.ramen(),
+        lampen: C.props.filter(p => p.type === 'lantaarn').map(p => [p.tegel[0] * T + 22, p.tegel[1] * T + 4]), ramen: WQGebouwen.ramen(),
         sprites: t => { if (buiten.actief) beweegFiguranten(t); return figuranten.map(f => ({ px: f.px, py: f.py, dir: f.dir, frame: f.pad.length ? f.frame : 0, look: f.look })); },
         markers: () => C.locaties.filter(l => l.id !== 'start').map(l => ({ x: l.tegel[0], y: l.tegel[1], done: buiten.bezocht(l.id), actief: l.id === buiten.actiefId, plek: l.soort === 'plek', dicht: l.id === C.laatste && !buiten.open() })),
       };

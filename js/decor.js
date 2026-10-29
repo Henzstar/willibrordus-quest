@@ -1,7 +1,7 @@
 // Bewegende decoratie buiten: vlinders, vogels, blaadjes, eenden, auto's, rook. Alleen tekenen; geen spelregels.
 const WQDecor = (() => {
   'use strict';
-  const T = 16;
+  const T = 32;
   let C, MAP, MW, MH, items = [], vogels = [], klaar = false;
   const rnd = (a, b) => a + Math.random() * (b - a);
   const R = (c, x, y, w, h, col) => { c.fillStyle = col; c.fillRect(Math.round(x), Math.round(y), w, h); };
@@ -17,16 +17,16 @@ const WQDecor = (() => {
     const water = tegels('W').filter(([x, y]) => y > 0 && MAP[y - 1][x] === 'W' && MAP[y + 1] && MAP[y + 1][x] === 'W');
     for (let i = 0; i < 6 && water.length; i++) { const [x, y] = water[Math.floor(rnd(0, water.length))]; items.push({ soort: 'eend', x: x * T + 4, y: y * T + 6, d: Math.random() < 0.5 ? 1 : -1, f: rnd(0, 100) }); }
     // auto's op de Kanaalweg en de Kennemerstraatweg
-    items.push({ soort: 'auto', x: 0, y: 0 * T + 2, d: 1, as: 'h', snel: 0.9, kleur: '#c9403a' });
-    items.push({ soort: 'auto', x: MW * T, y: 0 * T + 7, d: -1, as: 'h', snel: 0.7, kleur: '#e8e8e8' });
-    items.push({ soort: 'auto', x: 1 * T + 2, y: MH * T, d: -1, as: 'v', snel: 0.6, kleur: '#3b5fa8' });
-    items.push({ soort: 'auto', x: 63 * T + 7, y: 0, d: 1, as: 'v', snel: 0.5, kleur: '#55585e' });
+    items.push({ soort: 'auto', x: 0, y: 0 * T + 4, d: 1, as: 'h', snel: 0.9, kleur: '#c9403a' });
+    items.push({ soort: 'auto', x: MW * T, y: 0 * T + 16, d: -1, as: 'h', snel: 0.7, kleur: '#e8e8e8' });
+    items.push({ soort: 'auto', x: 1 * T + 4, y: MH * T, d: -1, as: 'v', snel: 0.6, kleur: '#3b5fa8' });
+    items.push({ soort: 'auto', x: 63 * T + 16, y: 0, d: 1, as: 'v', snel: 0.5, kleur: '#55585e' });
     // mist bij de begraafplaats en stof bij de bouwplaats
     const plek = C.locaties.find(l => l.soort === 'plek');
     if (plek) for (let i = 0; i < 7; i++) items.push({ soort: 'mist', x: (plek.tegel[0] - 3 + rnd(0, 6)) * T, y: (plek.tegel[1] - 2 + rnd(0, 4)) * T, ax: (plek.tegel[0] - 3) * T, f: rnd(0, 300), w: rnd(18, 34) });
     const zand = tegels('S'); for (let i = 0; i < 10 && zand.length; i++) { const [x, y] = zand[Math.floor(rnd(0, zand.length))]; items.push({ soort: 'stof', x: x * T + rnd(0, 16), y: y * T + rnd(0, 16), bx: x * T, f: rnd(0, 100) }); }
     // rook uit schoorstenen (vaste plekken)
-    [[9, 18], [23, 27], [36, 13]].forEach(([x, y]) => items.push({ soort: 'rook', x: x * T + 12, y: y * T - 4, f: rnd(0, 60) }));
+    [[9, 18], [23, 27], [36, 13]].forEach(([x, y]) => items.push({ soort: 'rook', x: x * T + 24, y: y * T - 10, f: rnd(0, 60) }));
     klaar = true;
   }
   function vogel(t) {
@@ -36,15 +36,15 @@ const WQDecor = (() => {
   function update(t) {
     if (!klaar) return;
     vogel(t);
-    for (const v of vogels) { v.x += 1.3; v.y += v.vy; v.f++; }
+    for (const v of vogels) { v.x += 2.2; v.y += v.vy; v.f++; }
     for (const it of items) {
       it.f = (it.f || 0) + 1;
-      if (it.soort === 'vlinder') { it.x = it.ax + Math.sin(it.f / 23) * 14 + Math.sin(it.f / 7) * 3; it.y = it.ay + Math.cos(it.f / 17) * 8 - 6; }
-      else if (it.soort === 'blad') { if (it.f % 240 === 0) { it.x = it.bx; it.y = it.by; } it.y += 0.25; it.x += Math.sin(it.f / 11) * 0.5; }
-      else if (it.soort === 'eend') { it.x += it.d * 0.15; const tx = Math.floor((it.x + 4) / T), ty = Math.floor(it.y / T); if (!MAP[ty] || MAP[ty][tx] !== 'W' || (it.d > 0 && MAP[ty][tx + 1] !== 'W') || (it.d < 0 && MAP[ty][tx - 1] !== 'W')) it.d = -it.d; }
-      else if (it.soort === 'mist') { it.x += 0.12; if (it.x > it.ax + 7 * T) it.x = it.ax - it.w; }
-      else if (it.soort === 'stof') { it.x += 0.6 + Math.sin(it.f / 9) * 0.3; it.y += Math.sin(it.f / 5) * 0.2; if (it.x > it.bx + 5 * T) it.x = it.bx - 8; }
-      else if (it.soort === 'auto') { if (it.as === 'h') { it.x += it.d * it.snel; if (it.x > MW * T + 20) it.x = -20; if (it.x < -20) it.x = MW * T + 20; } else { it.y += it.d * it.snel; if (it.y > MH * T + 20) it.y = -20; if (it.y < -20) it.y = MH * T + 20; } }
+      if (it.soort === 'vlinder') { it.x = it.ax + Math.sin(it.f / 23) * 28 + Math.sin(it.f / 7) * 6; it.y = it.ay + Math.cos(it.f / 17) * 16 - 12; }
+      else if (it.soort === 'blad') { if (it.f % 240 === 0) { it.x = it.bx; it.y = it.by; } it.y += 0.5; it.x += Math.sin(it.f / 11) * 1; }
+      else if (it.soort === 'eend') { it.x += it.d * 0.3; const tx = Math.floor((it.x + 4) / T), ty = Math.floor(it.y / T); if (!MAP[ty] || MAP[ty][tx] !== 'W' || (it.d > 0 && MAP[ty][tx + 1] !== 'W') || (it.d < 0 && MAP[ty][tx - 1] !== 'W')) it.d = -it.d; }
+      else if (it.soort === 'mist') { it.x += 0.25; if (it.x > it.ax + 7 * T) it.x = it.ax - it.w * 2; }
+      else if (it.soort === 'stof') { it.x += 1.2 + Math.sin(it.f / 9) * 0.6; it.y += Math.sin(it.f / 5) * 0.4; if (it.x > it.bx + 5 * T) it.x = it.bx - 16; }
+      else if (it.soort === 'auto') { if (it.as === 'h') { it.x += it.d * it.snel * 2; if (it.x > MW * T + 20) it.x = -20; if (it.x < -20) it.x = MW * T + 20; } else { it.y += it.d * it.snel * 2; if (it.y > MH * T + 20) it.y = -20; if (it.y < -20) it.y = MH * T + 20; } }
     }
   }
   function teken(c, camX, camY, t, laag) {
@@ -52,7 +52,8 @@ const WQDecor = (() => {
     const zicht = (x, y) => x > camX - 40 && x < camX + c.canvas.width + 40 && y > camY - 40 && y < camY + c.canvas.height + 40;
     for (const it of items) {
       if (!zicht(it.x, it.y)) continue;
-      const sx = it.x - camX, sy = it.y - camY;
+      c.save(); c.translate(it.x - camX, it.y - camY); c.scale(2, 2);
+      const sx = 0, sy = 0;
       if (laag === 'onder') {
         if (it.soort === 'eend') { R(c, sx, sy + 1, 7, 4, '#5a4632'); R(c, sx + (it.d > 0 ? 5 : -1), sy - 2, 3, 4, '#2f6b2e'); R(c, sx + (it.d > 0 ? 7 : -2), sy - 1, 2, 1, '#e0a84a'); R(c, sx + 1, sy + 5, 5, 1, 'rgba(255,255,255,.35)'); }
         else if (it.soort === 'mist') { it.x += 0.12; if (it.x > it.ax + 7 * T) it.x = it.ax - it.w; }
@@ -65,8 +66,9 @@ const WQDecor = (() => {
         else if (it.soort === 'stof') { R(c, sx, sy, 2, 1, 'rgba(224,207,160,.8)'); R(c, sx - 3, sy + 1, 2, 1, 'rgba(224,207,160,.5)'); }
         else if (it.soort === 'rook') { for (let i = 0; i < 4; i++) { const p = ((it.f + i * 15) % 60) / 60; c.fillStyle = 'rgba(230,230,230,' + (0.5 - p * 0.5) + ')'; c.beginPath(); c.arc(sx + Math.sin((it.f + i * 15) / 9) * 3 + p * 4, sy - p * 18, 1.5 + p * 3, 0, 7); c.fill(); } }
       }
+      c.restore();
     }
-    if (laag === 'boven') for (const v of vogels) { const sx = v.x - camX, sy = v.y - camY; if (!zicht(v.x, v.y)) continue; const w = Math.floor(v.f / 8) % 2; for (let i = 0; i < v.n; i++) { const ox = i * 9, oy = (i % 2) * 4; R(c, sx + ox, sy + oy + (w ? 1 : 0), 2, 1, '#1a1f1c'); R(c, sx + ox + 2, sy + oy + (w ? 0 : 1), 2, 1, '#1a1f1c'); R(c, sx + ox + 4, sy + oy + (w ? 1 : 0), 2, 1, '#1a1f1c'); c.fillStyle = 'rgba(20,40,20,.15)'; c.fillRect(sx + ox, sy + oy + 24, 6, 2); } }
+    if (laag === 'boven') for (const v of vogels) { if (!zicht(v.x, v.y)) continue; c.save(); c.translate(v.x - camX, v.y - camY); c.scale(2, 2); const w = Math.floor(v.f / 8) % 2; for (let i = 0; i < v.n; i++) { const ox = i * 9, oy = (i % 2) * 4; R(c, ox, oy + (w ? 1 : 0), 2, 1, '#1a1f1c'); R(c, ox + 2, oy + (w ? 0 : 1), 2, 1, '#1a1f1c'); R(c, ox + 4, oy + (w ? 1 : 0), 2, 1, '#1a1f1c'); c.fillStyle = 'rgba(20,40,20,.15)'; c.fillRect(ox, oy + 24, 6, 2); } c.restore(); }
   }
   return { init, update, teken };
 })();
