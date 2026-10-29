@@ -24,8 +24,32 @@ const WQSprites = (() => {
 
   function raster(dir, frame) {
     const rows = BASIS[dir].map(r => r.split(''));
-    if (frame === 1) { const st = STAP[dir === 'up' ? 'down' : dir]; for (let i = 0; i < 5; i++) rows[19 + i] = st[i].split(''); }
+    if (frame === 1 || frame === 3) { const st = STAP[dir === 'up' ? 'down' : dir]; for (let i = 0; i < 5; i++) rows[19 + i] = (frame === 3 ? st[i].split('').reverse().join('') : st[i]).split(''); }
     return rows;
+  }
+  // Portret 16 x 16 (geschaald) voor de dialoogbox. m = mond, M = mond open.
+  const GEZICHT = [
+    '......kkkk......', '....kkhhhhkk....', '...khhhhhhhhk...', '..khhhhhhhhhhk..', '..khhhhhhhhhhk..', '..khhssssssshk..', '..kssssssssssk..', '..ksiwsssswisk..',
+    '..kssssssssssk..', '..ksssssssssskk.', '..kssmmmmmmssk..', '...kssssssssk...', '....kssssssk....', '..kkkccccccckkk.', '.kcccccccccccck.', '.kccccCcccccCck.',
+  ];
+  function portretRaster(look, open) {
+    const rows = GEZICHT.map(r => r.split(''));
+    const zet = (x, y, ch) => { rows[y][x] = ch; };
+    const hoofd = look.hoofd || 'kort';
+    if (hoofd === 'lang') for (let y = 5; y <= 11; y++) { zet(2, y, 'h'); zet(13, y, 'h'); zet(1, y, 'k'); zet(14, y, 'k'); }
+    if (hoofd === 'knot') { for (let x = 5; x <= 10; x++) zet(x, 0, x === 5 || x === 10 ? 'k' : 'h'); zet(6, 1, 'h'); zet(9, 1, 'h'); }
+    if (hoofd === 'bril') { [3, 4, 5, 6, 9, 10, 11, 12].forEach(x => { zet(x, 6, 'k'); zet(x, 8, 'k'); }); [3, 6, 9, 12].forEach(x => zet(x, 7, 'k')); zet(7, 7, 'k'); zet(8, 7, 'k'); }
+    if (hoofd === 'helm') { for (let y = 0; y <= 5; y++) for (let x = 0; x < W; x++) if (rows[y][x] === 'h') rows[y][x] = 'H'; for (let x = 2; x <= 13; x++) zet(x, 5, x === 2 || x === 13 ? 'k' : 'H'); }
+    if (open) { for (let x = 5; x <= 10; x++) { zet(x, 10, x === 5 || x === 10 ? 'm' : 'M'); zet(x, 11, x === 5 || x === 10 ? 'k' : 'M'); } zet(4, 11, 'k'); zet(11, 11, 'k'); }
+    return rows;
+  }
+  function portret(look, open) {
+    const s = 3, cv = document.createElement('canvas'); cv.width = W * s; cv.height = W * s;
+    const c = cv.getContext('2d'); c.imageSmoothingEnabled = false;
+    const kleur = { ...KLEUR, h: look.haar || '#6b4a2b', c: look.jas || '#2b6cb0', C: donker(look.jas || '#2b6cb0'), m: '#8a4a30', M: '#5a1f1a', H: '#f2c230' };
+    const rows = portretRaster(look, open);
+    for (let y = 0; y < W; y++) for (let x = 0; x < W; x++) { const ch = rows[y][x]; if (ch === '.' || !kleur[ch]) continue; c.fillStyle = kleur[ch]; c.fillRect(x * s, y * s, s, s); }
+    return cv;
   }
   function pas(rows, look, dir) {
     const zet = (x, y, ch) => { if (rows[y] && x >= 0 && x < W) rows[y][x] = ch; };
@@ -71,17 +95,22 @@ const WQSprites = (() => {
     return cache.get(key);
   }
   // Tekent een personage met voeten op de onderrand van tegel (x, y) in pixels; schaduw eronder.
-  function draw(c, look, dir, frame, x, y, scale) {
-    const s = scale || 1, img = sprite(look, dir, frame), bob = frame === 1 ? -1 : 0;
+  // t = tijd in frames voor idle (ademen, knipperen); zaad spreidt de animatie over personages.
+  function draw(c, look, dir, frame, x, y, scale, t, zaad) {
+    const s = scale || 1, img = sprite(look, dir, frame), bob = (frame === 1 || frame === 3) ? -1 : 0, tt = (t || 0) + (zaad || 0) * 37;
     c.fillStyle = 'rgba(0,0,0,.25)'; c.beginPath(); c.ellipse(x + 8 * s, y + 15 * s, 6 * s, 2.5 * s, 0, 0, 7); c.fill();
-    if (dir === 'left') { c.save(); c.translate(x + W * s, y - 8 * s + bob * s); c.scale(-1, 1); c.drawImage(img, 0, 0, W * s, H * s); c.restore(); }
-    else c.drawImage(img, x, y - 8 * s + bob * s, W * s, H * s);
+    const adem = frame === 0 && (tt % 110) < 8 ? 1 : 0, ox = x, oy = y - 8 * s + bob * s;
+    c.save(); if (dir === 'left') { c.translate(x + W * s, 0); c.scale(-1, 1); c.translate(-x, 0); }
+    if (adem) { c.drawImage(img, 0, 0, W, 12, ox, oy + s, W * s, 12 * s); c.drawImage(img, 0, 12, W, 12, ox, oy + 12 * s, W * s, 12 * s); }
+    else c.drawImage(img, ox, oy, W * s, H * s);
+    if (dir === 'down' && frame === 0 && (tt % 170) < 5 && look.hoofd !== 'bril' && look.hoofd !== 'helm') { c.fillStyle = KLEUR.s; c.fillRect(ox + 5 * s, oy + 8 * s + adem * s, s, s); c.fillRect(ox + 10 * s, oy + 8 * s + adem * s, s, s); }
+    c.restore();
   }
   function avatarCanvas(look, s) {
     const cv = document.createElement('canvas'); cv.width = W * s; cv.height = H * s;
     const c = cv.getContext('2d'); c.imageSmoothingEnabled = false; c.drawImage(sprite(look, 'down', 0), 0, 0, W * s, H * s);
     return cv;
   }
-  return { draw, sprite, avatarCanvas, W, H };
+  return { draw, sprite, avatarCanvas, portret, W, H };
 })();
 if (typeof module === 'object' && module.exports) module.exports = WQSprites;

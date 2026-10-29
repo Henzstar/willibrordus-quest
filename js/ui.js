@@ -3,7 +3,7 @@ const WQUi = (() => {
   'use strict';
   const $ = id => document.getElementById(id);
   const SCHERMEN = ['s-start', 's-hint', 's-dialoog', 's-kaarten', 's-zelfcheck', 's-agenda', 's-einde'];
-  let typer = null, volleTekst = '', naTypen = null;
+  let typer = null, volleTekst = '', naTypen = null, mond = null, portretLook = null;
 
   function toon(id) { SCHERMEN.forEach(s => { $(s).hidden = s !== id; }); if (id && id !== 's-dialoog' && id !== 's-hint') window.scrollTo(0, 0); }
   function kaartZichtbaar(v) { $('screen').hidden = !v; $('hud').hidden = !v; $('kopregel').hidden = v; }
@@ -14,13 +14,16 @@ const WQUi = (() => {
     stopTypen(); const box = $('dTekst'); box.textContent = ''; volleTekst = tekst; naTypen = klaar || null;
     const snel = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (snel) { box.textContent = tekst; const f = naTypen; naTypen = null; f && f(); return; }
-    let i = 0;
+    let i = 0; praat();
     typer = setInterval(() => {
       i += 1; box.textContent = tekst.slice(0, i);
-      if (i >= tekst.length) { clearInterval(typer); typer = null; const f = naTypen; naTypen = null; f && f(); }
+      if (i >= tekst.length) { clearInterval(typer); typer = null; mondDicht(); const f = naTypen; naTypen = null; f && f(); }
     }, 16);
   }
-  function stopTypen() { if (typer) { clearInterval(typer); typer = null; } }
+  function stopTypen() { if (typer) { clearInterval(typer); typer = null; } mondDicht(); }
+  function mondDicht() { if (mond) { clearInterval(mond); mond = null; } tekenPortret(false); }
+  function tekenPortret(open) { const box = $('dPortret'); if (!portretLook) { box.hidden = true; return; } box.hidden = false; box.innerHTML = ''; box.appendChild(WQSprites.portret(portretLook, open)); }
+  function praat() { mondDicht(); let open = false; mond = setInterval(() => { open = !open; tekenPortret(open); }, 140); }
   function maakAf() {
     if (!typer) return false;
     stopTypen(); $('dTekst').textContent = volleTekst; const f = naTypen; naTypen = null; f && f(); return true;
@@ -30,7 +33,7 @@ const WQUi = (() => {
   function dialoog(npc, opties) {
     opties = opties || {};
     toon('s-dialoog');
-    $('dNpc').textContent = npc.naam.toUpperCase(); $('dRol').textContent = npc.rol || ''; $('dRol').hidden = !npc.rol;
+    $('dNpc').textContent = npc.naam.toUpperCase(); $('dRol').textContent = npc.rol || ''; $('dRol').hidden = !npc.rol; portretLook = npc.look || null; tekenPortret(false);
     ['dEffect', 'dKaart', 'dKeuzes', 'dOpdracht', 'dArgument'].forEach(id => { $(id).hidden = true; });
     $('dVerder').hidden = !!opties.zonderKnop; $('dVerder').textContent = opties.knop || 'A · VERDER';
     typ(opties.tekst || '', opties.naTypen);

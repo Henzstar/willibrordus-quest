@@ -7,8 +7,13 @@ const WQWereld = (() => {
   function maakFiguranten() {
     figuranten = C.figuranten.map(f => ({ ...f, x: f.route[0][0], y: f.route[0][1], px: f.route[0][0] * T, py: f.route[0][1] * T, doel: 1, dir: 'down', frame: 0, wacht: 60, pad: [] }));
   }
+  const richting = (dx, dy) => Math.abs(dx) >= Math.abs(dy) ? (dx < 0 ? 'left' : 'right') : (dy < 0 ? 'up' : 'down');
   function beweegFiguranten(t) {
+    const [hx, hy] = WQMap.heroTile();
     for (const f of figuranten) {
+      const dx = hx - f.x, dy = hy - f.y;
+      if (Math.abs(dx) + Math.abs(dy) <= 2 && (dx || dy)) { f.dir = richting(dx, dy); f.kijk = 45; f.frame = 0; continue; }
+      if (f.kijk > 0) { f.kijk--; continue; }
       if (f.route.length < 2) continue;
       if (f.wacht > 0) { f.wacht--; f.frame = 0; continue; }
       if (!f.pad.length) { const doel = f.route[f.doel % f.route.length]; f.pad = WQMap.bfs([f.x, f.y], doel) || []; f.doel++; if (!f.pad.length) { f.wacht = 120; continue; } }
@@ -16,7 +21,7 @@ const WQWereld = (() => {
       if (tx !== f.px) { const d = Math.sign(tx - f.px); f.dir = d < 0 ? 'left' : 'right'; f.px += d; }
       else if (ty !== f.py) { const d = Math.sign(ty - f.py); f.dir = d < 0 ? 'up' : 'down'; f.py += d; }
       if (f.px === tx && f.py === ty) { f.x = nx; f.y = ny; f.pad.shift(); if (!f.pad.length) f.wacht = 90 + (t % 60); }
-      if (t % 12 === 0) f.frame = 1 - f.frame;
+      if (t % 8 === 0) f.frame = (f.frame + 1) % 4;
     }
   }
   function figurantBij(x, y) { return figuranten.find(f => Math.abs(f.x - x) <= 1 && Math.abs(f.y - y) <= 1) || null; }
@@ -44,7 +49,7 @@ const WQWereld = (() => {
     const w = {
       kaart: K, breedte: K[0].length, hoogte: K.length, begaanbaar: new Set(C.binnenBegaanbaar),
       offscreen: WQTiles.tekenBinnen(b, C), water: false, bg: '#0f1813', deur, npc: b.npc, locatie: L,
-      sprites: () => [{ px: b.npc[0] * T, py: b.npc[1] * T, dir: 'down', frame: 0, look: L.npc.look, bubble: gedaan() ? null : '!' }],
+      sprites: () => { const [hx, hy] = WQMap.heroTile(), dx = hx - b.npc[0], dy = hy - b.npc[1]; return [{ px: b.npc[0] * T, py: b.npc[1] * T, dir: Math.abs(dx) + Math.abs(dy) <= 2 && (dx || dy) ? richting(dx, dy) : 'down', frame: 0, look: L.npc.look, bubble: gedaan() ? null : '!' }]; },
       markers: () => [],
     };
     return w;

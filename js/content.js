@@ -147,7 +147,7 @@ const CONTENT = {
   locaties: [
     {
       id: 'start', naam: 'Hoofdingang', functie: 'start', tegel: [4, 17], soort: 'start', muziek: 'landgoed',
-      npc: { naam: 'Bep', rol: 'portier', kleur: '#c9a24d' },
+      npc: { naam: 'Bep', rol: 'portier', kleur: '#c9a24d', look: { haar: '#9fb3a6', jas: '#c9a24d', broek: '#3b3f4a', hoofd: 'bril' } },
       intro: [
         'Welkom op het landgoed. Je loopt vanavond over het hele terrein. Overal wacht een keuze. Je regie-meter laat zien of je stuurt, of gestuurd wordt.',
         'Tik op de kaart om te lopen. Bij een deur ga je naar binnen. De Cultuurkoepel gaat als laatste open. Wissel per gebouw wie de telefoon vasthoudt; de anderen eten.',
@@ -388,7 +388,7 @@ const CONTENT = {
     },
     {
       id: 'begraafplaats', naam: 'Begraafplaats', kortenaam: 'Begraafplaats (11)', functie: 'begraafplaats van het landgoed, nummer 11 op de plattegrond', tegel: [44, 14], soort: 'plek', muziek: 'begraafplaats',
-      npc: { naam: 'Riet', rol: 'vrijwilliger begraafplaats', kleur: '#4a4a4a' },
+      npc: { naam: 'Riet', rol: 'vrijwilliger begraafplaats', kleur: '#4a4a4a', look: { haar: '#f2f2f2', jas: '#4a4a4a', broek: '#2a2d35', hoofd: 'knot' } },
       intro: [
         'Hier liggen de mensen die hier woonden toen er nog geen dossier was. Alleen een naam en een nummer op een steen.',
         'Wat jij vandaag over iemand vastlegt, blijft langer dan jij. Schrijf alsof die persoon meeleest. Dat is geen AI-regel, dat is fatsoen.',

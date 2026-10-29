@@ -51,7 +51,7 @@ const WQMap = (() => {
     if (tx !== hero.px) { const d = Math.sign(tx - hero.px); hero.dir = d < 0 ? 'left' : 'right'; hero.px += speed * d; }
     else if (ty !== hero.py) { const d = Math.sign(ty - hero.py); hero.dir = d < 0 ? 'up' : 'down'; hero.py += speed * d; }
     if (hero.px === tx && hero.py === ty) { hero.x = nx; hero.y = ny; path.shift(); }
-    if (t % 10 === 0) hero.frame = 1 - hero.frame;
+    if (t % 7 === 0) hero.frame = (hero.frame + 1) % 4;
     if (!path.length) { moving = false; hero.frame = 0; if (onArrive) onArrive(hero.x, hero.y); }
   }
   function render() {
@@ -73,7 +73,7 @@ const WQMap = (() => {
       const lijst = wereld.sprites ? wereld.sprites(t).slice() : [];
       if (hero.zichtbaar) lijst.push({ px: hero.px, py: hero.py, dir: hero.dir, frame: moving ? hero.frame : 0, look: hero.look });
       lijst.sort((a, b) => a.py - b.py);
-      for (const s of lijst) { WQSprites.draw(ctx, s.look, s.dir || 'down', s.frame || 0, s.px - camX, s.py - camY); if (s.bubble) drawBubble(ctx, s.px - camX, s.py - camY, s.bubble); }
+      lijst.forEach((s, i) => { WQSprites.draw(ctx, s.look, s.dir || 'down', s.frame || 0, s.px - camX, s.py - camY, 1, t, s.zaad != null ? s.zaad : i); if (s.bubble) drawBubble(ctx, s.px - camX, s.py - camY, s.bubble); });
       if (wereld.overlay) ctx.drawImage(wereld.overlay, -camX, -camY);
       if (moving && hero.zichtbaar && tileAt(hero.x, hero.y) === '.' && wereld.overlay) { for (let i = 0; i < 3; i++) { const k = (t * 7 + i * 31) % 16; ctx.fillStyle = i % 2 ? '#5e9a4a' : '#8cc46f'; ctx.fillRect(hero.px - camX + 2 + ((k * 5 + i * 3) % 12), hero.py - camY + 12 - (k % 5), 1, 1); } }
       for (const m of (wereld.markers ? wereld.markers() : [])) drawMarker(ctx, m.x * T - camX, m.y * T - camY, m);
