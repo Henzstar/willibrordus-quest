@@ -74,6 +74,8 @@ const WQMap = (() => {
       if (hero.zichtbaar) lijst.push({ px: hero.px, py: hero.py, dir: hero.dir, frame: moving ? hero.frame : 0, look: hero.look });
       lijst.sort((a, b) => a.py - b.py);
       for (const s of lijst) { WQSprites.draw(ctx, s.look, s.dir || 'down', s.frame || 0, s.px - camX, s.py - camY); if (s.bubble) drawBubble(ctx, s.px - camX, s.py - camY, s.bubble); }
+      if (wereld.overlay) ctx.drawImage(wereld.overlay, -camX, -camY);
+      if (moving && hero.zichtbaar && tileAt(hero.x, hero.y) === '.' && wereld.overlay) { for (let i = 0; i < 3; i++) { const k = (t * 7 + i * 31) % 16; ctx.fillStyle = i % 2 ? '#5e9a4a' : '#8cc46f'; ctx.fillRect(hero.px - camX + 2 + ((k * 5 + i * 3) % 12), hero.py - camY + 12 - (k % 5), 1, 1); } }
       for (const m of (wereld.markers ? wereld.markers() : [])) drawMarker(ctx, m.x * T - camX, m.y * T - camY, m);
       for (const b of bubbles()) drawBubble(ctx, b.x * T - camX, b.y * T - camY, b.tekst);
       if (wereld.decor) wereld.decor.teken(ctx, camX, camY, t, 'boven');
