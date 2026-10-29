@@ -72,7 +72,7 @@ const WQUi = (() => {
   function hud(d) {
     $('hudNaam').textContent = d.naam; $('hudPunten').textContent = d.punten; $('hudKaarten').textContent = d.kaarten + ' / ' + d.totaal;
     $('hudBar').style.width = d.regie + '%'; $('hudProfiel').textContent = d.profiel;
-    $('hudKompas').textContent = d.kompas || '';
+    $('hudKaart').textContent = d.kaartKnop || '';
   }
   function locatie(tekst) { $('loc').textContent = tekst; }
   function praatKnop(v) { $('praat').hidden = !v; }

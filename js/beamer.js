@@ -87,9 +87,18 @@
     DISCUSSIE.forEach(L => { const tel = L.discussie.opties.map((o, i) => [o, ps.filter(p => p.keuzes && p.keuzes[L.id] === i).length]); const tot = tel.reduce((a, b) => a + b[1], 0); if (!tot) return; balkjes(box, (L.kortenaam || L.naam) + ': ' + L.discussie.vraag, tel, tot); const ul = el('ul', 'argumenten'); ps.filter(p => p.argumenten && p.argumenten[L.id]).forEach(p => ul.appendChild(el('li', null, p.naam + ': ' + p.argumenten[L.id]))); box.appendChild(ul); });
     if (!box.children.length) box.appendChild(el('p', 'note', 'Nog geen discussie gevoerd.'));
   }
+  // Aggregatie uit de antwoorden: dilemma's die vaak laag scoorden, discussies met de grootste verdeeldheid, zwakste zelfcheck-competentie.
+  function signalen() {
+    const ps = Object.values(spelers), uit = [];
+    DILEMMA.forEach(L => { const k = ps.filter(p => p.keuzes && p.keuzes[L.id] != null); if (k.length < 2) return; const laag = k.filter(p => (L.dilemma.opties[p.keuzes[L.id]] || {}).punten < 30).length; if (laag / k.length >= 0.4) uit.push([(L.kortenaam || L.naam).split('[')[0].trim() + ': ' + Math.round(laag / k.length * 100) + '% koos een zwakke optie. ' + L.kaart.titel, laag / k.length]); });
+    DISCUSSIE.forEach(L => { const k = ps.filter(p => p.keuzes && p.keuzes[L.id] != null); if (k.length < 3) return; const tel = L.discussie.opties.map((o, i) => k.filter(p => p.keuzes[L.id] === i).length); const max = Math.max(...tel); if (max / k.length <= 0.5) uit.push([(L.kortenaam || L.naam) + ': teams zijn verdeeld (' + tel.join('/') + '). ' + L.discussie.vraag, 1 - max / k.length]); });
+    const zc = C.zelfcheck.items.map((t, i) => [t, ps.filter(p => p.zelfcheck && p.zelfcheck[i]).length]); if (ps.length >= 2) { const min = zc.reduce((a, b) => b[1] < a[1] ? b : a); if (min[1] / ps.length < 0.5) uit.push(['Zelfcheck: slechts ' + min[1] + ' van ' + ps.length + ' teams geeft zichzelf een 7 op: ' + min[0], 1]); }
+    return uit.sort((a, b) => b[1] - a[1]).map(u => u[0]);
+  }
   function tekenAgenda() {
     const box = $('paneel'); box.innerHTML = '';
     const ps = Object.values(spelers).filter(p => p.agenda && (p.agenda.org || p.agenda.zelf));
+    const sig = signalen(); if (sig.length) { box.appendChild(el('h3', null, 'Signalen uit het spel (voor het plenaire gesprek)')); const ul0 = el('ul', 'argumenten signalen'); sig.forEach(t => ul0.appendChild(el('li', null, t))); box.appendChild(ul0); }
     const tel = (f) => { const m = {}; ps.forEach(p => { const k = f(p); if (k) m[k] = (m[k] || 0) + 1; }); return Object.entries(m).sort((a, b) => b[1] - a[1]); };
     const org = tel(p => p.agenda.org), eig = tel(p => p.agenda.eigenaar);
     balkjes(box, C.agenda.organisatieVraag, org, org.reduce((a, b) => a + b[1], 0));

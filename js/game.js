@@ -24,11 +24,37 @@
   const kaarten = () => S.bezocht.map(id => C.locaties.find(l => l.id === id)).filter(l => l.kaart).map(l => l.kaart);
   const volgende = () => { const id = C.route.find(i => !bezocht(i)); return id ? C.locaties.find(l => l.id === id) : null; };
   const allesKlaar = () => GEBOUWEN.every(l => l.soort === 'plek' || bezocht(l.id));
+  const teGaan = () => GEBOUWEN.filter(l => l.soort !== 'plek' && l.id !== C.laatste && !bezocht(l.id)).length;
   function hud() {
-    const v = volgende();
-    const kompas = binnen ? '' : v ? C.teksten.volgende + ': ' + (v.kortenaam || v.naam) + ' ' + M.richtingNaar(v.tegel[0], v.tegel[1]) : C.teksten.alles;
-    U.hud({ naam: S.naam, punten: SC.totaal(S), kaarten: kaarten().length, totaal: KAARTEN, regie: S.regie, profiel: profiel().kort, kompas });
+    const n = teGaan();
+    U.hud({ naam: S.naam, punten: SC.totaal(S), kaarten: kaarten().length, totaal: KAARTEN, regie: S.regie, profiel: profiel().kort, kaartKnop: n ? vul(C.teksten.kaartKnop, { n }) : C.teksten.kaartKnopKlaar });
   }
+  // Overzichtskaart: het hele landgoed met knipperende, stuiterende markers op de plekken die nog een vraag hebben.
+  let overzichtRaf = 0;
+  function toonOverzicht() {
+    if (!S) return;
+    const cv = $('overzichtCanvas'), c = cv.getContext('2d'), w = W.buitenWereld(bezocht, null), T = M.T;
+    c.imageSmoothingEnabled = false; $('overzichtUitleg').textContent = C.teksten.kaartUitleg; U.menu(false); $('overzicht').hidden = false;
+    let t = 0;
+    const teken = () => {
+      t++; c.drawImage(w.offscreen, 0, 0); if (w.overlay) c.drawImage(w.overlay, 0, 0);
+      const [hx, hy] = binnen && huidig ? huidig.tegel : M.heroTile();
+      c.fillStyle = '#fff'; c.beginPath(); c.arc(hx * T + 16, hy * T + 16, 14 + Math.sin(t / 6) * 3, 0, 7); c.fill(); c.fillStyle = '#d65a4a'; c.beginPath(); c.arc(hx * T + 16, hy * T + 16, 9, 0, 7); c.fill();
+      for (const L of GEBOUWEN) {
+        if (L.soort === 'plek' || bezocht(L.id)) continue;
+        const x = L.tegel[0] * T + 16, dicht = L.id === C.laatste && teGaan() > 0, y = L.tegel[1] * T - 20 - (dicht ? 0 : Math.abs(Math.sin(t / 9)) * 18);
+        if (!dicht && Math.floor(t / 14) % 3 === 0) continue;
+        c.save(); c.translate(x, y); c.scale(4, 4);
+        c.fillStyle = dicht ? '#6b7280' : '#fff7cc'; c.fillRect(-4, -10, 8, 8); c.fillRect(-1, -2, 2, 3);
+        c.fillStyle = dicht ? '#e0a84a' : '#d65a4a'; c.fillRect(-2, -8, 4, 4); if (dicht) { c.fillStyle = '#1a1f1c'; c.fillRect(-1, -7, 2, 2); }
+        c.restore();
+        c.font = '14px "Press Start 2P", monospace'; c.textAlign = 'center'; c.fillStyle = '#1a1f1c'; c.fillText((L.kortenaam || L.naam).split('[')[0].trim(), x + 1, y - 52 + 1); c.fillStyle = dicht ? '#9fb3a6' : '#fff7cc'; c.fillText((L.kortenaam || L.naam).split('[')[0].trim(), x, y - 52);
+      }
+      overzichtRaf = requestAnimationFrame(teken);
+    };
+    teken();
+  }
+  function sluitOverzicht() { cancelAnimationFrame(overzichtRaf); $('overzicht').hidden = true; }
 
   // ---------- start ----------
   function startScherm() {
@@ -271,6 +297,8 @@
       if (M.walkTo(x, y, 40)) { U.locatie(C.teksten.onderweg); U.praatKnop(false); }
     });
     $('menuBtn').addEventListener('click', openMenu);
+    $('hudKaart').addEventListener('click', toonOverzicht);
+    $('overzichtSluit').addEventListener('click', sluitOverzicht);
     $('mSluit').addEventListener('click', () => U.menu(false));
     $('mKaarten').addEventListener('click', () => { U.menu(false); toonKaarten(); });
     $('mZelfcheck').addEventListener('click', () => { U.menu(false); zelfcheck(hervatNaMenu); });

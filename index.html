@@ -21,7 +21,7 @@
     <div><div class="lab">KAARTEN</div><div class="name" id="hudKaarten">0 / 8</div></div>
     <button class="menu" id="menuBtn" type="button" aria-label="Menu">MENU</button>
     <div class="meter"><span class="lab">REGIE</span><div class="bar"><i id="hudBar"></i></div><span class="prof" id="hudProfiel"></span></div>
-    <div class="kompas" id="hudKompas"></div>
+    <button class="kaartknop" id="hudKaart" type="button"></button>
   </div>
 
   <div class="screen" id="screen" hidden>
@@ -111,6 +111,16 @@
     <div class="agendablok" id="eAgenda"></div>
     <div class="row rechts"><button class="btn a secundair" id="eVerderBtn" type="button" hidden>VERDER SPELEN</button><button class="btn a secundair" id="eAgendaBtn" type="button">AGENDA AANPASSEN</button><button class="btn a" id="opnieuwBtn" type="button">OPNIEUW</button></div>
     <div class="kaarten" id="eKaartenLijst"></div>
+  </div>
+
+  <!-- Overzichtskaart -->
+  <div class="sheet" id="overzicht" hidden>
+    <div class="box overzichtbox">
+      <h2>Landgoed</h2>
+      <div class="overzichtvak"><canvas id="overzichtCanvas" width="2048" height="1152" aria-label="Overzicht van het landgoed"></canvas></div>
+      <p class="note" id="overzichtUitleg"></p>
+      <button class="btn a" id="overzichtSluit" type="button">SLUITEN</button>
+    </div>
   </div>
 
   <!-- Menu -->
