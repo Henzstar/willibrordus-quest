@@ -126,55 +126,82 @@ const MAP = `================================================
 ..TTTTTTTTTTTTTBBB....WWWWWWWWWWWWWWWWWWW.TTTTT=
 ...............BBB....B..B..B..B..B..B..B.TBTTT=
 =====================..........................=`.split('\n');
-const MW = 48, MH = 22, T = 16, VW = 16, VH = 11;
+const MW = 48, MH = 22, T = 16, VH = 11;
 const WALK = new Set(['=', '-', '.', 'P', 'S']);
 const PAL = { '.': '#7bb661', g2: '#5e9a4a', '-': '#d9c38a', p2: '#c4ad77', '=': '#6b7280', r2: '#9aa3ad', W: '#5aa7d6', w2: '#8cc5e8', T: '#3f7d3a', t2: '#5aa35a', trunk: '#6b4a2b', roof: '#8b5e3c', roof2: '#6e4a2f', wall: '#e8dcc5', wall2: '#c9b89b', S: '#e0cfa0', s2: '#cdb985', N: '#f4f1ea', n2: '#cfcac0', G: '#dbe8f0', g3: '#b8ccd8', F: '#a9b46a', f2: '#8f9a52', K: '#c9a24d', k2: '#a8843a', P: '#9aa3ad', win: '#5aa7d6', ink: '#1a1f1c' };
 
-const SPR = { k: '#1a1f1c', s: '#f1c9a5', h: '#6b4a2b', c: null, p: '#3b3f4a', w: '#ffffff' };
+// Sprite 16 breed, 24 hoog; voeten op de onderrand van de tegel, hoofd steekt boven de tegel uit.
+// k omtrek, h haar, s huid, e oog, m mond, c jas, p broek, b schoen. Kleuren per persoon via `look`.
+const SPR_VAST = { k: '#1a1f1c', e: '#1a1f1c', b: '#1a1f1c', p: '#3b3f4a', H: null, g: '#2b2f36' };
 const HERO = [
 `......kkkk......
-.....khhhhk.....
-....khhhhhhk....
-....khsssshk....
-....kskssksk....
+....kkhhhhkk....
+...khhhhhhhhk...
+...khhhhhhhhk...
+...khhhhhhhhk...
+...khhsssshhk...
+...khsssssshk...
+...ksessssesk...
+...kssssssssk...
+...ksssmmsssk...
 ....kssssssk....
 .....kssssk.....
-....kkccccck....
-...kccccccccck..
-...kckccccckck..
-...ksckccckcsk..
 ....kccccccck...
-....kppkkppk....
-....kppk.kppk...
-....kkkk.kkkk...
-................`,
+...kkccccccckk..
+.kcckccccccckcck
+.kcckccccccckcck
+.kcckccccccckcck
+.ksskccccccckssk
+.kkkkccccccckkkk
+....kccccccck...
+....kpppkpppk...
+....kpppkpppk...
+....kbbbkbbbk...
+....kkkk.kkkk...`,
 `......kkkk......
-.....khhhhk.....
-....khhhhhhk....
-....khsssshk....
-....kskssksk....
+....kkhhhhkk....
+...khhhhhhhhk...
+...khhhhhhhhk...
+...khhhhhhhhk...
+...khhsssshhk...
+...khsssssshk...
+...ksessssesk...
+...kssssssssk...
+...ksssmmsssk...
 ....kssssssk....
 .....kssssk.....
-....kkccccck....
-...kccccccccck..
-...kckccccckck..
-...ksckccckcsk..
 ....kccccccck...
-....kppkkppk....
-...kppk...kppk..
-...kkkk...kkkk..
-................`].map(s => s.split('\n'));
+...kkccccccckk..
+.kcckccccccckcck
+.kcckccccccckcck
+.ksskccccccckcck
+.kkkkccccccckssk
+....kccccccckkkk
+....kccccccck...
+...kpppk.kpppk..
+...kpppk.kpppk..
+...kbbbk.kbbbk..
+...kkkkk.kkkkk..`].map(s => s.split('\n'));
+// Overlays: rij -> patroon, '.' is doorzichtig. Volgorde: lang haar, baard, hoofddeksel, bril.
+const OVERLAY = {
+  lang: { 6: '..kh........hk..', 7: '..kh........hk..', 8: '..kh........hk..', 9: '..kh........hk..', 10: '..kh........hk..', 11: '...kk......kk...' },
+  baard: { 9: '....hhhhhhhh....', 10: '....khhhhhhk....' },
+  pet: { 0: '....kkkkkkkk....', 1: '...kHHHHHHHHk...', 2: '...kHHHHHHHHk...', 3: '..kkkkkkkkkkkk..' },
+  helm: { 0: '......kkkk......', 1: '....kkHHHHkk....', 2: '...kHHHHHHHHk...', 3: '...kHHHHHHHHk...', 4: '..kkkkkkkkkkkk..' },
+  bril: { 7: '....g.gggg.g....', 8: '....g.g..g.g....' },
+};
+const SPR_H = 24, SPR_OFF = SPR_H - T; // sprite is 8 px hoger dan de tegel
 
 // Locaties: tegel = begaanbare tegel naast het gebouw; npc staat op de tegel ernaast.
 const LOCS = [
-  { id: 'start', naam: 'Hoofdingang', tegel: [14, 10], npcAt: [13, 9], npc: 'Bep', rol: 'portier', kleur: '#1d6b4f', lijn: 'Alles begint bij de parkeerplaats. Kies een gebouw.' },
-  { id: 'keuken', naam: 'Keuken met Karakter', tegel: [8, 10], npcAt: [9, 10], npc: 'Sam', rol: 'aios, bord bitterballen', kleur: '#2b6cb0', scene: 'keuken' },
-  { id: 'olvendijk', naam: 'De Olvendijk', tegel: [21, 10], npcAt: [22, 10], npc: 'Fatima', rol: 'functionaris gegevensbescherming', kleur: '#7a3e9d', lijn: 'Dit gebouw doet mee in de volledige game: het dossier gaat de deur niet uit.' },
-  { id: 'kliniek', naam: 'Olvendijk 79', tegel: [27, 17], npcAt: [26, 17], npc: 'Willem', rol: 'cliënt', kleur: '#8a6d3b', lijn: 'Dit gebouw doet mee in de volledige game: Willem vraagt wat dat ding doet.' },
-  { id: 'venne', naam: 'De Hooge Venne', tegel: [27, 9], npcAt: [28, 9], npc: 'Nadia', rol: 'forensisch psycholoog', kleur: '#b5443a', scene: 'venne' },
-  { id: 'koepel', naam: 'Cultuurkoepel', tegel: [7, 13], npcAt: [8, 13], npc: 'Henk', rol: 'voorzitter stuurgroep', kleur: '#4a4a4a', scene: 'koepel' },
-  { id: 'kwekerij', naam: 'Kwekerij', tegel: [40, 8], npcAt: [39, 8], npc: 'Joop', rol: 'medewerker kwekerij', kleur: '#2f7d32', lijn: 'Dit gebouw doet mee in de volledige game: hier groeit bekwaamheid.' },
-  { id: 'hic', naam: 'Nieuwbouw HIC', tegel: [24, 6], npcAt: [23, 6], npc: 'Jij, 2030', rol: 'helm op', kleur: '#e0a84a', lijn: 'Dit gebouw doet mee in de volledige game: het is 2030 en het EPD ligt eruit.' },
+  { id: 'start', naam: 'Hoofdingang', tegel: [14, 10], npcAt: [13, 9], npc: 'Bep', rol: 'portier', kleur: '#1d6b4f', lijn: 'Alles begint bij de parkeerplaats. Kies een gebouw.', look: { haar: '#4a3728', huid: '#f1c9a5', pet: '#1d6b4f' } },
+  { id: 'keuken', naam: 'Keuken met Karakter', tegel: [8, 10], npcAt: [9, 10], npc: 'Sam', rol: 'aios, bord bitterballen', kleur: '#2b6cb0', scene: 'keuken', look: { haar: '#2a1e14', huid: '#e8b58e' } },
+  { id: 'olvendijk', naam: 'De Olvendijk', tegel: [21, 10], npcAt: [22, 10], npc: 'Fatima', rol: 'functionaris gegevensbescherming', kleur: '#7a3e9d', lijn: 'Dit gebouw doet mee in de volledige game: het dossier gaat de deur niet uit.', look: { haar: '#1a1410', huid: '#c98b62', lang: true } },
+  { id: 'kliniek', naam: 'Olvendijk 79', tegel: [27, 17], npcAt: [26, 17], npc: 'Willem', rol: 'cliënt', kleur: '#8a6d3b', lijn: 'Dit gebouw doet mee in de volledige game: Willem vraagt wat dat ding doet.', look: { haar: '#9a9a94', huid: '#f1c9a5', baard: true } },
+  { id: 'venne', naam: 'De Hooge Venne', tegel: [27, 9], npcAt: [28, 9], npc: 'Nadia', rol: 'forensisch psycholoog', kleur: '#b5443a', scene: 'venne', look: { haar: '#a8432b', huid: '#f6d6b8', lang: true } },
+  { id: 'koepel', naam: 'Cultuurkoepel', tegel: [7, 13], npcAt: [8, 13], npc: 'Henk', rol: 'voorzitter stuurgroep', kleur: '#4a4a4a', scene: 'koepel', look: { haar: '#c9c9c4', huid: '#f1c9a5', bril: true } },
+  { id: 'kwekerij', naam: 'Kwekerij', tegel: [40, 8], npcAt: [39, 8], npc: 'Joop', rol: 'medewerker kwekerij', kleur: '#2f7d32', lijn: 'Dit gebouw doet mee in de volledige game: hier groeit bekwaamheid.', look: { haar: '#6b4a2b', huid: '#e0b48c', pet: '#2f7d32' } },
+  { id: 'hic', naam: 'Nieuwbouw HIC', tegel: [24, 6], npcAt: [23, 6], npc: 'Jij, 2030', rol: 'helm op', kleur: '#e0a84a', lijn: 'Dit gebouw doet mee in de volledige game: het is 2030 en het EPD ligt eruit.', look: { haar: '#4a3728', huid: '#f1c9a5', helm: '#e0a84a' } },
 ];
 
 const SCENES = {
@@ -211,10 +238,25 @@ const SCENES = {
 };
 
 // ---------- state ----------
-const S = { naam: 'team', regie: 50, kaarten: new Set(), hero: { x: 14, y: 10, px: 14 * T, py: 10 * T, dir: 1 }, path: [], moving: false, stepT: 0, frame: 0, target: null, busy: false, t: 0 };
+const S = { naam: 'team', regie: 50, kaarten: new Set(), hero: { x: 14, y: 10, px: 14 * T, py: 10 * T, dir: 1, look: { jas: '#1d6b4f', haar: '#2a1e14', huid: '#f1c9a5' } }, path: [], moving: false, stepT: 0, frame: 0, target: null, busy: false, t: 0 };
 const $ = id => document.getElementById(id);
 const cv = $('c'), ctx = cv.getContext('2d');
-ctx.imageSmoothingEnabled = false;
+// Schaal: elke gamepixel wordt precies K schermpixels (geheel getal), zodat niets uitsmeert of ongelijk wordt.
+// De zichtbare breedte GW (in gamepixels) volgt uit de schermbreedte; de hoogte is vast VH tegels.
+let K = 1, GW = 256; const GH = VH * T;
+function fit() {
+  const dpr = window.devicePixelRatio || 1;
+  const cssW = cv.parentElement.clientWidth; if (cssW < T) return;
+  const devW = Math.round(cssW * dpr);
+  K = Math.max(1, Math.round(devW / 256)); GW = Math.floor(devW / K);
+  cv.width = GW * K; cv.height = GH * K;
+  cv.style.width = (GW * K / dpr) + 'px'; cv.style.height = (GH * K / dpr) + 'px';
+  ctx.setTransform(K, 0, 0, K, 0, 0); ctx.imageSmoothingEnabled = false;
+}
+window.addEventListener('resize', fit);
+function camera() {
+  return [Math.max(0, Math.min(MW * T - GW, S.hero.px - GW / 2 + 8)), Math.max(0, Math.min(MH * T - GH, S.hero.py - GH / 2 + 8))];
+}
 
 // ---------- tiles ----------
 function tileAt(x, y) { return (y < 0 || y >= MH || x < 0 || x >= MW) ? 'T' : MAP[y][x]; }
@@ -240,18 +282,23 @@ function drawTile(ch, x, y, sx, sy) {
     else { r(0, 0, T, T, wall); r(3, 4, 3, 5, PAL.win); r(10, 4, 3, 5, PAL.win); r(0, 14, T, 2, PAL.wall2); if (ch === 'G') { r(0, 8, T, 1, PAL.g3); r(8, 0, 1, T, PAL.g3); } }
   }
 }
-function drawSprite(frames, f, sx, sy, coat, flip) {
-  const rows = frames[f];
-  for (let y = 0; y < 16; y++) { const row = rows[y] || ''; for (let x = 0; x < 16; x++) { const ch = row[x]; if (!ch || ch === '.') continue; const c = ch === 'c' ? coat : SPR[ch]; if (!c) continue; ctx.fillStyle = c; ctx.fillRect(sx + (flip ? 15 - x : x), sy + y, 1, 1); } }
+function drawSprite(f, sx, sy, look, flip) {
+  const col = { ...SPR_VAST, c: look.jas, h: look.haar, s: look.huid, m: look.mond || '#9c6b52', H: look.pet || look.helm };
+  const put = (x, y, ch) => { const c = col[ch]; if (!c) return; ctx.fillStyle = c; ctx.fillRect(sx + (flip ? 15 - x : x), sy - SPR_OFF + y, 1, 1); };
+  const rows = HERO[f];
+  for (let y = 0; y < SPR_H; y++) { const row = rows[y] || ''; for (let x = 0; x < 16; x++) { const ch = row[x]; if (ch && ch !== '.') put(x, y, ch); } }
+  for (const key of ['lang', 'baard', 'pet', 'helm', 'bril']) {
+    if (!look[key]) continue; const ov = OVERLAY[key];
+    for (const y in ov) for (let x = 0; x < 16; x++) { const ch = ov[y][x]; if (ch !== '.') put(x, +y, ch); }
+  }
 }
 
 // ---------- camera & render ----------
 function render() {
   S.t++;
-  const camX = Math.max(0, Math.min(MW * T - VW * T, S.hero.px - VW * T / 2 + 8));
-  const camY = Math.max(0, Math.min(MH * T - VH * T, S.hero.py - VH * T / 2 + 8));
-  const tx0 = Math.floor(camX / T), ty0 = Math.floor(camY / T);
-  for (let y = ty0; y <= ty0 + VH; y++) for (let x = tx0; x <= tx0 + VW; x++) {
+  const [camX, camY] = camera();
+  const tx0 = Math.floor(camX / T), ty0 = Math.floor(camY / T), tw = Math.ceil(GW / T);
+  for (let y = ty0; y <= ty0 + VH; y++) for (let x = tx0; x <= tx0 + tw; x++) {
     if (y < 0 || y >= MH || x < 0 || x >= MW) continue;
     drawTile(MAP[y][x], x, y, Math.round(x * T - camX), Math.round(y * T - camY));
   }
@@ -260,11 +307,11 @@ function render() {
     const [mx, my] = L.tegel, done = S.kaarten.has(L.id);
     const bob = Math.round(Math.sin(S.t / 12) * 2);
     const sx = Math.round(mx * T - camX), sy = Math.round(my * T - camY);
-    drawSprite(HERO, 0, Math.round(L.npcAt[0] * T - camX), Math.round(L.npcAt[1] * T - camY), L.kleur, true);
+    drawSprite(0, Math.round(L.npcAt[0] * T - camX), Math.round(L.npcAt[1] * T - camY), { jas: L.kleur, ...L.look }, true);
     if (L.id !== 'start') { ctx.fillStyle = done ? '#9fb3a6' : '#fff7cc'; ctx.fillRect(sx + 6, sy - 14 + bob, 4, 4); ctx.fillRect(sx + 7, sy - 10 + bob, 2, 3); ctx.fillStyle = PAL.ink; ctx.fillRect(sx + 7, sy - 13 + bob, 2, 2); }
   }
   // held
-  drawSprite(HERO, S.moving ? S.frame : 0, Math.round(S.hero.px - camX), Math.round(S.hero.py - camY), '#1d6b4f', S.hero.dir < 0);
+  drawSprite(S.moving ? S.frame : 0, Math.round(S.hero.px - camX), Math.round(S.hero.py - camY), S.hero.look, S.hero.dir < 0);
   // stap
   if (S.moving && S.path.length) {
     const [nx, ny] = S.path[0];
@@ -350,15 +397,15 @@ function buildNav() {
 }
 cv.addEventListener('click', ev => {
   if (S.busy) return;
-  const rect = cv.getBoundingClientRect(); const scale = cv.width / rect.width;
-  const camX = Math.max(0, Math.min(MW * T - VW * T, S.hero.px - VW * T / 2 + 8)), camY = Math.max(0, Math.min(MH * T - VH * T, S.hero.py - VH * T / 2 + 8));
+  const rect = cv.getBoundingClientRect(); const scale = GW / rect.width;
+  const [camX, camY] = camera();
   const x = Math.floor(((ev.clientX - rect.left) * scale + camX) / T), y = Math.floor(((ev.clientY - rect.top) * scale + camY) / T);
   const near = LOCS.find(l => Math.abs(l.tegel[0] - x) <= 1 && Math.abs(l.tegel[1] - y) <= 1 && l.id !== 'start');
   if (near) goTo(near.tegel[0], near.tegel[1], near); else if (WALK.has(tileAt(x, y))) goTo(x, y, null);
 });
 $('startBtn').addEventListener('click', () => {
   S.naam = ($('naam').value.trim() || ($('modusSolo').checked ? 'speler' : 'team')).slice(0, 20);
-  hide('start'); show('hud'); show('screen'); updateHud(); buildNav(); show('nav');
+  hide('start'); show('hud'); show('screen'); fit(); updateHud(); buildNav(); show('nav');
 });
 requestAnimationFrame(render);
 })();
