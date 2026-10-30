@@ -30,7 +30,7 @@
     const n = teGaan();
     U.hud({ naam: S.naam, punten: SC.totaal(S), kaarten: kaarten().length, totaal: KAARTEN, regie: S.regie, profiel: profiel().kort, kaartKnop: n ? vul(C.teksten.kaartKnop, { n }) : C.teksten.kaartKnopKlaar });
   }
-  // Overzichtskaart: het hele landgoed met knipperende, stuiterende markers op de plekken die nog een vraag hebben.
+  // Overzichtskaart: het hele landgoed met pulserende ringen op de plekken die nog een vraag hebben (zelfde vorm als de eigen locatie, andere kleur).
   let overzichtRaf = 0;
   function toonOverzicht() {
     if (!S) return;
@@ -43,13 +43,10 @@
       c.fillStyle = '#fff'; c.beginPath(); c.arc(hx * T + 16, hy * T + 16, 30 + Math.sin(t / 6) * 6, 0, 7); c.fill(); c.fillStyle = '#d65a4a'; c.beginPath(); c.arc(hx * T + 16, hy * T + 16, 20, 0, 7); c.fill();
       for (const L of GEBOUWEN) {
         if (!VRAAG(L) || bezocht(L.id)) continue;
-        const x = L.tegel[0] * T + 16, dicht = L.id === C.laatste && teGaan() > 0, y = L.tegel[1] * T - 10 - (dicht ? 0 : Math.abs(Math.sin(t / 9)) * 30);
-        if (!dicht && Math.floor(t / 14) % 3 === 0) continue;
-        c.save(); c.translate(x, y); c.scale(9, 9);
-        c.fillStyle = dicht ? '#6b7280' : '#fff7cc'; c.fillRect(-4, -10, 8, 8); c.fillRect(-1, -2, 2, 3);
-        c.fillStyle = dicht ? '#e0a84a' : '#d65a4a'; c.fillRect(-2, -8, 4, 4); if (dicht) { c.fillStyle = '#1a1f1c'; c.fillRect(-1, -7, 2, 2); }
-        c.restore();
-        c.font = '26px "Press Start 2P", monospace'; c.textAlign = 'center'; c.fillStyle = '#1a1f1c'; c.fillText((L.kortenaam || L.naam).split('[')[0].trim(), x + 2, y - 104 + 2); c.fillStyle = dicht ? '#9fb3a6' : '#fff7cc'; c.fillText((L.kortenaam || L.naam).split('[')[0].trim(), x, y - 104);
+        const x = L.tegel[0] * T + 16, y = L.tegel[1] * T + 16, dicht = L.id === C.laatste && teGaan() > 0, f = (t / 40 + L.tegel[0]) % 1;
+        c.fillStyle = dicht ? 'rgba(107,114,128,.35)' : 'rgba(242,194,48,.45)'; c.beginPath(); c.arc(x, y, 18 + f * 22, 0, 7); c.fill();
+        c.fillStyle = dicht ? '#6b7280' : '#f2c230'; c.beginPath(); c.arc(x, y, 14, 0, 7); c.fill();
+        c.fillStyle = dicht ? '#1a1f1c' : '#fff7cc'; c.beginPath(); c.arc(x, y, 6, 0, 7); c.fill();
       }
       overzichtRaf = requestAnimationFrame(teken);
     };
@@ -62,7 +59,7 @@
     U.kaartZichtbaar(false); U.toon('s-start');
     $('verderBtn').hidden = !laad();
     $('startTekst').textContent = C.locaties[0].intro[0];
-    U.avatars(C.avatars, av => WQSprites.avatarCanvas(av, 2), avatarKeuze.id, av => { avatarKeuze = av; X.tik(); });
+    U.avatars(C.avatars, av => WQSprites.portret(av, false), avatarKeuze.id, av => { avatarKeuze = av; X.tik(); });
   }
   function begin(state, nieuw) {
     S = state; M.setLook(avatarVan(S.avatar)); bewaar();
@@ -158,7 +155,9 @@
   }
   function toonVoorwerp(ch) {
     const v = C.voorwerpen[ch]; if (!v) return;
-    bezig = true; M.stop(); U.dialoog({ naam: v.naam, rol: C.teksten.voorwerp }, { tekst: v.tekst }); verderHandler = vrij;
+    S.teller = S.teller || {}; const n = S.teller[ch] = (S.teller[ch] || 0) + 1; bewaar();
+    const tekst = v.teksten ? v.teksten[(n - 1) % v.teksten.length] : v.tekst;
+    bezig = true; M.stop(); U.dialoog({ naam: v.naam, rol: C.teksten.voorwerp }, { tekst }); verderHandler = vrij;
   }
   function praatFigurant(f) {
     bezig = true; M.stop(); f.teller = (f.teller || 0) + 1;

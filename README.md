@@ -20,6 +20,14 @@ De test controleert de tilemap (22 rijen van 48 tekens), of elke locatie begaanb
 2. Na een push naar `main` staat de game binnen een minuut op `https://<gebruiker>.github.io/willibrordus-quest/`.
 3. Het bord staat op dezelfde plek onder `beamer.html`. Alle paden zijn relatief, dus de submap is geen probleem.
 
+### Eigen domein
+De game draait zonder aanpassingen op een eigen domein; er is geen server-logica en alle paden zijn relatief.
+1. Zet een bestand `CNAME` in de root van de repo met alleen de hostnaam, bijvoorbeeld `quest.voorbeeld.nl` (of vul het domein in onder Settings → Pages → Custom domain; GitHub maakt het bestand dan zelf aan).
+2. DNS bij de registrar: voor een subdomein een CNAME-record naar `<gebruiker>.github.io`; voor een kaal domein (apex) vier A-records naar de GitHub Pages-adressen (185.199.108.153, 185.199.109.153, 185.199.110.153, 185.199.111.153) en bij voorkeur ook de AAAA-records uit de GitHub-documentatie.
+3. Wacht tot de DNS-check in Settings → Pages groen is en zet "Enforce HTTPS" aan. Het certificaat regelt GitHub (Let's Encrypt); dat kan tot een uur duren.
+4. Niets in de game hoeft aangepast: `js/config.js` (Firebase) en `beamer.html` werken op elke host. Microfoon, WebAudio en localStorage vereisen HTTPS, en dat staat dan aan.
+Let op: een CNAME-bestand geldt voor de hele repo-site; een tweede Pages-site op hetzelfde domein kan niet.
+
 ## Waar staat wat
 - `js/content.js`: alle teksten, gebouwen, dilemma's (vier opties met punten), discussiescènes, kaarten, binnenkaarten, minigame-teksten, score-opzet, zelfcheck, agenda-lijsten, tilemap, straatnamen, decoratie, figuranten en avatars. Alleen hier teksten wijzigen.
 - `js/config.js`: eventId, firebaseUrl en boardEnabled voor het live bord (fase 2). Nu leeg.

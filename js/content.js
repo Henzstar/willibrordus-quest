@@ -19,21 +19,21 @@ const CONTENT = {
     '.=.TTTTT.BBBBBBBBBBBBBBBB..T.SNNNNNNNNNS....BBBBBBBB.GGGG...WW.=',
     '.=...T.......-.......-.......SSSSSSSSSSS================-==++++=',
     '.=.....=-=============================-==...............-.BBWW.=',
-    '.=...TT.-BBBBBBB.PPPPPPP............BB-.HHHHHHH...BBBBBB-.BBWW.=',
-    '.=..T.T.-BBBBBBB.PPPPPPP...T.T..T.T.BB-.HCCCCCH...BBBBBB-PP.WW.=',
-    '.=......-..BBBBB.......-..............--------H...BBBBBB-PP.WW.=',
+    '.=.BBBBB-BBBBBBB.PPPPPPP............BB-.HHHHHHH...BBBBBB-.BBWW.=',
+    '.=.BBBBB-BBBBBBB.PPPPPPP...T.T..T.T.BB-.HCCCCCH...BBBBBB-PP.WW.=',
+    '.=..BBB.-...BBBB.......-..............--------H...BBBBBB-PP.WW.=',
     '.=-------------------------------------.HCCCCCH...BBBBBB-...WW.=',
-    '.=.............-.......-WW............-.HHHHHHH...BBBBBB-.BBWW.=',
-    '.=..BBBBBBBOO..-.......-WW............-------------------.BBWW.=',
-    '.=WWBBBBBBBOO..-.BBBBB.-WW......BBBBB.-.DDDDDDD.........-.BBWW.=',
-    '.=WWBBBBBBBKKK.-.BBBBB.-WW......BBBBBP-.DDDDDDD......PP.-...WW.=',
-    '.=..BBBBBBBKKK.-.BBBBB.-WW.BBBBBBBBBBP-.BB.B.BBHHHHHHHHH-FFFWW.=',
-    '.=..BBBBBBBKKK.-.BBBBB.-WW.BBBBBBBBBB.-.BBBBBBBAAAAAAAAA-FFFWW.=',
-    '.=WWBBBBBBB.-..-.BBBBB.-WW.BBWWWBBBBB.-.BBBBBBBAAAAAAAAA-FFFWW.=',
-    '.=WWBBBBBBB.-..-...-...-.T.BBWWW..-...-.BBBBBBBAAAAAAAAA-FFFWW.=',
-    '.=..BBBBBBB-----------.-..T.-...T.-...-.BBBBBBBAAAAAAAAA-FFFWW.=',
-    '.=..BBBBBBB..........-.-....-.....-...-....-...AAAAAAAAA-FFFWW.=',
-    '.=.T......-.PPP....T.------------------------------------...WW.=',
+    '.=....BBBBB...OO-......-WW............-.HHHHHHH...BBBBBB-.BBWW.=',
+    '.=WW..B..BB...OO-......-WW............-------------------.BBWW.=',
+    '.=WW..B..BBKKK..-BBBBB.-WW......BBBBB.-.DDDDDDD.........-.BBWW.=',
+    '.=....BBBBBKKK..-BBBBB.-WW......BBBBBP-.DDDDDDD......PP.-...WW.=',
+    '.=....BBBBBKKK..-BBBBB.-WW.BBBBBBBBBBP-.BB.B.BBHHHHHHHHH-FFFWW.=',
+    '.=WW..BBBBB.-...-BBBBB.-WW.BBBBBBBBBB.-.BBBBBBBAAAAAAAAA-FFFWW.=',
+    '.=WW-------------BBBBB.-WW.BBWWWBBBBB.-.BBBBBBBAAAAAAAAA-FFFWW.=',
+    '.=..BBB.........-..-...-.T.BBWWW..-...-.BBBBBBBAAAAAAAAA-FFFWW.=',
+    '.=..BBB.........------.-..T.-...T.-...-.BBBBBBBAAAAAAAAA-FFFWW.=',
+    '.=BBBBB..............-.-....-.....-...-....-...AAAAAAAAA-FFFWW.=',
+    '.=BBBBB...-.PPP....T.------------------------------------...WW.=',
     '.=.TT...BBBBBBB.T.TTT.....BBBBBBBB..............BBBBBBB.....WW.=',
     '.=.TTTT.BBBBBBB.TTT.T.....BBBBBBBB....TTTT..TTT.BBBBBBB.....WW.=',
     '.=.TT.T.BBBBBBB.T.........BBBBBBBBWWWWWWWWWWWWWWWWWWWWWWWWWWWW.=',
@@ -82,7 +82,7 @@ const CONTENT = {
     { naam: 'Het Landpad', tegel: [23, 19], richting: 'v' },
     { naam: 'De Hooge Venne', tegel: [38, 20], richting: 'v' },
     { naam: 'De Overtoom', tegel: [24, 26], richting: 'h' },
-    { naam: 'Het Kerkpad', tegel: [15, 18], richting: 'v' },
+    { naam: 'Het Kerkpad', tegel: [16, 18], richting: 'v' },
     { naam: 'Het Dije', tegel: [8, 12], richting: 'v' },
     { naam: 'De Kroft', tegel: [22, 31], richting: 'h' },
     { naam: 'Ypesteinerlaan', tegel: [6, 35], richting: 'h' },
@@ -101,15 +101,20 @@ const CONTENT = {
   ],
 
   // Losse decoratie buiten: type en tegel.
+  // Gevelstijl per gebouwblok: sleutel is 'x,y' van de linkerbovenhoek. Hoofdgebouw, vleugels en Keuken met Karakter in dezelfde baksteen als de koepel.
+  gevels: { '3,12': 'klassiek', '9,12': 'klassiek', '6,16': 'klassiek', '2,23': 'klassiek' },
+
   props: [
     { type: 'lantaarn', tegel: [10, 15] }, { type: 'lantaarn', tegel: [18, 15] }, { type: 'lantaarn', tegel: [26, 15] }, { type: 'lantaarn', tegel: [34, 15] }, { type: 'lantaarn', tegel: [42, 17] }, { type: 'lantaarn', tegel: [50, 17] },
-    { type: 'lantaarn', tegel: [14, 24] }, { type: 'lantaarn', tegel: [30, 26] }, { type: 'lantaarn', tegel: [40, 26] }, { type: 'lantaarn', tegel: [50, 26] }, { type: 'lantaarn', tegel: [38, 12] }, { type: 'lantaarn', tegel: [23, 17] },
-    { type: 'bank', tegel: [9, 16] }, { type: 'bank', tegel: [16, 16] }, { type: 'bank', tegel: [37, 21] }, { type: 'bank', tegel: [46, 19] }, { type: 'bank', tegel: [2, 17] }, { type: 'bank', tegel: [44, 15] }, { type: 'bank', tegel: [57, 19] }, { type: 'bank', tegel: [26, 23] },
+    { type: 'lantaarn', tegel: [14, 22] }, { type: 'lantaarn', tegel: [30, 26] }, { type: 'lantaarn', tegel: [40, 26] }, { type: 'lantaarn', tegel: [50, 26] }, { type: 'lantaarn', tegel: [38, 12] }, { type: 'lantaarn', tegel: [23, 17] },
+    { type: 'bank', tegel: [4, 16] }, { type: 'bank', tegel: [13, 17] }, { type: 'bank', tegel: [37, 21] }, { type: 'bank', tegel: [46, 19] }, { type: 'bank', tegel: [2, 16] }, { type: 'bank', tegel: [44, 15] }, { type: 'bank', tegel: [57, 19] }, { type: 'bank', tegel: [26, 23] },
     { type: 'bloemen', tegel: [12, 16] }, { type: 'bloemen', tegel: [16, 11] }, { type: 'bloemen', tegel: [25, 10] }, { type: 'bloemen', tegel: [40, 11] }, { type: 'bloemen', tegel: [52, 11] }, { type: 'bloemen', tegel: [14, 25] }, { type: 'bloemen', tegel: [33, 24] }, { type: 'bloemen', tegel: [45, 26] }, { type: 'bloemen', tegel: [7, 26] }, { type: 'bloemen', tegel: [31, 31] }, { type: 'bloemen', tegel: [57, 15] },
     { type: 'fontein', tegel: [16, 25] },
-    { type: 'picknick', tegel: [48, 19] }, { type: 'picknick', tegel: [20, 17] }, { type: 'prullenbak', tegel: [14, 16] }, { type: 'prullenbak', tegel: [36, 24] }, { type: 'bushalte', tegel: [2, 14] },
-    { type: 'auto', tegel: [17, 12], kleur: '#c9403a' }, { type: 'auto', tegel: [19, 12], kleur: '#3b5fa8' }, { type: 'auto', tegel: [22, 13], kleur: '#e8e8e8' }, { type: 'auto', tegel: [20, 13], kleur: '#55585e' }, { type: 'auto', tegel: [12, 26], kleur: '#2f7d32' }, { type: 'auto', tegel: [14, 27], kleur: '#e0a84a' }, { type: 'auto', tegel: [57, 13], kleur: '#c9403a' }, { type: 'auto', tegel: [36, 20], kleur: '#3b5fa8' },
-    { type: 'kraan', tegel: [39, 4] }, { type: 'fietsen', tegel: [16, 12] }, { type: 'fietsen', tegel: [10, 11] }, { type: 'fietsen', tegel: [52, 17] }, { type: 'bord', tegel: [2, 16] }, { type: 'bord', tegel: [39, 12] }, { type: 'bord', tegel: [27, 25] },
+    { type: 'picknick', tegel: [48, 19] }, { type: 'picknick', tegel: [20, 17] }, { type: 'picknick', tegel: [10, 14] }, { type: 'prullenbak', tegel: [13, 16] }, { type: 'prullenbak', tegel: [36, 24] }, { type: 'bushalte', tegel: [2, 14] },
+    // Auto's: model volvo (V70R '98, saffron), smart (electric cabrio, dak open), hatch (rijen 1 of 2 parkeervakken hoog).
+    { type: 'auto', tegel: [17, 12], model: 'volvo', kleur: '#e5a52c' }, { type: 'auto', tegel: [19, 12], model: 'smart', kleur: '#c9403a' }, { type: 'auto', tegel: [21, 12], model: 'hatch', rijen: 2, kleur: '#55585e' }, { type: 'auto', tegel: [23, 12], model: 'hatch', rijen: 2, kleur: '#e8e8e8' },
+    { type: 'auto', tegel: [12, 26], model: 'hatch', kleur: '#2f7d32' }, { type: 'auto', tegel: [14, 26], model: 'smart', kleur: '#3b5fa8' }, { type: 'auto', tegel: [57, 13], model: 'hatch', rijen: 2, kleur: '#c9403a' }, { type: 'auto', tegel: [37, 19], model: 'hatch', rijen: 2, kleur: '#3b5fa8' }, { type: 'auto', tegel: [52, 19], model: 'hatch', kleur: '#e0a84a' },
+    { type: 'kraan', tegel: [39, 4] }, { type: 'fietsen', tegel: [16, 12] }, { type: 'fietsen', tegel: [10, 11] }, { type: 'fietsen', tegel: [52, 17] }, { type: 'bord', tegel: [3, 16] }, { type: 'bord', tegel: [39, 12] }, { type: 'bord', tegel: [27, 25] },
   ],
 
   // Figuranten buiten: staan stil of lopen heen en weer over een route (begaanbare tegels).
@@ -125,17 +130,16 @@ const CONTENT = {
     { naam: 'Kees', rol: 'tuinman', look: { haar: '#6b4a2b', jas: '#2f7d32', broek: '#5a4632', hoofd: 'kort' }, route: [[41, 11], [50, 11]], regels: ['De heggen groeien harder dan de ICT-projecten. Maar die knip ik tenminste zelf.', 'De begraafplaats ligt hier achter de heg. Het hek zit aan de kant van De Hooge Venne.'] },
     { naam: 'Mo', rol: 'cliënt', look: { haar: '#1a1f1c', jas: '#6b7280', broek: '#3b3f4a', hoofd: 'knot' }, route: [[17, 16]], regels: ['Ik zit hier elke dag even. Het portaal zegt dat ik vandaag een afspraak heb. Niemand anders weet dat.'] },
     { naam: 'Bep', rol: 'portier', look: { haar: '#9fb3a6', jas: '#c9a24d', broek: '#3b3f4a', hoofd: 'bril' }, route: [[2, 15]], regels: ['De kaartknop boven in beeld laat zien waar nog vragen wachten. De Cultuurkoepel gaat als laatste open.'] },
-    { naam: 'Riet', rol: 'vrijwilliger begraafplaats', look: { haar: '#f2f2f2', jas: '#4a4a4a', broek: '#2a2d35', hoofd: 'knot' }, route: [[44, 14]], regels: ['Hier liggen de mensen die hier woonden toen er nog geen dossier was. Alleen een naam en een nummer.'] },
     { naam: 'Daan', rol: 'verpleegkundige', look: { haar: '#6b4a2b', jas: '#f4f4f4', broek: '#3b3f4a', hoofd: 'kort' }, route: [[38, 18], [38, 25]], regels: ['Drie keer inloggen voor één recept. Ik tel het niet meer.'] },
     { naam: 'Sanne', rol: 'aios', look: { haar: '#e0a84a', jas: '#2b6cb0', broek: '#3b3f4a', hoofd: 'lang' }, route: [[9, 11], [30, 11]], regels: ['Ik heb vanmorgen de samenvatting gewoon getekend. Ja, ik weet het.'] },
-    { naam: 'Piet', rol: 'cliënt, hardloper', look: { haar: '#1a1f1c', jas: '#e0a84a', broek: '#2a2d35', hoofd: 'kort' }, route: [[22, 26], [55, 26], [56, 12], [41, 10], [38, 15], [23, 15], [23, 25]], regels: ['Twee kilometer per rondje. Als het portaal net zo snel was als ik.'] },
+    { naam: 'Piet', rol: 'cliënt, hardloper', look: { haar: '#1a1f1c', jas: '#e0a84a', broek: '#2a2d35', hoofd: 'kort' }, route: [[22, 26], [55, 26], [56, 12], [41, 10], [38, 15], [23, 15], [23, 25]], regels: ['Elke ochtend een rondje over het terrein. Mijn horloge weet precies hoe ik slaap en hoe hard mijn hart gaat. Mijn behandelaar weet dat niet. Die vraagt het ook nooit.'] },
   ],
 
   // Avatars: de perk doet niets, behalve lachen.
   avatars: [
     { id: 'aios', naam: 'De aios', perk: 'Perk: koffie telt als maaltijd. Doet verder niets.', jas: '#2b6cb0', haar: '#6b4a2b', broek: '#3b3f4a', hoofd: 'kort' },
-    { id: 'psychiater', naam: 'De psychiater', perk: 'Perk: zucht met gezag. Geen effect op de score.', jas: '#1d6b4f', haar: '#9fb3a6', broek: '#2a2d35', hoofd: 'bril' },
-    { id: 'vs', naam: 'De verpleegkundig specialist', perk: 'Perk: weet waar de formulieren liggen. Niemand vraagt het.', jas: '#b5443a', haar: '#1a1f1c', broek: '#3b3f4a', hoofd: 'lang' },
+    { id: 'psychiater', naam: 'De psychiater', perk: 'Perk: zucht met gezag. Geen effect op de score.', jas: '#1d6b4f', haar: '#4a3221', broek: '#2a2d35', hoofd: 'bob', bril: true },
+    { id: 'vs', naam: 'De verpleegkundig specialist', perk: 'Perk: weet waar de formulieren liggen. Niemand vraagt het.', jas: '#b5443a', haar: '#1a1f1c', huid: '#b97a56', broek: '#3b3f4a', hoofd: 'lang' },
     { id: 'ondersteuner', naam: 'De ondersteuner', perk: 'Perk: heeft de agenda van iedereen. Behalve die van zichzelf.', jas: '#7a3e9d', haar: '#e0a84a', broek: '#3b3f4a', hoofd: 'knot' },
   ],
 
@@ -176,10 +180,10 @@ const CONTENT = {
       dilemma: {
         vraag: 'In de AI-samenvatting van een gesprek staat: ‘cliënt overweegt te stoppen met lithium’. Dat heb jij niet gehoord. De rest klopt. Wat doe je?',
         opties: [
-          { tekst: 'De zin schrappen en tekenen. Jij was erbij; jij weet wat er gezegd is.', punten: 15, effect: 0, gevolg: 'Verdedigbaar, maar je weet niet waar de zin vandaan kwam. Als de opname het wél bevat, heb je een signaal gemist en daarna gewist.' },
-          { tekst: 'De opname op dat punt terugluisteren, dan pas schrappen of laten staan, en de correctie als correctie vastleggen.', punten: 50, effect: 10, gevolg: 'De cliënt zei ‘ik overweeg soms om met alles te stoppen’. Het model maakte er lithium van. Jij maakt er een suïcidaliteitsvraag voor morgen van.' },
-          { tekst: 'De samenvatting ongetekend als concept laten staan tot je de cliënt morgen hebt gesproken.', punten: 0, effect: -10, gevolg: 'Een ongetekend concept met ‘stoppen met lithium’ staat vannacht in het dossier van de dienstdoende. Die leest het als feit.' },
-          { tekst: 'De zin laten staan met de toevoeging ‘AI-gegenereerd, niet geverifieerd’.', punten: 30, effect: 5, gevolg: 'Eerlijk, maar een dossier is geen plek voor onbevestigde beweringen. Verantwoordelijkheid voor wat erin staat kun je niet delegeren aan een disclaimer.' },
+          { tekst: 'Ongetekend als concept laten staan tot je de cliënt morgen hebt gesproken.', punten: 0, effect: -10, gevolg: 'Klinkt zorgvuldig. Maar een ongetekend concept met ‘stoppen met lithium’ staat vannacht in het dossier van de dienstdoende. Die leest het als feit.' },
+          { tekst: 'Eerst terugluisteren, dan pas schrappen of laten staan.', punten: 50, effect: 10, gevolg: 'De cliënt zei ‘ik overweeg soms om met alles te stoppen’. Het model maakte er lithium van. Jij maakt er een suïcidaliteitsvraag voor morgen van. Leg de correctie wel als correctie vast.' },
+          { tekst: 'Laten staan met de toevoeging ‘AI-gegenereerd, niet geverifieerd’, en morgen navragen.', punten: 30, effect: 5, gevolg: 'Transparant, maar een dossier is geen plek voor onbevestigde beweringen. Verantwoordelijkheid voor wat erin staat kun je niet aan een disclaimer delegeren.' },
+          { tekst: 'De zin schrappen en tekenen. Jij was erbij.', punten: 15, effect: 0, gevolg: 'Verdedigbaar, maar je weet niet waar de zin vandaan kwam. Als de opname het wél bevat, heb je een signaal gemist en daarna gewist.' },
         ],
       },
       kaart: {
@@ -189,7 +193,7 @@ const CONTENT = {
       },
     },
     {
-      id: 'koepel', naam: 'Cultuurkoepel', functie: 'grote bijeenkomsten', thema: 'wie stuurt bij ons', tegel: [12, 22], soort: 'dilemma', muziek: 'koepel',
+      id: 'koepel', naam: 'Cultuurkoepel', functie: 'grote bijeenkomsten', thema: 'wie stuurt bij ons', tegel: [12, 21], soort: 'dilemma', muziek: 'koepel',
       npc: { naam: 'Henk', rol: 'voorzitter van een stuurgroep, bril, stapel papier', kleur: '#6b7280', look: { haar: '#9fb3a6', jas: '#6b7280', broek: '#2a2d35', hoofd: 'bril', extra: 'papier' } },
       binnen: { vloer: 'hout', kaart: ['#w#qw#U#wq#w#', '#..o.SSS.o..#', '#...........#', '#PPP..r..PPP#', '#PPP..r..PPP#', '#PPP..r..PPP#', '#s.........s#', '#p....r....p#', '######D######'], start: [6, 7], npc: [6, 2] },
       intro: [
@@ -228,9 +232,9 @@ const CONTENT = {
       dilemma: {
         vraag: 'Het systeem zegt ‘geen interactie’ bij een cliënt op clozapine die vandaag ciprofloxacine krijgt. Jij meent je te herinneren dat ciprofloxacine de clozapinespiegel fors verhoogt. Wat doe je?',
         opties: [
-          { tekst: 'Het systeem volgen. Het is CE-gemarkeerd en bevat de actuele G-standaard.', punten: 0, effect: -10, gevolg: 'Je herinnering klopt. CE betekent dat het product doet wat de fabrikant claimt, niet dat de kennisbank in deze versie compleet is. Automation bias heet dat.' },
-          { tekst: 'Zelf checken in het Farmacotherapeutisch Kompas, de spiegel controleren, en de ontbrekende interactie melden bij apotheek en leverancier als incident met een medisch hulpmiddel.', punten: 50, effect: 10, gevolg: 'Spiegel 1,2 mg/l. Dosis aangepast. De melding leidt tot een update bij alle instellingen die dit systeem gebruiken.' },
-          { tekst: 'Zelf checken en de dosis aanpassen. Het systeem is niet jouw verantwoordelijkheid.', punten: 30, effect: 5, gevolg: 'Goed voor deze cliënt. De volgende collega krijgt hetzelfde foute advies. Fouten in een medisch hulpmiddel melden hoort bij het werk.' },
+          { tekst: 'Zelf nakijken, spiegel laten bepalen, en de ontbrekende interactie melden als incident.', punten: 50, effect: 10, gevolg: 'Spiegel 1,2 mg/l. Dosis aangepast. De melding bij apotheek en leverancier leidt tot een update bij alle instellingen die dit systeem gebruiken.' },
+          { tekst: 'Zelf nakijken in het Kompas, de dosis aanpassen en de collega’s appen dat het systeem deze mist.', punten: 30, effect: 5, gevolg: 'Goed voor deze cliënt en je collega’s weten het nu ook. Maar een fout in een CE-gemarkeerd hulpmiddel is een incident. Zonder melding blijft hij staan, hier en in dertig andere instellingen.' },
+          { tekst: 'Het systeem volgen. CE-gemarkeerd, actuele G-standaard, en jouw herinnering is twee jaar oud.', punten: 0, effect: -10, gevolg: 'Je herinnering klopt. CE betekent dat het product doet wat de fabrikant claimt, niet dat de kennisbank in deze versie compleet is. Automation bias heet dat.' },
           { tekst: 'De apotheek bellen en het advies negeren tot zij het bevestigen.', punten: 15, effect: 0, gevolg: 'Veilig, maar traag en afhankelijk. De bron waar je zelf bij kunt heb je niet gebruikt, en gemeld heb je ook niet.' },
         ],
       },
@@ -311,10 +315,10 @@ const CONTENT = {
       dilemma: {
         vraag: 'Joop (laaggeletterd) komt al een jaar trouw naar zijn beeldbelafspraken en zegt dat het ‘prima’ gaat. Zijn werkbegeleider meldt je dat hij de afspraken alleen haalt omdat zij naast hem zit en inlogt. Wat doe je?',
         opties: [
-          { tekst: 'Niets. Hij komt, hij is tevreden, de begeleider helpt. Dat is hybride zorg.', punten: 15, effect: 0, gevolg: 'Joop heeft geen eigen regie over zijn zorg; de begeleider wel. Valt zij uit, dan valt hij uit. Je hebt een afhankelijkheid gebouwd en het hybride genoemd.' },
-          { tekst: 'Terug naar fysieke afspraken. Beeldbellen is duidelijk niets voor hem.', punten: 30, effect: 5, gevolg: 'Joop vindt het beeldbellen zelf prettig: geen reis, geen wachtkamer. Je neemt hem iets af omdat de ondersteuning niet klopte.' },
-          { tekst: 'Met Joop en de begeleider bespreken wat hij zelf kan leren, een digicoach inschakelen, en één op de drie afspraken fysiek doen.', punten: 50, effect: 10, gevolg: 'Joop belt na twee maanden zelf in. De fysieke afspraak blijft voor wat je op een scherm niet ziet.' },
-          { tekst: 'De SPV vragen de afspraken voortaan in de kwekerij te doen, tijdens werktijd, met de begeleider erbij.', punten: 0, effect: -10, gevolg: 'Praktisch, maar zijn werkgever en collega’s zitten nu in zijn behandeling. De begeleider is niet zijn behandelaar en heeft geen rol in zijn dossier.' },
+          { tekst: 'Terug naar fysieke afspraken. Zonder eigen regie is beeldbellen geen zorg op maat.', punten: 30, effect: 5, gevolg: 'Principieel, maar Joop vindt het beeldbellen zelf prettig: geen reis, geen wachtkamer. Je neemt hem iets af omdat de ondersteuning niet klopte.' },
+          { tekst: 'De afspraken voortaan in de kwekerij plannen, tijdens werktijd, met de begeleider erbij.', punten: 0, effect: -10, gevolg: 'Praktisch, maar zijn werkgever en collega’s zitten nu in zijn behandeling. De begeleider is niet zijn behandelaar en heeft geen rol in zijn dossier.' },
+          { tekst: 'Niets veranderen. Hij komt, hij is tevreden, de begeleider helpt. Dat is hybride zorg.', punten: 15, effect: 0, gevolg: 'Joop heeft geen eigen regie over zijn zorg; de begeleider wel. Valt zij uit, dan valt hij uit. Je hebt een afhankelijkheid gebouwd en het hybride genoemd.' },
+          { tekst: 'Joop vragen wat hij zelf wil leren, en een digicoach regelen.', punten: 50, effect: 10, gevolg: 'Joop wil zelf kunnen inloggen. Na twee maanden belt hij zelf in. Eén op de drie afspraken blijft fysiek, voor wat je op een scherm niet ziet.' },
         ],
       },
       kaart: {
@@ -351,10 +355,10 @@ const CONTENT = {
       dilemma: {
         vraag: 'Je wilt een ontslagbrief laten herschrijven. De AI-assistent van GGZ NHN is in storing. Een collega appt: ‘de betaalde ChatGPT-versie van de vakgroep heeft een zero-data-retention-contract, die gebruik ik gewoon’. Wat doe je?',
         opties: [
-          { tekst: 'Gebruiken. Een contract zonder dataretentie dekt het.', punten: 15, effect: 0, gevolg: 'Geen dataretentie is niet hetzelfde als een verwerkersovereenkomst met GGZ NHN, een DPIA en opname in het verwerkingsregister. Het contract staat op naam van de vakgroep, niet van de verwerkingsverantwoordelijke.' },
+          { tekst: 'Gebruiken. Zero data retention: er blijft niets achter.', punten: 15, effect: 0, gevolg: 'Geen dataretentie is niet hetzelfde als een verwerkersovereenkomst met GGZ NHN, een DPIA en opname in het verwerkingsregister. Het contract staat op naam van de vakgroep, niet van de verwerkingsverantwoordelijke.' },
+          { tekst: 'Zelf schrijven, of een dag wachten. De storing melden.', punten: 50, effect: 10, gevolg: 'De brief gaat een dag later. De melding bij functioneel beheer maakt zichtbaar dat de storing werk kost, en dat telt bij de volgende capaciteitsbeslissing.' },
           { tekst: 'Gebruiken, maar eerst naam, geboortedatum en BSN weghalen.', punten: 0, effect: -10, gevolg: 'Pseudonimiseren is niet anonimiseren: een casus van vierhonderd woorden is herleidbaar. Het blijft een verwerking van bijzondere persoonsgegevens zonder grondslag.' },
-          { tekst: 'De brief vandaag zelf schrijven of een dag wachten, en de storing melden bij functioneel beheer.', punten: 50, effect: 10, gevolg: 'De brief gaat een dag later. De melding maakt zichtbaar dat de storing werk kost, en dat telt bij de volgende capaciteitsbeslissing.' },
-          { tekst: 'De FG vragen om een eenmalige uitzondering voor vandaag.', punten: 30, effect: 5, gevolg: 'De FG kan geen uitzondering geven op de AVG. Wel vertelt ze je in één minuut waarom de vakgroepversie niet mag. Je hebt een uur verloren, maar niets gelekt.' },
+          { tekst: 'De FG bellen voor een eenmalige uitzondering voor vandaag.', punten: 30, effect: 5, gevolg: 'De FG kan geen uitzondering geven op de AVG. Wel vertelt ze je in één minuut waarom de vakgroepversie niet mag. Je hebt een uur verloren, maar niets gelekt.' },
         ],
       },
       kaart: {
@@ -374,10 +378,10 @@ const CONTENT = {
       dilemma: {
         vraag: 'De rechter wil morgen jouw advies. Algoritme: hoog. Jouw gestructureerde oordeel: matig. Wat schrijf je?',
         opties: [
-          { tekst: 'Het algoritme volgen. Een AUC van 0,78 is beter dan de meeste klinische oordelen.', punten: 0, effect: -10, gevolg: 'Een AUC uit Canada zegt niets over kalibratie bij deze populatie, en ‘hoog’ zonder kalibratie is geen kans maar een etiket. Je advies is nu dat van een leverancier.' },
-          { tekst: 'Je eigen oordeel schrijven en het algoritme buiten het rapport houden: niet gevalideerd op onze populatie.', punten: 15, effect: 0, gevolg: 'Klinisch verdedigbaar, maar het instrument is in gebruik en de uitkomst staat in het dossier. Wat de rechter niet weet, komt bij de verdediging vandaan.' },
-          { tekst: 'Beide uitkomsten rapporteren, uitleggen waarom je afwijkt, de beperkte validatie benoemen, en de discrepantie melden bij de beheerder.', punten: 50, effect: 10, gevolg: 'De rechter krijgt een mens met een spoor. De beheerder krijgt een casus voor de validatie die er nog niet is.' },
-          { tekst: 'Het midden kiezen: ‘matig tot hoog’.', punten: 30, effect: 5, gevolg: 'Dat is geen weging maar een compromis. Een oordeel middelen met een niet-gevalideerd instrument verdunt jouw taxatie zonder dat iemand weet waarom.' },
+          { tekst: 'Hoog schrijven. Het instrument is gevalideerd en een rechter weegt een cijfer zwaarder dan een gevoel.', punten: 0, effect: -10, gevolg: 'Een AUC uit Canada zegt niets over kalibratie bij deze populatie, en ‘hoog’ zonder kalibratie is geen kans maar een etiket. Je advies is nu dat van een leverancier.' },
+          { tekst: 'Matig schrijven, met de score erbij en één alinea waarom je afwijkt.', punten: 50, effect: 10, gevolg: 'De rechter krijgt een mens met een onderbouwing. Meld de discrepantie ook bij de beheerder: dan krijgt de validatie die er nog niet is een casus.' },
+          { tekst: 'Beide uitkomsten naast elkaar zetten en de rechter laten wegen.', punten: 30, effect: 5, gevolg: 'Eerlijk, maar de rechter is geen clinicus. Twee uitkomsten zonder jouw weging is geen advies maar een doorgeefluik.' },
+          { tekst: 'Je eigen oordeel schrijven en de score weglaten: niet gevalideerd op onze populatie.', punten: 15, effect: 0, gevolg: 'Klinisch verdedigbaar, maar het instrument is in gebruik en de uitkomst staat in het dossier. Wat de rechter niet van jou hoort, hoort hij van de verdediging.' },
         ],
       },
       kaart: {
@@ -394,10 +398,10 @@ const CONTENT = {
       dilemma: {
         vraag: 'Willem (58) is opgenomen met een zorgmachtiging. Je wilt het gesprek laten samenvatten door de AI-tool. Hij zegt: ‘doe maar, maakt mij niet uit’. Wat doe je?',
         opties: [
-          { tekst: 'Opnemen. Hij heeft toestemming gegeven.', punten: 15, effect: 0, gevolg: '‘Maakt mij niet uit’ is geen geïnformeerde toestemming: je hebt niet uitgelegd wat het doet. En bij dwang hoort de afweging over wilsbekwaamheid ter zake expliciet te zijn.' },
-          { tekst: 'Niet opnemen. Bij dwang is toestemming per definitie niet vrij.', punten: 30, effect: 5, gevolg: 'Te streng. Een zorgmachtiging maakt iemand niet wilsonbekwaam voor alles. Je ontzegt hem een keuze die hij misschien goed kan maken, en jezelf een werkend hulpmiddel.' },
-          { tekst: 'Uitleggen wat er met de opname gebeurt, checken of hij het begrijpt, en de afweging over wilsbekwaamheid ter zake kort vastleggen voordat je opneemt.', punten: 50, effect: 10, gevolg: 'Willem begrijpt het en wil het. Jij hebt het vastgelegd. Als de klachtencommissie er ooit naar vraagt, staat het er.' },
-          { tekst: 'Opnemen zonder vragen. De samenvatting valt onder de dossierplicht en daar is geen toestemming voor nodig.', punten: 0, effect: -10, gevolg: 'De dossierplicht dekt jouw aantekening, niet een audio-opname via een derde partij. Daar is een grondslag en informatie voor nodig. [TJEERD: de GGZ NHN-afspraak over toestemming en opname]' },
+          { tekst: 'Uitleggen wat de tool doet, vragen of hij het begrijpt, en dan opnemen.', punten: 30, effect: 5, gevolg: 'Goed begin. Maar bij dwang is ‘hij zei ja’ niet genoeg: de afweging of hij dit ter zake kan overzien hoort in het dossier. Nu staat er alleen ‘cliënt akkoord’.' },
+          { tekst: 'Eerst een wilsbekwaamheidsbeoordeling door een onafhankelijke collega, dan pas opnemen.', punten: 15, effect: 0, gevolg: 'Zwaar middel voor een lichte beslissing. Wilsbekwaamheid is ter zake: voor een opname beoordeel je dat zelf, in het gesprek. Intussen is er geen samenvatting en voelt Willem zich getoetst.' },
+          { tekst: 'Opnemen. De samenvatting valt onder de dossierplicht en de tool is door GGZ NHN gecontracteerd.', punten: 0, effect: -10, gevolg: 'De dossierplicht dekt jouw aantekening, niet een audio-opname via een derde partij. Daar is een grondslag en informatie voor nodig. [TJEERD: de GGZ NHN-afspraak over toestemming en opname]' },
+          { tekst: 'Kort uitleggen, opnemen, en noteren dat hij toestemde en waarom je hem daartoe in staat acht.', punten: 50, effect: 10, gevolg: 'Willem begrijpt het en wil het. Toestemming én de afweging ter zake staan erbij. Als de klachtencommissie er ooit naar vraagt, staat het er.' },
         ],
       },
       kaart: {
@@ -408,10 +412,10 @@ const CONTENT = {
     },
     {
       id: 'begraafplaats', naam: 'Begraafplaats', kortenaam: 'Begraafplaats (11)', functie: 'begraafplaats van het landgoed, nummer 11 op de plattegrond', tegel: [43, 14], soort: 'plek', muziek: 'begraafplaats',
-      npc: { naam: 'Riet', rol: 'vrijwilliger begraafplaats', kleur: '#4a4a4a', look: { haar: '#f2f2f2', jas: '#4a4a4a', broek: '#2a2d35', hoofd: 'knot' } },
+      npc: { naam: 'Bordje bij het hek', rol: 'begraafplaats van het gesticht, 1895 tot 1970', kleur: '#4a4a4a' },
       intro: [
         'Hier liggen de mensen die hier woonden toen er nog geen dossier was. Alleen een naam en een nummer op een steen.',
-        'Wat jij vandaag over iemand vastlegt, blijft langer dan jij. Schrijf alsof die persoon meeleest. Dat is geen AI-regel, dat is fatsoen.',
+        'Wat je vandaag over iemand vastlegt, blijft langer dan jij. Schrijf alsof die persoon meeleest. Er is hier verder niemand. Denk je.',
       ],
     },
     {
@@ -457,7 +461,15 @@ const CONTENT = {
 
   // Voorwerpen in kamers: tik erop. Letter = teken in de binnenkaart.
   voorwerpen: {
-    F: { naam: 'Portret van Freud', tekst: 'Sigmund Freud, op elke afdeling een exemplaar. Hij schreef alles op. Met de hand. Zonder verwerkersovereenkomst.' },
+    F: { naam: 'Portret van Freud', teksten: [
+      'Sigmund Freud, op elke afdeling een exemplaar. Hij schreef alles op. Met de hand. Zonder verwerkersovereenkomst.',
+      'Hij kijkt alsof hij je samenvatting al gelezen heeft. En er een duiding bij heeft.',
+      'Vijftig minuten per sessie, vijf dagen per week, jarenlang. Zijn productienorm zou nu een melding opleveren.',
+      'Zijn aantekeningen maakte hij ’s avonds, uit het hoofd. Hij noemde het trouw. Wij noemen het een datalek.',
+      'Freud rookte twintig sigaren per dag. Er is geen pop-up die daar iets van zei.',
+      'Hij bleef je aankijken. Ook dat is een interventie.',
+      'Achter dit portret zit geen kluis. Dat is gecontroleerd. Door iedereen die hier ooit zat te wachten.',
+    ] },
     J: { naam: 'Portret van Jos Brinkmann', tekst: 'Jos Brinkmann. Hij kijkt vriendelijk, maar hij kijkt wel. [TJEERD: onderschrift naar wens]' },
     U: { naam: 'Buste van Sint Willibrordus', tekst: 'Willibrordus, missionaris, naamgever van het landgoed. Verliet zijn land om anderen te overtuigen. Had geen e-learning nodig.' },
     V: { naam: 'VR-brilset', tekst: 'Een VR-bril voor exposuretherapie. Werkt pas als iemand hem ook aanzet, oplaadt en de updates doet. Raad eens wie.' },
@@ -510,7 +522,7 @@ const CONTENT = {
     volgende: 'VOLGENDE',
     kaartKnop: 'KAART · NOG {n} TE GAAN',
     kaartKnopKlaar: 'KAART · ALLES GEDAAN, NAAR DE KOEPEL',
-    kaartUitleg: 'Knipperend: hier wacht nog een vraag. Grijs met slot: de Cultuurkoepel gaat als laatste open.',
+    kaartUitleg: 'Geel: hier wacht nog een vraag. Grijs: de Cultuurkoepel gaat als laatste open. Rood: hier sta je.',
     alles: 'Alles bezocht',
     minigameStart: 'Even iets anders. {titel}: {uitleg}',
     minigameKlaar: 'Dat levert {punten} punten op.',

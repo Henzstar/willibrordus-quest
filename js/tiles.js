@@ -141,12 +141,52 @@ const WQTiles = (() => {
     if (sz >= 3 && (h >> 4) % 3 === 0) { c.fillStyle = PAL.gras; c.beginPath(); c.arc(cx + 6, cy + 4, 4, 0, 7); c.fill(); R(c, cx + 4, cy + 3, 1, 3, PAL.tak); R(c, cx + 7, cy + 1, 3, 1, PAL.tak); }
     if (sz < 3 && h % 7 === 0) { R(c, cx - 7, cy + 2, 2, 2, PAL.bloem3); R(c, cx + 5, cy - 3, 2, 2, PAL.bloem3); }
   }
+  // ---------- auto's (bovenaanzicht, neus naar beneden) ----------
+  const tint = (hex, d) => { const n = parseInt(hex.slice(1), 16), f = v => Math.max(0, Math.min(255, v + d)); return '#' + ((f(n >> 16) << 16) | (f((n >> 8) & 255) << 8) | f(n & 255)).toString(16).padStart(6, '0'); };
+  const rond = (c, x, y, w, h, r, col) => { c.fillStyle = col; c.beginPath(); if (c.roundRect) c.roundRect(x, y, w, h, r); else c.rect(x, y, w, h); c.fill(); };
+  function tekenAuto(c, sx, sy, p) {
+    const model = p.model || 'hatch', kleur = p.kleur || '#c9403a', D = tint(kleur, -45), L = tint(kleur, 40), rijen = model === 'volvo' ? 2 : (p.rijen || 1);
+    const w = model === 'smart' ? 18 : model === 'volvo' ? 26 : 24, h = model === 'smart' ? 22 : model === 'volvo' ? 48 : rijen === 2 ? 38 : 28;
+    const x0 = sx + ((T - w) >> 1), y0 = sy + ((rijen * T - h) >> 1), cx = x0 + w / 2;
+    c.fillStyle = 'rgba(0,0,0,.28)'; c.beginPath(); c.ellipse(cx + 2, y0 + h / 2 + 3, w / 2 + 3, h / 2 + 1, 0, 0, 7); c.fill();
+    // wielen (buiten de carrosserie) met velg
+    const wl = model === 'volvo' ? 11 : 8, wy1 = y0 + 5, wy2 = y0 + h - 5 - wl;
+    [[x0 - 2, wy1], [x0 + w - 1, wy1], [x0 - 2, wy2], [x0 + w - 1, wy2]].forEach(([x, y]) => { R(c, x, y, 3, wl, PAL.ink); R(c, x + 1, y + 2, 1, wl - 4, '#6a6f78'); });
+    // carrosserie met ronde hoeken
+    rond(c, x0 - 1, y0 - 1, w + 2, h + 2, 4, PAL.ink); rond(c, x0, y0, w, h, 3, kleur);
+    R(c, x0 + 1, y0 + 1, 2, h - 2, L); R(c, x0 + w - 3, y0 + 1, 2, h - 2, D);
+    if (model === 'smart') {
+      // tridion-cel in zilver, dak open: stoelen en opgevouwen kap zichtbaar
+      R(c, x0 + 1, y0 + 4, w - 2, h - 9, '#c8ccd0'); R(c, x0 + 3, y0 + 6, w - 6, h - 13, '#2a2d35');
+      R(c, x0 + 3, y0 + 6, w - 6, 3, PAL.ink); R(c, x0 + 4, y0 + 6, w - 8, 1, '#4a4f5a');
+      [[x0 + 4, y0 + 10], [x0 + w - 9, y0 + 10]].forEach(([x, y]) => { R(c, x, y, 5, 5, '#3b3f4a'); R(c, x + 1, y, 3, 1, '#5a606c'); R(c, x + 1, y + 3, 3, 2, '#4a4f5a'); });
+      R(c, x0 + 3, y0 + h - 9, w - 6, 4, PAL.glas); R(c, x0 + 4, y0 + h - 8, 3, 1, PAL.wit); R(c, x0 + 3, y0 + h - 10, w - 6, 1, '#c8ccd0');
+      R(c, x0 + 2, y0 + h - 3, 3, 2, PAL.lamp); R(c, x0 + w - 5, y0 + h - 3, 3, 2, PAL.lamp); R(c, x0 + 2, y0 + 1, 3, 2, '#d65a4a'); R(c, x0 + w - 5, y0 + 1, 3, 2, '#d65a4a');
+      R(c, x0 - 2, y0 + h - 11, 2, 3, PAL.ink); R(c, x0 + w, y0 + h - 11, 2, 3, PAL.ink);
+      R(c, cx - 3, y0 + h - 1, 6, 1, PAL.wit);
+      return;
+    }
+    const daklen = model === 'volvo' ? h - 24 : h - 20, dak0 = y0 + 9;
+    // achterruit, dak, voorruit, motorkap
+    R(c, x0 + 3, y0 + 3, w - 6, 5, PAL.glas); R(c, x0 + 4, y0 + 4, 2, 1, PAL.wit); R(c, x0 + 3, y0 + 8, w - 6, 1, D);
+    R(c, x0 + 3, dak0, w - 6, daklen, L); R(c, x0 + 3, dak0, w - 6, 1, tint(kleur, 70)); R(c, x0 + 3, dak0 + daklen - 1, w - 6, 1, D);
+    R(c, x0 + 2, dak0 + 2, 1, daklen - 4, PAL.glas); R(c, x0 + w - 3, dak0 + 2, 1, daklen - 4, PAL.glas);
+    if (model === 'volvo') { R(c, x0 + 4, dak0 + 1, 1, daklen - 2, '#3b3f4a'); R(c, x0 + w - 5, dak0 + 1, 1, daklen - 2, '#3b3f4a'); R(c, x0 + 3, y0 + 2, w - 6, 7, '#1f2a33'); R(c, x0 + 4, y0 + 3, 2, 1, PAL.wit); }
+    const vr = dak0 + daklen; R(c, x0 + 2, vr, w - 4, 7, PAL.glas); R(c, x0 + 3, vr + 1, 4, 2, PAL.wit); R(c, x0 + w - 6, vr + 2, 2, 3, 'rgba(255,255,255,.35)'); R(c, x0 + 2, vr, w - 4, 1, PAL.ink);
+    R(c, x0 + 2, vr + 7, w - 4, h - (vr + 7 - y0) - 3, kleur); R(c, x0 + 4, vr + 8, 1, h - (vr + 8 - y0) - 4, L); R(c, x0 + w - 5, vr + 8, 1, h - (vr + 8 - y0) - 4, D);
+    if (model === 'volvo') { R(c, cx - 1, vr + 8, 2, 6, D); R(c, cx - 5, y0 + h - 5, 10, 2, '#1f2a33'); R(c, cx - 4, y0 + h - 4, 8, 1, '#5a606c'); }
+    // koplampen, achterlichten, spiegels, kenteken
+    R(c, x0 + 2, y0 + h - 4, 4, 2, PAL.lamp); R(c, x0 + w - 6, y0 + h - 4, 4, 2, PAL.lamp); R(c, x0 + 3, y0 + h - 4, 1, 1, PAL.wit);
+    R(c, x0 + 2, y0 + 1, 4, 2, '#d65a4a'); R(c, x0 + w - 6, y0 + 1, 4, 2, '#d65a4a'); R(c, x0 + 2, y0 + h - 2, w - 4, 1, D);
+    R(c, x0 - 2, vr + 1, 2, 3, PAL.ink); R(c, x0 + w, vr + 1, 2, 3, PAL.ink); R(c, x0 - 2, vr + 1, 2, 1, kleur); R(c, x0 + w, vr + 1, 2, 1, kleur);
+    R(c, cx - 4, y0 + h - 1, 8, 1, PAL.wit); R(c, cx - 4, y0, 8, 1, PAL.wit);
+  }
   // ---------- decoratie ----------
   const PROPS = {
     lantaarn: (c, sx, sy) => { R(c, sx + 20, sy + 6, 4, 22, '#3b3f4a'); R(c, sx + 21, sy + 7, 1, 20, '#5a606c'); R(c, sx + 16, sy, 12, 8, '#2a2d35'); R(c, sx + 18, sy + 2, 8, 5, PAL.lamp); R(c, sx + 19, sy + 3, 2, 2, PAL.wit); R(c, sx + 17, sy + 28, 10, 3, '#2a2d35'); R(c, sx + 21, sy - 2, 2, 2, '#2a2d35'); },
     bank: (c, sx, sy) => { R(c, sx + 4, sy + 12, 24, 3, PAL.houtL); R(c, sx + 4, sy + 16, 24, 3, PAL.houtL); R(c, sx + 4, sy + 15, 24, 1, PAL.hout); R(c, sx + 4, sy + 19, 24, 2, PAL.hout); R(c, sx + 6, sy + 21, 3, 6, PAL.stamD); R(c, sx + 23, sy + 21, 3, 6, PAL.stamD); R(c, sx + 4, sy + 6, 24, 3, PAL.houtL); R(c, sx + 4, sy + 9, 24, 1, PAL.hout); R(c, sx + 6, sy + 10, 2, 2, PAL.stamD); R(c, sx + 24, sy + 10, 2, 2, PAL.stamD); },
     bloemen: (c, sx, sy) => { R(c, sx + 3, sy + 7, 26, 20, PAL.aarde); R(c, sx + 5, sy + 9, 22, 16, '#5a7a44'); [[8, 12, PAL.bloem1], [16, 11, PAL.bloem2], [23, 14, PAL.bloem3], [11, 19, PAL.bloem2], [20, 21, PAL.bloem1], [15, 16, PAL.bloem4], [25, 20, PAL.bloem3]].forEach(([x, y, col]) => bloem(c, sx + x, sy + y, col)); R(c, sx + 3, sy + 25, 26, 2, '#3f5a2f'); },
-    auto: (c, sx, sy, p) => { R(c, sx + 2, sy + 10, 28, 15, PAL.ink); R(c, sx + 3, sy + 8, 26, 15, p.kleur || '#c9403a'); R(c, sx + 7, sy + 6, 18, 6, p.kleur || '#c9403a'); R(c, sx + 8, sy + 7, 6, 5, PAL.glas); R(c, sx + 18, sy + 7, 6, 5, PAL.glas); R(c, sx + 9, sy + 8, 2, 1, PAL.wit); R(c, sx + 4, sy + 23, 6, 4, PAL.ink); R(c, sx + 22, sy + 23, 6, 4, PAL.ink); R(c, sx + 5, sy + 24, 4, 2, '#5a606c'); R(c, sx + 23, sy + 24, 4, 2, '#5a606c'); R(c, sx + 5, sy + 19, 22, 2, 'rgba(255,255,255,.25)'); R(c, sx + 3, sy + 14, 2, 2, PAL.lamp); R(c, sx + 27, sy + 14, 2, 2, '#d65a4a'); },
+    auto: (c, sx, sy, p) => tekenAuto(c, sx, sy, p),
     kraan: (c, sx, sy) => { R(c, sx + 12, sy - 56, 6, 88, '#f2c230'); for (let j = -52; j < 28; j += 8) { R(c, sx + 14, sy + j, 2, 4, '#9c7a12'); R(c, sx + 12, sy + j + 4, 6, 1, '#9c7a12'); } R(c, sx - 24, sy - 60, 80, 4, '#f2c230'); R(c, sx - 24, sy - 56, 80, 1, '#9c7a12'); R(c, sx + 40, sy - 56, 2, 20, PAL.ink); R(c, sx + 38, sy - 36, 6, 4, PAL.ink); R(c, sx + 8, sy + 24, 16, 8, '#9c7a12'); R(c, sx + 16, sy - 64, 4, 8, '#f2c230'); R(c, sx + 17, sy - 68, 2, 4, '#d65a4a'); },
     fietsen: (c, sx, sy) => { for (let i = 0; i < 3; i++) { const bx = sx + 2 + i * 10; c.strokeStyle = '#3b3f4a'; c.lineWidth = 1.5; c.beginPath(); c.arc(bx + 3, sy + 23, 4, 0, 7); c.stroke(); c.beginPath(); c.arc(bx + 9, sy + 23, 4, 0, 7); c.stroke(); c.beginPath(); c.moveTo(bx + 3, sy + 23); c.lineTo(bx + 6, sy + 15); c.lineTo(bx + 9, sy + 23); c.stroke(); R(c, bx + 4, sy + 13, 4, 2, '#b5443a'); R(c, bx + 8, sy + 12, 3, 1, '#3b3f4a'); } },
     bord: (c, sx, sy) => { R(c, sx + 14, sy + 12, 4, 18, PAL.stamD); R(c, sx + 15, sy + 13, 1, 16, PAL.stamL); R(c, sx + 4, sy + 2, 24, 14, PAL.houtL); R(c, sx + 6, sy + 4, 20, 10, PAL.wit); R(c, sx + 8, sy + 6, 12, 2, PAL.ink); R(c, sx + 8, sy + 10, 16, 2, PAL.ink); R(c, sx + 4, sy + 15, 24, 1, PAL.hout); },
@@ -174,8 +214,8 @@ const WQTiles = (() => {
       if (MAP[y][x + 1] && !'BKGN'.includes(MAP[y][x + 1])) c.fillRect((x + 1) * T, y * T + 8, 6, T);
     }
     for (let y = 0; y < MH; y++) for (let x = 0; x < MW; x++) if (MAP[y][x] === 'T') tekenBoom(c, x, y, x * T, y * T, 'grond');
-    WQGebouwen.teken(c, C);
     for (const p of C.props) if (PROPS[p.type]) PROPS[p.type](c, p.tegel[0] * T, p.tegel[1] * T, p);
+    WQGebouwen.teken(c, C);
     for (const s of C.straten) tekenLabel(c, s);
     return off;
   }

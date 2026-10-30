@@ -14,14 +14,14 @@ const WQGebouwen = (() => {
   let ramen = [], namen = {};
 
   // ---------- blokken ----------
-  function blokken(MAP) {
+  function blokken(MAP, gevels) {
     const MW = MAP[0].length, MH = MAP.length, gezien = new Set(), uit = [];
     for (let y = 0; y < MH; y++) for (let x = 0; x < MW; x++) {
       const ch = MAP[y][x]; if (!'BNG'.includes(ch) || gezien.has(y * MW + x)) continue;
       const tiles = [], q = [[x, y]]; gezien.add(y * MW + x);
       while (q.length) { const [cx, cy] = q.pop(); tiles.push([cx, cy]); for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) { const nx = cx + dx, ny = cy + dy; if (MAP[ny] && MAP[ny][nx] === ch && !gezien.has(ny * MW + nx)) { gezien.add(ny * MW + nx); q.push([nx, ny]); } } }
       const xs = tiles.map(t => t[0]), ys = tiles.map(t => t[1]);
-      uit.push({ ch, tiles, x0: Math.min(...xs), y0: Math.min(...ys), x1: Math.max(...xs), y1: Math.max(...ys), stijl: ch === 'N' ? NIEUW : ch === 'G' ? KAS : STIJL[hash(Math.min(...xs), Math.min(...ys)) % 3] });
+      uit.push({ ch, tiles, x0: Math.min(...xs), y0: Math.min(...ys), x1: Math.max(...xs), y1: Math.max(...ys), stijl: ch === 'N' ? NIEUW : ch === 'G' ? KAS : STIJL.find(st => st.naam === gevels[Math.min(...xs) + ',' + Math.min(...ys)]) || STIJL[hash(Math.min(...xs), Math.min(...ys)) % 3] });
     }
     return uit;
   }
@@ -110,17 +110,19 @@ const WQGebouwen = (() => {
     C.locaties.filter(l => l.binnen).forEach(l => { namen[l.tegel[0] + ',' + (l.tegel[1] - 1)] = (l.kortenaam || l.naam).split('[')[0].trim(); });
     const borden = {}; (C.borden || []).forEach(b => { borden[b.tegel[0] + ',' + b.tegel[1]] = b.naam; });
     const at = (x, y) => (MAP[y] && MAP[y][x]) || '.';
-    for (const b of blokken(MAP)) {
+    const uitgesteld = [];
+    for (const b of blokken(MAP, C.gevels || {})) {
       const s = b.stijl, ch = b.ch, deuren = [];
       for (const [x, y] of b.tiles) {
         const boven = at(x, y - 1) === ch, onder = at(x, y + 1) === ch, links = at(x - 1, y) === ch, rechts = at(x + 1, y) === ch, sx = x * T, sy = y * T;
         if (onder) dak(c, s, sx, sy, boven, links, rechts, ch, x, y);
-        else { const deur = !!namen[x + ',' + y]; gevel(c, s, sx, sy, links, rechts, ch, deur); if (deur) deuren.push([x, y]); if (borden[x + ',' + y]) naambord(c, s, sx, sy + 4, borden[x + ',' + y]); if (!links) { R(c, sx + 1, sy + 6, 2, 22, s.dakD); R(c, sx + 1, sy + 6, 1, 22, s.dakL); } if (!rechts) { R(c, sx + 29, sy + 6, 2, 22, s.dakD); R(c, sx + 29, sy + 6, 1, 22, s.dakL); } }
+        else { const deur = !!namen[x + ',' + y]; gevel(c, s, sx, sy, links, rechts, ch, deur); if (deur) deuren.push([x, y]); if (borden[x + ',' + y]) uitgesteld.push([s, sx, sy + 4, borden[x + ',' + y]]); if (!links) { R(c, sx + 1, sy + 6, 2, 22, s.dakD); R(c, sx + 1, sy + 6, 1, 22, s.dakL); } if (!rechts) { R(c, sx + 29, sy + 6, 2, 22, s.dakD); R(c, sx + 29, sy + 6, 1, 22, s.dakL); } }
         if (!boven && ch === 'B' && (x - b.x0) % 5 === 2) { R(c, sx + 20, sy - 8, 8, 14, s.dakD); R(c, sx + 18, sy - 10, 12, 3, '#3a2a20'); R(c, sx + 22, sy - 6, 4, 2, s.dakL); R(c, sx + 21, sy - 1, 1, 6, s.dakL); }
         if (ch === 'N') steiger(c, sx, sy, !onder);
       }
-      for (const [x, y] of deuren) { const boven = at(x, y - 1) === ch; if (boven) luifel(c, s, x * T, (y - 1) * T); naambord(c, s, x * T, y * T + (boven ? -4 : 4), namen[x + ',' + y]); }
+      for (const [x, y] of deuren) { const boven = at(x, y - 1) === ch; if (boven) luifel(c, s, x * T, (y - 1) * T); uitgesteld.push([s, x * T, y * T + (boven ? -4 : 4), namen[x + ',' + y]]); }
     }
+    for (const [s, sx, sy, naam] of uitgesteld) naambord(c, s, sx, sy, naam);
     let kStart = null;
     for (let y = 0; y < MH && !kStart; y++) for (let x = 0; x < MW; x++) if (at(x, y) === 'K') { kStart = [x, y]; break; }
     if (kStart) { let w = 0, h = 0; while (at(kStart[0] + w, kStart[1]) === 'K') w++; while (at(kStart[0], kStart[1] + h) === 'K') h++; koepel(c, kStart[0], kStart[1], w, h); }

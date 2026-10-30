@@ -84,7 +84,7 @@ canvas { display: block; image-rendering: pixelated; image-rendering: crisp-edge
 .dest .btn.done { border-color: var(--muted); color: var(--muted); }
 .avatars { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 .avatar { display: flex; flex-direction: column; align-items: center; gap: 6px; font-family: var(--body); text-align: center; font-size: 13px; padding: 10px 8px; }
-.avatar canvas { width: 48px; height: 72px; image-rendering: pixelated; }
+.avatar canvas { width: 96px; height: 96px; image-rendering: pixelated; border-radius: 6px; background: #0f1813; }
 .avatar .perk { font-size: 12px; color: var(--muted); line-height: 1.3; }
 .avatar.gekozen { background: var(--accent-strong); border-color: var(--fg); }
 
